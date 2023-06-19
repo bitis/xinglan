@@ -26,6 +26,7 @@ Route::middleware('auth')->group(function () {
         Route::get('goodsType', 'EnumController@goodsType');
         Route::get('companyType', 'EnumController@companyType');
         Route::get('roleType', 'EnumController@roleType');
+        Route::get('insuranceType', 'EnumController@insuranceType');
     });
 
     Route::prefix('menu')->group(function () {
