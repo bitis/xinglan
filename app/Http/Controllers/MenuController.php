@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\MenuRequest;
 use App\Models\Menu;
 use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -30,10 +31,14 @@ class MenuController extends Controller
         );
         $menu->save();
 
-        $permission = $menu->path ?: "PERMISSION_" . $menu->id . "_" . $menu->name;
-        Permission::where('name', $menu->permission)->update(['name' => $permission]);
+        $permission_name = $menu->path ?: "PERMISSION_" . $menu->id . "_" . $menu->name;
 
-        $menu->permission = $permission;
+        if ($permission = Permission::where('name', $menu->permission)->firstOr(fn() => new Permission())) {
+            $permission->name = $permission_name;
+            $permission->save();
+        }
+
+        $menu->permission = $permission_name;
         $menu->save();
         return success();
     }
