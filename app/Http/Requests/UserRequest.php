@@ -33,7 +33,7 @@ class UserRequest extends FormRequest
                 Rule::unique('users')->ignore($this->input('id')),
             ],
             'mobile' => 'required_without:id',
-            'company_id' => 'required_without:id',
+            'company_id' => 'required_without:id|exists:companies',
         ];
     }
 
@@ -48,6 +48,7 @@ class UserRequest extends FormRequest
             'account.unique' => '当前输入的账号已存在',
             'mobile.required_without' => '当前输入的手机号已存在',
             'company_id.required_without' => '必须选择归属公司',
+            'company_id.exists' => '所属公司不存在',
             'status.*' => '未知的状态类型',
         ];
     }

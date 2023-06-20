@@ -27,11 +27,13 @@ Route::middleware('auth')->group(function () {
         Route::get('companyType', 'EnumController@companyType');
         Route::get('roleType', 'EnumController@roleType');
         Route::get('insuranceType', 'EnumController@insuranceType');
+        Route::get('menuType', 'EnumController@menuType');
     });
 
     Route::prefix('menu')->group(function () {
         Route::get('list', 'MenuController@index');
         Route::post('form', 'MenuController@form');
+        Route::post('delete', 'MenuController@delete');
     });
 
     Route::prefix('role')->group(function () {

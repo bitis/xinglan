@@ -6,15 +6,24 @@ use App\Models\Traits\DefaultDatetimeFormat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Menu extends Model
 {
-    use HasFactory, DefaultDatetimeFormat;
+    use HasFactory, DefaultDatetimeFormat, SoftDeletes;
 
-    protected $fillable = ['parent_id', 'order', 'title', 'icon', 'uri'];
+    protected $hidden = ['deleted_at', 'created_at', 'updated_at'];
+
+    protected $fillable = ['parent_id', 'name', 'icon', 'path', 'visible', 'type', 'sort_num', 'remark'];
 
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany('roles', 'role_menu', 'menu_id', 'role_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(Menu::class, 'id', 'parent_id');
     }
 }
