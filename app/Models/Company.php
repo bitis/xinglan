@@ -72,4 +72,9 @@ class Company extends Model
             ]
         );
     }
+
+    public function roles(): HasMany
+    {
+        return $this->hasMany(Role::class, 'company_id', 'id');
+    }
 }
