@@ -25,7 +25,6 @@ Route::middleware('auth')->group(function () {
     Route::prefix('enum')->group(function () {
         Route::get('goodsType', 'EnumController@goodsType');
         Route::get('companyType', 'EnumController@companyType');
-        Route::get('roleType', 'EnumController@roleType');
         Route::get('insuranceType', 'EnumController@insuranceType');
         Route::get('menuType', 'EnumController@menuType');
     });
@@ -38,6 +37,8 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('role')->group(function () {
         Route::get('list', 'RoleController@index');
+        Route::get('menus', 'RoleController@menus');
+        Route::post('form', 'RoleController@form');
     });
 
     Route::prefix('account')->group(function () {
@@ -48,6 +49,11 @@ Route::middleware('auth')->group(function () {
     Route::prefix('user')->group(function () {
         Route::get('list', 'UserController@index');
         Route::post('form', 'UserController@form');
+    });
+
+    Route::prefix('goodsType')->group(function () {
+        Route::get('list', 'GoodsTypeController@index');
+        Route::post('form', 'GoodsTypeController@form');
     });
 
     Route::prefix('company')->group(function () {

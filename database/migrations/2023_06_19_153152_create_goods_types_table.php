@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('remark');
-            $table->integer('sort');
+            $table->integer('order');
             $table->string('status');
             $table->timestamps();
         });

@@ -7,7 +7,6 @@ use App\Models\Enumerations\InsuranceType;
 use App\Models\Enumerations\MenuType;
 use App\Models\Enumerations\Status;
 use App\Models\GoodsType;
-use App\Models\Role;
 use Illuminate\Http\JsonResponse;
 
 class EnumController extends Controller
@@ -29,11 +28,6 @@ class EnumController extends Controller
         }
 
         return success($companyType);
-    }
-
-    public function roleType(): JsonResponse
-    {
-        return success(Role::get());
     }
 
     public function insuranceType(): JsonResponse

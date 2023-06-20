@@ -10,9 +10,5 @@ class Permission extends \Spatie\Permission\Models\Permission
 {
     use HasFactory, HasPermissions;
 
-    const OPERATE_ALL = '*';
-    const OPERATE_VIEW = 'view';
-    const OPERATE_CREATE = 'create';
-    const OPERATE_DELETE = 'delete';
-    const OPERATE_EXPORT = 'export';
+    protected $hidden = ['created_at', 'updated_at', 'pivot'];
 }
