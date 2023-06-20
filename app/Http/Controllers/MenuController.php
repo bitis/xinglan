@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\MenuRequest;
 use App\Models\Menu;
 use App\Models\Permission;
-use App\Models\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,7 +13,7 @@ class MenuController extends Controller
 {
     public function index(): JsonResponse
     {
-        return success(Menu::with('children')->get());
+        return success(Menu::with('children')->orderBy('order')->get());
     }
 
     /**
@@ -27,7 +26,7 @@ class MenuController extends Controller
     {
         $menu = Menu::updateOrCreate(
             ['id' => $request->input('id')],
-            $request->only(['parent_id', 'type', 'name', 'icon', 'path', 'visible', 'sort_num', 'remark'])
+            $request->only(['parent_id', 'type', 'name', 'icon', 'path', 'visible', 'order', 'remark'])
         );
         $menu->save();
 

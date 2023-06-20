@@ -15,7 +15,7 @@ class Menu extends Model
 
     protected $hidden = ['deleted_at', 'created_at', 'updated_at'];
 
-    protected $fillable = ['parent_id', 'name', 'icon', 'path', 'visible', 'type', 'sort_num', 'remark'];
+    protected $fillable = ['parent_id', 'name', 'icon', 'path', 'visible', 'type', 'order', 'remark'];
 
     public function roles(): BelongsToMany
     {
