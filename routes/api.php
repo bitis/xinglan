@@ -39,6 +39,7 @@ Route::middleware('auth')->group(function () {
         Route::get('list', 'RoleController@index');
         Route::get('menus', 'RoleController@menus');
         Route::post('form', 'RoleController@form');
+        Route::post('permission', 'RoleController@permission');
     });
 
     Route::prefix('account')->group(function () {

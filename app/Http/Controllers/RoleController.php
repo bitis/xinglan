@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RoleRequest;
 use App\Models\Menu;
 use App\Models\Permission;
 use App\Models\Role;
@@ -27,7 +28,7 @@ class RoleController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function form(Request $request): JsonResponse
+    public function permission(Request $request): JsonResponse
     {
         $role_id = $request->input('id');
         $permissions_id = $request->input('permissions_id');
@@ -36,6 +37,26 @@ class RoleController extends Controller
             return fail('修改的角色不存在');
 
         $role->syncPermissions(Permission::whereIn('id', $permissions_id)->pluck('name'));
+
+        return success();
+    }
+
+    /**
+     * 修改角色
+     *
+     * @param RoleRequest $request
+     * @return JsonResponse
+     */
+    public function form(RoleRequest $request): JsonResponse
+    {
+        $role = Role::findOr($request->input('id'), fn() => new Role([
+            'company_id' => $request->user()->company_id,
+            'name' => $request->user()->company_id . '_' . $request->input('show_name')
+        ]));
+
+        $role->fill($request->only('show_name', 'remark', 'status'));
+
+        $role->save();
 
         return success();
     }

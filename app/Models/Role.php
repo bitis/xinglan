@@ -8,6 +8,8 @@ class Role extends \Spatie\Permission\Models\Role
 {
     use HasFactory;
 
-    protected $hidden = ['created_at', 'updated_at'];
+    protected $hidden = ['created_at', 'updated_at', 'pivot'];
+
+    protected $fillable = ['name', 'guard_name', 'company_id', 'show_name', 'remark', 'status'];
 
 }
