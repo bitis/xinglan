@@ -7,6 +7,7 @@ use App\Models\Menu;
 use App\Models\Permission;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MenuController extends Controller
 {
@@ -41,11 +42,16 @@ class MenuController extends Controller
     {
         $id = $request->input('id');
 
-        if (!Menu::where('id', $id)->exists())
+        if (!$menu = Menu::find($id))
             return success();
 
+        if ($permission = Permission::where('name', $menu->permission)->first()) {
+            $permission->delete();
+            DB::table('role_has_permissions')->where('permission_id', $permission->id)->delete();
+        }
+
         Menu::where('id', $id)->delete();
-        Menu::where('parent_id', $id)->delete();
+        Menu::where('parent_id', $id)->update(['parent_id' => $menu->parent_id]);
 
         return success();
     }
