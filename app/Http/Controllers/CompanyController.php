@@ -37,7 +37,7 @@ class CompanyController extends Controller
             $company = Company::findOr($request->input('id'), function () use ($request) {
                 $parent_id = $request->input('parent_id', 0);
 
-                $level = $parent_id ? min(Company::find($parent_id)->levle + 1, CompanyLevel::Three) : CompanyLevel::One;
+                $level = $parent_id ? min(Company::find($parent_id)->levle + 1, CompanyLevel::Three->value) : CompanyLevel::One->value;
 
                 return new Company([
                     'level' => $level,
@@ -97,6 +97,8 @@ class CompanyController extends Controller
 
                 $company->save();
             }
+
+            DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
             if (app()->environment('test')) throw $exception;
