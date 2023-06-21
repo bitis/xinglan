@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\Login;
 use App\Http\Requests\Auth\Register;
+use App\Models\Company;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,15 +22,12 @@ class AccountController extends Controller
      */
     public function register(Register $request): JsonResponse
     {
-        if (User::where('account', $request->input('account'))->exists()) {
-            return fail('账号已存在');
-        }
-
         $user = User::create(array_merge($request->only([
             'name', 'account'
         ]), [
             'api_token' => Str::random(32),
-            'password' => bcrypt('password')
+            'password' => bcrypt('password'),
+            'company_id' => Company::where('invite_code', $request->input('invite_code'))->first()?->id
         ]));
 
         return success($user);
