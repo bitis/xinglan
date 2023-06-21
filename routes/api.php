@@ -61,4 +61,8 @@ Route::middleware('auth')->group(function () {
         Route::get('list', 'CompanyController@index');
         Route::post('form', 'CompanyController@form');
     });
+
+    Route::prefix('provider')->group(function () {
+        Route::get('list', 'ProviderController@index');
+    });
 });
