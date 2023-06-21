@@ -13,7 +13,7 @@ class MenuController extends Controller
 {
     public function index(): JsonResponse
     {
-        return success(Menu::with('children')->where('parent_id', 0)->orderBy('order')->get());
+        return success(Menu::orderBy('order')->get());
     }
 
     /**
