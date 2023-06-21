@@ -7,13 +7,29 @@ use App\Models\Menu;
 use App\Models\Permission;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class MenuController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return success(Menu::orderBy('order')->get());
+        $menus = Menu::all();
+
+        $isAdmin = $request->user()->hasRole('admin');
+        $permissions = $request->user()->getAllPermissions();
+
+        foreach ($menus as $menu) {
+            $menu->checked = $isAdmin;
+            foreach ($permissions as $permission) {
+                if ($menu->permission == $permission->name) {
+                    $menu->checked = true;
+                    break;
+                }
+            }
+        }
+
+        return success(array_values(Arr::where($menus->toArray(), fn($menu) => $menu['checked'])));
     }
 
     /**
