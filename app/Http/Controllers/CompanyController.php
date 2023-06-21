@@ -15,18 +15,45 @@ class CompanyController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $user = $request->user();
+
         $name = $request->input('name');
         $status = $request->input('status');
+        $parent_id = $request->input('parent_id');
+
+        $top_id = $user->company->top_id;
 
         $companies = Company::with('parent')
+            ->when(!$user->hasRole('admin'), function ($query) use ($top_id) {
+                $query->where('top_id', $top_id);
+            })
             ->when($name, function ($query, $name) {
                 $query->where('name', 'like', "%$name%");
             })
-            ->when($status, function ($query, $status) {
+            ->when(strlen($status), function ($query) use ($status) {
                 $query->where('status', $status);
-            })->paginate(getPerPage());
+            })
+            ->when($parent_id, function ($query, $parent_id) {
+                $query->where('parent_id', $parent_id);
+            })
+            ->paginate(getPerPage());
 
         return success($companies);
+    }
+
+    public function tree(Request $request): JsonResponse
+    {
+        $company = $request->user()->company;
+
+        $top_id = $company->top_id ?: $company->id;
+
+        $company = Company::with(['children:id,name,parent_id', 'children.children:id,name,parent_id'])
+            ->where('top_id', $top_id)
+            ->where('parent_id', 0)
+            ->select(['id', 'name', 'parent_id'])
+            ->get();
+
+        return success($company);
     }
 
     public function form(CompanyRequest $request): JsonResponse
@@ -37,13 +64,15 @@ class CompanyController extends Controller
             $company = Company::findOr($request->input('id'), function () use ($request) {
                 $parent_id = $request->input('parent_id', 0);
 
-                $level = $parent_id ? min(Company::find($parent_id)->levle + 1, CompanyLevel::Three->value) : CompanyLevel::One->value;
+                $parent = Company::find($parent_id);
+                $level = $parent_id ? min($parent->levle + 1, CompanyLevel::Three->value) : CompanyLevel::One->value;
 
                 return new Company([
                     'level' => $level,
                     'parent_id' => $parent_id,
                     'status' => Status::Normal,
-                    'invite_code' => rand(100000, 999999)
+                    'invite_code' => rand(100000, 999999),
+                    'top_id' => ($level == CompanyLevel::One) ? 0 : $parent->top_id,
                 ]);
             });
 
@@ -68,6 +97,11 @@ class CompanyController extends Controller
             ]));
 
             $company->save();
+
+            if ($company->level == CompanyLevel::One->value) {
+                $company->top_id = $company->id;
+                $company->save();
+            }
 
             if (!$request->input('id')) {
 

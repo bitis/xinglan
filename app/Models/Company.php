@@ -88,4 +88,9 @@ class Company extends Model
             'provider_id',
         );
     }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(Company::class, 'parent_id', 'id');
+    }
 }
