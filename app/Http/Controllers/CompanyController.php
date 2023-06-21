@@ -24,7 +24,7 @@ class CompanyController extends Controller
             })
             ->when($status, function ($query, $status) {
                 $query->where('status', $status);
-            })->paginate($request->input('limit', 15));
+            })->paginate(getPerPage());
 
         return success($companies);
     }

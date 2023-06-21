@@ -34,7 +34,7 @@ class UserController extends Controller
             $query->where('name', 'like', "%$text%")
                 ->where('account', 'like', "%$text%")
                 ->where('mobile', 'like', "%$text%");
-        })->paginate($request->input('limit', 15));
+        })->paginate(getPerPage());
 
         return success($userList);
     }
