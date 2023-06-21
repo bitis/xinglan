@@ -38,7 +38,6 @@ class GoodsTypeRequest extends FormRequest
             'name.string' => '类型必须为字符串且不能为空',
             'name.min' => '类型长度最少为2个字',
             'name.max' => '类型长度最长为20个字',
-            'company_id.exists' => '所属公司不存在',
             'status.*' => '未知的状态类型',
         ];
     }
