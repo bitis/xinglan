@@ -51,10 +51,10 @@ class RoleController extends Controller
     {
         $role = Role::findOr($request->input('id'), fn() => new Role([
             'company_id' => $request->user()->company_id,
-            'name' => $request->user()->company_id . '_' . $request->input('show_name')
         ]));
 
         $role->fill($request->only('show_name', 'remark', 'status'));
+        $role->name = $request->user()->company_id . '_' . $request->input('show_name');
 
         $role->save();
 

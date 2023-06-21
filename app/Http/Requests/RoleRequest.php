@@ -26,7 +26,13 @@ class RoleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'show_name' => 'required_without:id|string|min:2|max:10',
+            'show_name' => [
+                'required_without:id',
+                'string',
+                'min:2',
+                'max:10',
+                Rule::unique('roles')->ignore($this->input('id'))
+            ],
             'status' => [Rule::enum(Status::class)],
         ];
     }
@@ -38,6 +44,7 @@ class RoleRequest extends FormRequest
             'show_name.string' => '类型必须为字符串且不能为空',
             'show_name.min' => '类型长度最少为2个字',
             'show_name.max' => '类型长度最长为20个字',
+            'show_name.unique' => '角色名不能重复',
             'status.*' => '未知的状态类型',
         ];
     }
