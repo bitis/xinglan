@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Auth\Login;
 use App\Http\Requests\Auth\Register;
 use App\Models\Company;
-use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,13 +21,17 @@ class AccountController extends Controller
      */
     public function register(Register $request): JsonResponse
     {
+        $company_id = Company::where('invite_code', $request->input('invite_code'))->first()?->id;
+
         $user = User::create(array_merge($request->only([
             'name', 'account'
         ]), [
             'api_token' => Str::random(32),
             'password' => bcrypt('password'),
-            'company_id' => Company::where('invite_code', $request->input('invite_code'))->first()?->id
+            'company_id' => $company_id
         ]));
+
+        $user->assignRole($company_id . '_查勘人员');
 
         return success($user);
     }
