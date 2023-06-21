@@ -26,7 +26,7 @@ class ProviderRequest extends FormRequest
     {
         return [
             'name' => [
-                'required_without:id', 'string', 'min:2', 'max:25', Rule::unique('companies')->ignore($this->input('id'))
+                'required_without:id', 'string', Rule::unique('companies')->ignore($this->input('id'))
             ],
             'type' => [
                 'required_without:id', Rule::enum(CompanyType::class)
@@ -40,6 +40,11 @@ class ProviderRequest extends FormRequest
             'city' => 'required_without:id',
             'area' => 'required_without:id',
             'address' => 'required_without:id',
+            'bank_name' => 'required',
+            'bank_account_name' => 'required',
+            'bank_account_number' => 'required',
+            'license_no' => 'required',
+            'license_image' => 'required|array',
             'status' => [
                 Rule::enum(Status::class)
             ]
@@ -53,14 +58,13 @@ class ProviderRequest extends FormRequest
             'name.string' => '公司名称必须为字符串且不能为空',
             'name.unique' => '当前输入的公司名称已经存在',
             'type.*' => '未知的公司类型',
-            'name.min' => '公司名称长度最少为2个字',
-            'name.max' => '公司名称长度最长为25个字',
             'account.required_without' => '登录账号不能为空',
             'account.unique' => '当前输入的账号已存在',
             'province.required_without' => '归属地必须填写完整',
             'city.required_without' => '归属地必须填写完整',
             'area.required_without' => '归属地必须填写完整',
             'address.required_without' => '归属地必须填写完整',
+            'bank_name.required_without' => '归属地必须填写完整',
             'status.*' => '未知的状态类型',
         ];
     }

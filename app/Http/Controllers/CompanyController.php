@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CompanyRequest;
+use App\Jobs\CreateCompany;
 use App\Models\Company;
 use App\Models\Enumerations\CompanyLevel;
 use App\Models\Enumerations\Status;
@@ -98,23 +99,10 @@ class CompanyController extends Controller
 
             $company->save();
 
-            if ($company->level == CompanyLevel::One->value) {
-                $company->top_id = $company->id;
-                $company->save();
-            }
-
             if (!$request->input('id')) {
 
-                $defaultRoles = ['公司管理员', '施工经理', '施工人员', '查勘经理', '查勘人员', '财务经理', '财务人员', '调度内勤', '出纳人员', '造价员',];
-
-                foreach ($defaultRoles as $defaultRole) {
-                    $role = $company->roles()->create([
-                        'name' => $company->id . '_' . $defaultRole,
-                        'guard_name' => 'api',
-                        'show_name' => $defaultRole
-                    ]);
-
-                    $role->givePermissionTo(Role::where('name', $defaultRole)->first()?->permissions?->pluck('name'));
+                if ($company->level == CompanyLevel::One->value) {
+                    $company->top_id = $company->id;
                 }
 
                 $user = $company->users()->create([
@@ -125,11 +113,11 @@ class CompanyController extends Controller
                     'password' => bcrypt(config('default.password')),
                 ]);
 
-                $user->assignRole($company->id . '_公司管理员');
-
                 $company->admin_id = $user->id;
 
                 $company->save();
+
+                CreateCompany::dispatch($company);
             }
 
             DB::commit();
