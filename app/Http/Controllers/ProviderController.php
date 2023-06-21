@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -23,7 +22,7 @@ class ProviderController extends Controller
                 $query->where('status', $status);
             })
             ->orderBy('id', 'desc')
-            ->paginate();
+            ->paginate(getPerPage());
 
         return success($providers);
     }

@@ -2,4 +2,5 @@
 return [
     'avatar' => 'https://xinglanapp.oss-cn-hangzhou.aliyuncs.com/avatar/default.png',
     'password' => '888888',
+    'pageSize' => 10,
 ];

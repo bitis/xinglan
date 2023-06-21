@@ -19,3 +19,8 @@ function success($data = null): JsonResponse
         'data' => $data
     ]);
 }
+
+function getPerPage(): int
+{
+    return request()->input('pageSize') ?: config('default.pageSize');
+}
