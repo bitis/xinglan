@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Traits\DefaultDatetimeFormat;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -50,9 +51,9 @@ class User extends Authenticatable
     protected $casts = [
     ];
 
-    public function company()
+    public function company(): BelongsTo
     {
-//        return $this->belongsTo();
+        return $this->belongsTo(Company::class);
     }
 
     public function avatar(): Attribute
