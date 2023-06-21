@@ -27,7 +27,7 @@ class AccountController extends Controller
             'name', 'account'
         ]), [
             'api_token' => Str::random(32),
-            'password' => bcrypt('password'),
+            'password' => $request->input('password'),
             'company_id' => $company_id
         ]));
 
