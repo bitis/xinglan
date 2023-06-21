@@ -8,6 +8,7 @@ use App\Models\Traits\DefaultDatetimeFormat;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -76,5 +77,15 @@ class Company extends Model
     public function roles(): HasMany
     {
         return $this->hasMany(Role::class, 'company_id', 'id');
+    }
+
+    public function providers(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Company::class,
+            'company_providers',
+            'company_id',
+            'provider_id',
+        );
     }
 }
