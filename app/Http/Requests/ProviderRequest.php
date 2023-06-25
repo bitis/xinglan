@@ -14,7 +14,7 @@ class ProviderRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -26,20 +26,24 @@ class ProviderRequest extends FormRequest
     {
         return [
             'name' => [
-                'required_without:id', 'string', Rule::unique('companies')->ignore($this->input('id'))
+                'exclude_with:id,provider_id',
+                'required',
+                Rule::unique('companies')->ignore($this->input('provider_id'))
             ],
             'type' => [
                 'required_without:id', Rule::enum(CompanyType::class)
             ],
             'account' => [
-                'required_without:id', Rule::unique('users')->ignore($this->input('id')),
+                'exclude_with:id,provider_id',
+                'required',
+                Rule::unique('users')->ignore($this->input('id')),
             ],
-            'contract_name' => 'required_without:id',
-            'contract_phone' => 'required_without:id',
-            'province' => 'required_without:id',
-            'city' => 'required_without:id',
-            'area' => 'required_without:id',
-            'address' => 'required_without:id',
+            'contract_name' => 'exclude_with:id,provider_id',
+            'contract_phone' => 'exclude_with:id,provider_id',
+            'province' => 'exclude_with:id,provider_id',
+            'city' => 'exclude_with:id,provider_id',
+            'area' => 'exclude_with:id,provider_id',
+            'address' => 'exclude_with:id,provider_id',
             'bank_name' => 'required',
             'bank_account_name' => 'required',
             'bank_account_number' => 'required',

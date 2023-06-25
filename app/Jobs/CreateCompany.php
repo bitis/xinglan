@@ -30,7 +30,7 @@ class CreateCompany implements ShouldQueue
      */
     public function handle(): void
     {
-        $company = $this->company;
+        $company = $this->company->refresh();
 
         $defaultRoles = ['公司管理员', '施工经理', '施工人员', '查勘经理', '查勘人员', '财务经理', '财务人员', '调度内勤', '出纳人员', '造价员',];
 

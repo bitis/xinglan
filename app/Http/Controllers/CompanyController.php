@@ -123,7 +123,7 @@ class CompanyController extends Controller
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
-            if (app()->environment('test')) throw $exception;
+            if (app()->environment('local')) throw $exception;
             return fail($exception->getMessage());
         }
 

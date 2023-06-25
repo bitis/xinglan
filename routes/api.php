@@ -65,5 +65,6 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('provider')->group(function () {
         Route::get('list', 'ProviderController@index');
+        Route::post('form', 'ProviderController@form');
     });
 });
