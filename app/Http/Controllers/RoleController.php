@@ -84,4 +84,9 @@ class RoleController extends Controller
 
         return success($menus);
     }
+
+    public function getByCompany(Request $request): JsonResponse
+    {
+        return success(Role::where('company_id', $request->input('company_id'))->get());
+    }
 }

@@ -96,8 +96,9 @@ class Company extends Model
 
     public static function getGroupId($id): array
     {
-        $group = Company::where('parent_id', $id)->pluck('id')->toArray();
-        $group[] = $id;
-        return $group;
+        $second = Company::where('parent_id', $id)->pluck('id')->toArray();
+        $three = Company::whereIn('parent_id', $second)->pluck('id')->toArray();
+
+        return array_merge([$id], $second, $three);
     }
 }

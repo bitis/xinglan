@@ -22,11 +22,9 @@ class CompanyController extends Controller
         $status = $request->input('status');
         $parent_id = $request->input('parent_id');
 
-        $top_id = $user->company?->top_id;
-
         $companies = Company::with('parent')
-            ->when(!$user->hasRole('admin'), function ($query) use ($top_id) {
-                $query->where('top_id', $top_id);
+            ->when(!$user->hasRole('admin'), function ($query) use ($user) {
+                $query->whereIn('id', Company::getGroupId($user->company_id));
             })
             ->when($name, function ($query, $name) {
                 $query->where('name', 'like', "%$name%");
@@ -66,6 +64,9 @@ class CompanyController extends Controller
                 $parent_id = $request->input('parent_id', 0);
 
                 $parent = Company::find($parent_id);
+
+                if ($parent->level == CompanyLevel::Three->value) throw new \Exception('三级公司不允许创建下级公司');
+
                 $level = $parent_id ? min($parent->levle + 1, CompanyLevel::Three->value) : CompanyLevel::One->value;
 
                 return new Company([
@@ -128,5 +129,24 @@ class CompanyController extends Controller
         }
 
         return success($company);
+    }
+
+    /**
+     * 当前公司分支机构
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function branch(Request $request): JsonResponse
+    {
+        $company_id = $request->user()->company_id;
+
+        $top = Company::find($company_id);
+
+        $second = Company::where('parent_id', $company_id)->get()->toArray();
+
+        $three = Company::whereIn('parent_id', array_column($second, 'id'))->get()->toArray();
+
+        return success(array_merge([$top], $second, $three));
     }
 }

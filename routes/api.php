@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
         Route::get('menus', 'RoleController@menus');
         Route::post('form', 'RoleController@form');
         Route::post('permission', 'RoleController@permission');
+        Route::get('getByCompany', 'RoleController@getByCompany');
     });
 
     Route::prefix('account')->group(function () {
@@ -61,6 +62,7 @@ Route::middleware('auth')->group(function () {
         Route::get('list', 'CompanyController@index');
         Route::get('tree', 'CompanyController@tree');
         Route::post('form', 'CompanyController@form');
+        Route::get('branch', 'CompanyController@branch');
     });
 
     Route::prefix('provider')->group(function () {
