@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
+use App\Models\Company;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,18 +24,23 @@ class UserController extends Controller
         $status = $request->input('status');
         $text = $request->input('text');
 
+        $user = $request->user();
+
         $userList = User::with('roles')
-        ->when($company_id, function ($query, $company_id) {
-            $query->where('company_id', $company_id);
-        })->when($role, function ($query, $role) {
-            $query->role($role);
-        })->when($status, function ($query, $status) {
-            $query->where('status', $status);
-        })->when($text, function ($query, $text) {
-            $query->where('name', 'like', "%$text%")
-                ->where('account', 'like', "%$text%")
-                ->where('mobile', 'like', "%$text%");
-        })->paginate(getPerPage());
+            ->when(!$user->hasRole('admin'), function ($query) use ($company_id, $user) {
+                if ($company_id) $query->where('company_id', $company_id);
+                else $query->whereIn('company_id', Company::getGroupId($user->company_id));
+            })->when($company_id, function ($query, $company_id) {
+                $query->where('company_id', $company_id);
+            })->when($role, function ($query, $role) {
+                $query->role($role);
+            })->when($status, function ($query, $status) {
+                $query->where('status', $status);
+            })->when($text, function ($query, $text) {
+                $query->where('name', 'like', "%$text%")
+                    ->where('account', 'like', "%$text%")
+                    ->where('mobile', 'like', "%$text%");
+            })->paginate(getPerPage());
 
         return success($userList);
     }

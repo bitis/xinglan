@@ -70,7 +70,7 @@ class RoleController extends Controller
     public function menus(Request $request): JsonResponse
     {
         $menus = Menu::all();
-        $permissions = $request->user()->getAllPermissions();
+        $permissions = Role::findById($request->input('role_id'))->getAllPermissions();
 
         foreach ($menus as $menu) {
             $menu->checked = false;

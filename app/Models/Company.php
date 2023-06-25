@@ -93,4 +93,11 @@ class Company extends Model
     {
         return $this->hasMany(Company::class, 'parent_id', 'id');
     }
+
+    public static function getGroupId($id): array
+    {
+        $group = Company::where('parent_id', $id)->pluck('id')->toArray();
+        $group[] = $id;
+        return $group;
+    }
 }
