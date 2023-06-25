@@ -22,7 +22,7 @@ class CompanyController extends Controller
         $status = $request->input('status');
         $parent_id = $request->input('parent_id');
 
-        $top_id = $user->company->top_id;
+        $top_id = $user->company?->top_id;
 
         $companies = Company::with('parent')
             ->when(!$user->hasRole('admin'), function ($query) use ($top_id) {
