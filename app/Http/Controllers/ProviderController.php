@@ -22,7 +22,7 @@ class ProviderController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $providers = CompanyProvider::with('company:id,name')
+        $providers = CompanyProvider::with('company:id,name,province,city,area,address')
             ->where('company_id', $request->user()->company_id)
             ->when($request->input('name'), function ($query, $name) {
                 $query->where('name', 'like', "%$name%");

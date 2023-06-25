@@ -31,12 +31,12 @@ class RoleController extends Controller
     public function permission(Request $request): JsonResponse
     {
         $role_id = $request->input('id');
-        $permissions_id = $request->input('permissions_id');
+        $menu_id = $request->input('menu_id');
 
         if (!$role = Role::findById($role_id))
             return fail('修改的角色不存在');
 
-        $role->syncPermissions(Permission::whereIn('id', $permissions_id)->pluck('name'));
+        $role->syncPermissions(Menu::whereIn('id', $menu_id)->pluck('permission'));
 
         return success();
     }
