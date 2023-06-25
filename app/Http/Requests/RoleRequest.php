@@ -31,7 +31,7 @@ class RoleRequest extends FormRequest
                 'string',
                 'min:2',
                 'max:10',
-                Rule::unique('roles')->ignore($this->input('id'))
+                Rule::unique('roles')->where('company_id', $this->user()->company_id)->ignore($this->input('id'))
             ],
             'status' => [Rule::enum(Status::class)],
         ];
