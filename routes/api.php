@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+Route::get('area', 'AreaController@index');
 
 Route::prefix('auth')->group(function () {
     Route::post('login', 'AccountController@login');
