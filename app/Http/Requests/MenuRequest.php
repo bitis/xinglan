@@ -27,7 +27,7 @@ class MenuRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'parent_id' => 'nullable|exists:companies',
+            'parent_id' => 'nullable|exists:menus,id',
             'name' => 'required_without:id|string|min:2|max:25',
             'path' => [
                 Rule::unique('menus')->ignore($this->input('id')),
