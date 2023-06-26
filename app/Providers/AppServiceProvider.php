@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use AlphaSnow\Flysystem\Aliyun\AliyunFactory;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -30,5 +34,17 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(191);
+        Storage::extend('oss', function (Application $app, array $config) {
+
+            $driver = (new AliyunFactory())->createFilesystem($config);
+            $adapter = (new AliyunFactory())->createAdapter($config);
+
+            return new FilesystemAdapter(
+                $driver,
+                $adapter,
+                $config
+            );
+        });
+
     }
 }

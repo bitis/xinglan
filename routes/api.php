@@ -23,6 +23,8 @@ Route::prefix('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
 
+    Route::post('upload', 'UploadController@form');
+
     Route::prefix('enum')->group(function () {
         Route::get('goodsType', 'EnumController@goodsType');
         Route::get('companyType', 'EnumController@companyType');
@@ -68,6 +70,11 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('provider')->group(function () {
         Route::get('list', 'ProviderController@index');
+        Route::post('form', 'ProviderController@form');
+    });
+
+    Route::prefix('providerOption')->group(function () {
+        Route::get('list', 'ProviderOptionController@index');
         Route::post('form', 'ProviderController@form');
     });
 });
