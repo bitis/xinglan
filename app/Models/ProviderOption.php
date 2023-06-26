@@ -10,7 +10,12 @@ class ProviderOption extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'area' => 'array'
+    ];
+
     protected $fillable = [
+        'company_id',
         'provider_id',
         'insurance_type',
         'province',

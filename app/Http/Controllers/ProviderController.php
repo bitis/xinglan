@@ -138,4 +138,13 @@ class ProviderController extends Controller
         }
         return success();
     }
+
+    public function items(Request $request): JsonResponse
+    {
+        $providers = CompanyProvider::where('company_id', $request->user()->company_id)
+            ->select(['id', 'provider_id', 'provider_name'])
+            ->get();
+
+        return success($providers);
+    }
 }

@@ -71,10 +71,12 @@ Route::middleware('auth')->group(function () {
     Route::prefix('provider')->group(function () {
         Route::get('list', 'ProviderController@index');
         Route::post('form', 'ProviderController@form');
+        Route::get('items', 'ProviderController@items');
     });
 
     Route::prefix('providerOption')->group(function () {
         Route::get('list', 'ProviderOptionController@index');
-        Route::post('form', 'ProviderController@form');
+        Route::post('form', 'ProviderOptionController@form');
+        Route::get('getRepeatRegion', 'ProviderOptionController@getRepeatRegion');
     });
 });
