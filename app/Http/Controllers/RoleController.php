@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\RoleRequest;
 use App\Models\Menu;
-use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -85,6 +84,12 @@ class RoleController extends Controller
         return success($menus);
     }
 
+    /**
+     * 获取公司下的角色列表
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function getByCompany(Request $request): JsonResponse
     {
         return success(Role::where('company_id', $request->input('company_id'))->get());
