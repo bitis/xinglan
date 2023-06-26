@@ -12,6 +12,8 @@ class UploadController extends Controller
     {
         $file = $request->file('file');
 
+        if (!$file) return fail('必须上传一个文件');
+
         $fileName = '/uploads/' . date('Ymd') . '/' . $file->hashName();
 
         if (Storage::disk('oss')->put($fileName, $file->getContent()))
