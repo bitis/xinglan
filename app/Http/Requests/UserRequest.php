@@ -33,7 +33,7 @@ class UserRequest extends FormRequest
                 Rule::unique('users')->ignore($this->input('id')),
             ],
             'mobile' => 'required_without:id',
-            'company_id' => 'required_without:id|exists:companies:id',
+            'company_id' => 'required_without:id|exists:companies,id',
         ];
     }
 
