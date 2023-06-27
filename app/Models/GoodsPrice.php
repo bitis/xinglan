@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Traits\DefaultDatetimeFormat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class GoodsPrice extends Model
 {
-    use HasFactory;
+    use HasFactory, DefaultDatetimeFormat;
+
+    public $timestamps = false;
 
     protected $fillable = [
         'id',
@@ -27,5 +30,7 @@ class GoodsPrice extends Model
         'describe_image',
         'remark',
         'status',
+        'created_at',
+        'updated_at'
     ];
 }

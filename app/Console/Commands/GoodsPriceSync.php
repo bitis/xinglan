@@ -65,10 +65,10 @@ class GoodsPriceSync extends Command
                     'unit_price' => $datum['unitPrice'],
                     'describe_image' => $datum['describeImageUrl'],
                     'remark' => $datum['remark'],
-                    'status' => $datum['isEnable'],
+                    'created_at' => $datum['createTime'],
+                    'updated_at' => $datum['updateTime'],
                 ]);
             }
-
             $page = $data['pageNum'] + 1;
 
         } while ($data['total'] / $pageSize > $data['pageNum']);
