@@ -30,7 +30,7 @@ class ProviderController extends Controller
             ->where('company_id', $request->user()->company_id)
             ->when($request->input('name'), function ($query, $name) {
                 $query->where('provider_name', 'like', "%$name%");
-            })->when($request->input('status'), function ($query, $status) {
+            })->when(strlen($status = $request->input('status')), function ($query) use ($status) {
                 $query->where('status', $status);
             })
             ->orderBy('id', 'desc')
