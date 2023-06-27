@@ -20,4 +20,9 @@ class CompanyProvider extends Pivot
     {
         return $this->belongsTo(Company::class, 'company_id', 'id');
     }
+
+    public function provider(): BelongsTo
+    {
+        return $this->belongsTo(Company::class, 'provider_id', 'id');
+    }
 }

@@ -23,7 +23,10 @@ class ProviderController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $providers = CompanyProvider::with('company:id,name,province,city,area,address,contract_name,contract_phone')
+        $providers = CompanyProvider::with([
+            'company:id,name',
+            'provider:id,name,province,city,area,address,contract_name,contract_phone'
+        ])
             ->where('company_id', $request->user()->company_id)
             ->when($request->input('name'), function ($query, $name) {
                 $query->where('provider_name', 'like', "%$name%");
@@ -91,7 +94,7 @@ class ProviderController extends Controller
             $provider = CompanyProvider::where('company_id', $request->user()->company_id)
                 ->findOr($request->input('id'), function () use ($companyParams, $adminParams, $currentCompany) {
                     $providerCompany = Company::findOr($companyParams['provider_id'], function () use ($companyParams, $adminParams, $currentCompany) {
-                        $providerType = $currentCompany->type + 1;
+                        $providerType = $currentCompany->getOriginal('type') + 1;
 
                         if (!CompanyType::from($providerType)) throw new \Exception('维修公司不允许添加外协');
 
@@ -100,7 +103,7 @@ class ProviderController extends Controller
                             'parent_id' => 0,
                             'status' => Status::Normal,
                             'invite_code' => rand(100000, 999999),
-                            'type' => $currentCompany->type + 1
+                            'type' => $providerType
                         ]);
 
                         $company->fill($companyParams);
