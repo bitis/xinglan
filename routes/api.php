@@ -78,4 +78,11 @@ Route::middleware('auth')->group(function () {
         Route::post('form', 'ProviderOptionController@form');
         Route::get('getRepeatRegion', 'ProviderOptionController@getRepeatRegion');
     });
+
+    Route::prefix('goodsPrice')->group(function () {
+        Route::get('list', 'GoodsPriceController@index');
+        Route::post('form', 'GoodsPriceController@form');
+        Route::get('cats', 'GoodsPriceController@cats');
+        Route::get('catsTree', 'GoodsPriceController@catsTree');
+    });
 });
