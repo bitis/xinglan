@@ -74,7 +74,7 @@ class CompanyController extends Controller
                     'parent_id' => $parent_id,
                     'status' => Status::Normal,
                     'invite_code' => rand(100000, 999999),
-                    'top_id' => ($level == CompanyLevel::One) ? 0 : $parent->top_id,
+                    'top_id' => ($level == CompanyLevel::One->value) ? 0 : $parent->top_id,
                 ]);
             });
 
