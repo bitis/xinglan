@@ -148,6 +148,6 @@ class CompanyController extends Controller
 
         $three = Company::whereIn('parent_id', array_column($second, 'id'))->get()->toArray();
 
-        return success(array_merge([$top], $second, $three));
+        return success(array_merge($top, $second, $three));
     }
 }
