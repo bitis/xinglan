@@ -2,8 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\CreateCompany;
-use App\Models\Company;
+use App\Models\GoodsPrice;
 use App\Models\GoodsPriceCat;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
@@ -31,24 +30,49 @@ class GoodsPriceSync extends Command
     {
 //        $this->cats();
 
-        CreateCompany::dispatch(Company::find(28));
-
         $http = new Client();
+        $page = 1;
+        $pageSize = 50;
+        do {
+            $this->info(now()->toDateTimeString() . "\tPage:\t" . $page);
+            $response = $http->post('https://api.retechcn.com/loss-config/query/list', [
+                'headers' => [
+                    'Authorization' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMjc5OnBjIiwiaWF0IjoxNjg3ODUxMjQzLCJleHAiOjE2ODg0NTYwNDN9.RtMoXfz-fSjCwn3rDOXca8tEBVKHBDJbxgulMLQj8tAYTsbOekWggodgphtUMjobyEgg7TAIcG_BDwJOOAkexw'
+                ],
+                'json' => [
+                    'pageNum' => $page,
+                    'pageSize' => $pageSize,
+                ]
+            ]);
 
-        $response = $http->post('https://api.retechcn.com/loss-config/query/list', [
-            'headers' => [
-                'Authorization' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMjc5OnBjIiwiaWF0IjoxNjg3ODQ1NzM0LCJleHAiOjE2ODg0NTA1MzR9.XZGhJhYJCrZ3bA9_RwzGZgJ3hFQaD0Mvx9klkshx68M_fNUmf5JzGaYxaxke79uwG_2mYiEsmgBl_A_p2npODw'
-            ],
-            'json' => [
-                'pageNum' => 1,
-                'pageSize' => 1,
-            ]
-        ]);
+            $data = json_decode($response->getBody()->getContents(), true)['data'];
 
-        dd($response->getBody()->getContents());
+            foreach ($data['list'] as $datum) {
+                GoodsPrice::create([
+                    'id' => $datum['id'],
+                    'company_id' => $datum['companyId'],
+                    'company_name' => $datum['companyName'],
+                    'province' => $datum['provinceName'],
+                    'city' => $datum['cityName'],
+                    'region' => $datum['regionName'],
+                    'cat_id' => $datum['cateId'],
+                    'cat_name' => $datum['cateName'],
+                    'cat_parent_id' => $datum['cateParentId'],
+                    'product_name' => $datum['productName'],
+                    'spec' => $datum['spec'],
+                    'unit' => $datum['unit'],
+                    'brand' => $datum['brand'],
+                    'unit_price' => $datum['unitPrice'],
+                    'describe_image' => $datum['describeImageUrl'],
+                    'remark' => $datum['remark'],
+                    'status' => $datum['isEnable'],
+                ]);
+            }
+
+            $page = $data['pageNum'] + 1;
+
+        } while ($data['total'] / $pageSize > $data['pageNum']);
     }
-
-//    {"pageNum":"1","pageSize":"10","provinceId":"110000","city":"[objectObject]"}
 
     public function cats()
     {
