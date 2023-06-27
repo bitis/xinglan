@@ -26,7 +26,7 @@ class UserController extends Controller
 
         $user = $request->user();
 
-        $userList = User::with('roles')
+        $userList = User::with(['roles', 'company:id,name'])
             ->when(!$user->hasRole('admin'), function ($query) use ($company_id, $user) {
                 if ($company_id) $query->where('company_id', $company_id);
                 else $query->whereIn('company_id', Company::getGroupId($user->company_id));
