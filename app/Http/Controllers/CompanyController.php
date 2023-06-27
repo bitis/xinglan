@@ -141,7 +141,7 @@ class CompanyController extends Controller
     {
         $company_id = $request->user()->company_id;
 
-        $top = Company::find($company_id);
+        $top = Company::find($company_id) ?? [];
 
         $second = Company::where('parent_id', $company_id)->get()->toArray();
 
