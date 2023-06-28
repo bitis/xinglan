@@ -25,7 +25,7 @@ class ProviderOption extends Model
         'status'
     ];
 
-    public function company(): BelongsTo
+    public function provider(): BelongsTo
     {
         return $this->belongsTo(Company::class, 'provider_id', 'id');
     }

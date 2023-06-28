@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->string('no');
-            $table->string('external_no')->comment('外部案件号');
+            $table->string('case_number');
+            $table->string('external_number')->comment('外部案件号');
             $table->string('company_id');
             $table->string('insurance_type');
             $table->string('license_plate')->comment('车牌');
