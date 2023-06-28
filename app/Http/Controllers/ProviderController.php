@@ -94,7 +94,7 @@ class ProviderController extends Controller
             $provider = CompanyProvider::where('company_id', $request->user()->company_id)
                 ->findOr($request->input('id'), function () use ($companyParams, $adminParams, $currentCompany) {
                     $providerCompany = Company::findOr($companyParams['provider_id'], function () use ($companyParams, $adminParams, $currentCompany) {
-                        $providerType = $currentCompany->getOriginal('type') + 1;
+                        $providerType = $currentCompany->getRawOriginal('type') + 1;
 
                         if (!CompanyType::from($providerType)) throw new \Exception('维修公司不允许添加外协');
 
