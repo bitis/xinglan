@@ -30,9 +30,6 @@ class ProviderRequest extends FormRequest
                 'required',
                 Rule::unique('companies')->ignore($this->input('provider_id'))
             ],
-            'type' => [
-                'required_without:id', Rule::enum(CompanyType::class)
-            ],
             'account' => [
                 'exclude_with:id,provider_id',
                 'required',
@@ -61,7 +58,6 @@ class ProviderRequest extends FormRequest
             'name.required_without' => '公司名称不能为空',
             'name.string' => '公司名称必须为字符串且不能为空',
             'name.unique' => '当前输入的公司名称已经存在',
-            'type.*' => '未知的公司类型',
             'account.required_without' => '登录账号不能为空',
             'account.unique' => '当前输入的账号已存在',
             'province.required_without' => '归属地必须填写完整',
