@@ -30,7 +30,7 @@ class Order extends Model
         'creator_name',
         'insurance_people',
         'insurance_phone',
-        'driver_people',
+        'driver_name',
         'driver_phone',
         'remark',
         'customer_remark',

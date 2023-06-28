@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('creator_name');
             $table->string('insurance_people');
             $table->string('insurance_phone');
-            $table->string('driver_people');
+            $table->string('driver_name');
             $table->string('driver_phone');
             $table->string('remark');
             $table->string('customer_remark');
