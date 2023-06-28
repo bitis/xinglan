@@ -2,8 +2,12 @@
 
 namespace App\Models\Enumerations;
 
+use App\Models\Enumerations\Traits\EnumArray;
+
 enum InsuranceType: int
 {
+    use EnumArray;
+
     case Car = 1;
     case Other = 2;
 

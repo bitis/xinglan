@@ -2,8 +2,13 @@
 
 namespace App\Models\Enumerations;
 
+use App\Models\Enumerations\Traits\EnumArray;
+
 enum CompanyLevel: int
 {
+
+    use EnumArray;
+
     case One = 1;
     case Second = 2;
     case Three = 3;

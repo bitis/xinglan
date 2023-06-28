@@ -2,8 +2,12 @@
 
 namespace App\Models\Enumerations;
 
+use App\Models\Enumerations\Traits\EnumArray;
+
 enum MenuType: int
 {
+    use EnumArray;
+
     case Folder = 1;
     case Menu = 2;
     case Button = 3;

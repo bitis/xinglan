@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\InsuranceType;
 use App\Models\Enumerations\MenuType;
+use App\Models\Enumerations\OrderStatus;
 use App\Models\Enumerations\Status;
 use App\Models\GoodsType;
 use Illuminate\Http\JsonResponse;
@@ -18,43 +19,21 @@ class EnumController extends Controller
 
     public function companyType(): JsonResponse
     {
-        $companyType = [];
-
-        foreach (CompanyType::cases() as $type) {
-            $companyType[] = [
-                'id' => $type,
-                'name' => $type->name()
-            ];
-        }
-
-        return success($companyType);
+        return success(CompanyType::toArray());
     }
 
     public function insuranceType(): JsonResponse
     {
-        $companyType = [];
-
-        foreach (InsuranceType::cases() as $type) {
-            $companyType[] = [
-                'id' => $type,
-                'name' => $type->name()
-            ];
-        }
-
-        return success($companyType);
+        return success(InsuranceType::toArray());
     }
 
     public function menuType(): JsonResponse
     {
-        $menuType = [];
+        return success(MenuType::toArray());
+    }
 
-        foreach (MenuType::cases() as $type) {
-            $menuType[] = [
-                'id' => $type,
-                'name' => $type->name()
-            ];
-        }
-
-        return success($menuType);
+    public function orderStatus(): JsonResponse
+    {
+        return success(OrderStatus::toArray());
     }
 }

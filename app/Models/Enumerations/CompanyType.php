@@ -2,8 +2,12 @@
 
 namespace App\Models\Enumerations;
 
+use App\Models\Enumerations\Traits\EnumArray;
+
 enum CompanyType: int
 {
+    use EnumArray;
+
     case BaoXian = 1;
     case WuSun = 2;
     case WeiXiu = 3;

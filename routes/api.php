@@ -29,6 +29,7 @@ Route::middleware('auth')->group(function () {
         Route::get('companyType', 'EnumController@companyType');
         Route::get('insuranceType', 'EnumController@insuranceType');
         Route::get('menuType', 'EnumController@menuType');
+        Route::get('orderStatus', 'EnumController@orderStatus');
     });
 
     Route::prefix('menu')->group(function () {
@@ -77,6 +78,10 @@ Route::middleware('auth')->group(function () {
         Route::get('list', 'ProviderOptionController@index');
         Route::post('form', 'ProviderOptionController@form');
         Route::get('getRepeatRegion', 'ProviderOptionController@getRepeatRegion');
+    });
+
+    Route::prefix('order')->group(function () {
+        Route::get('customer', 'OrderController@customer');
     });
 
     Route::prefix('goodsPrice')->group(function () {

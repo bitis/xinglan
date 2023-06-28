@@ -2,8 +2,12 @@
 
 namespace App\Models\Enumerations;
 
+use App\Models\Enumerations\Traits\EnumArray;
+
 enum Status: string
 {
+    use EnumArray;
+
     case Disable = '0';
     case Normal = '1';
 
