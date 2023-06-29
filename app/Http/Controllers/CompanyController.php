@@ -95,7 +95,9 @@ class CompanyController extends Controller
                 'official_seal',
                 'logo',
                 'remark',
-                'service_rate'
+                'service_rate',
+                'license_image',
+                'identification_images'
             ]));
 
             $company->save();
