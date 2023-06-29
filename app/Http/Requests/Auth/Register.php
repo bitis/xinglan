@@ -16,9 +16,8 @@ class Register extends FormRequest
     public function rules(): array
     {
         return [
-            'account' => 'required|unique:users',
-            'password' => 'required',
-            'mobile' => 'required',
+            'name' => 'required',
+            'mobile' => 'required|unique:users,account',
             'invite_code' => 'required|exists:companies'
         ];
     }
@@ -26,9 +25,8 @@ class Register extends FormRequest
     public function messages(): array
     {
         return [
-            'account.required' => '账号信息必填',
-            'account.unique' => '账号已存在',
             'mobile.required' => '请填写手机号',
+            'mobile.unique' => '账号已存在',
             'invite_code.required' => '请填写邀请码',
             'invite_code.exists' => '当前邀请码无效',
         ];

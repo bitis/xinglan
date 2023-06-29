@@ -24,10 +24,11 @@ class AccountController extends Controller
         $company_id = Company::where('invite_code', $request->input('invite_code'))->first()?->id;
 
         $user = User::create(array_merge($request->only([
-            'name', 'account'
+            'name', 'mobile'
         ]), [
+            'account' => $request->input('mobile'),
             'api_token' => Str::random(32),
-            'password' => bcrypt($request->input('password')),
+            'password' => bcrypt($request->input('password', config('default.password'))),
             'company_id' => $company_id
         ]));
 
