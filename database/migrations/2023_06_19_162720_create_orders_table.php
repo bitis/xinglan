@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('case_number');
             $table->string('external_number')->comment('外部案件号');
-            $table->string('company_id');
+            $table->string('insurance_company_id');
             $table->string('insurance_type');
             $table->string('license_plate')->comment('车牌');
             $table->string('vin')->comment('车架号');

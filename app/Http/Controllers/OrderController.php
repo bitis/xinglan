@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UserRequest;
+use App\Http\Requests\OrderRequest;
 use App\Models\Company;
 use App\Models\CompanyProvider;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\Status;
 use App\Models\Order;
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -47,22 +46,47 @@ class OrderController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $company_id = $request->input('company_id');
-        $role = $request->input('role');
-        $status = $request->input('status');
-        $text = $request->input('text');
+        $user = $request->user();
+        $current_company = $user->company;
 
-        $userList = User::with('roles')
-            ->when($company_id, function ($query, $company_id) {
-                $query->where('company_id', $company_id);
-            })->when($role, function ($query, $role) {
-                $query->role($role);
-            })->when($status, function ($query, $status) {
-                $query->where('status', $status);
-            })->when($text, function ($query, $text) {
-                $query->where('name', 'like', "%$text%")
-                    ->where('account', 'like', "%$text%")
-                    ->where('mobile', 'like', "%$text%");
+        $company_id = $request->input('company_id');
+
+        $roles = $user->getRoleNames()->toArray();
+
+        $userList = Order::with('company:id,name')
+            ->where(function ($query) use ($current_company, $company_id) {
+                if ($company_id)
+                    return match ($current_company->getRawOriginal('type')) {
+                        CompanyType::BaoXian->value,
+                        CompanyType::WuSun->value => $query->where('insurance_company_id', $company_id),
+                        CompanyType::WeiXiu->value => $query->where('damage_company_id', $company_id),
+                    };
+
+                return match ($current_company->getRawOriginal('type')) {
+                    CompanyType::BaoXian->value => $query->where('insurance_company_id', $current_company->id),
+                    CompanyType::WuSun->value => $query->where('damage_company_id', $current_company->id),
+                    CompanyType::WeiXiu->value => $query->where('repair_company_id', $current_company->id),
+                };
+            })->when($roles, function ($query, $roles) use ($user) {
+                $rolesName = implode(',', $roles);
+                if (strpos($rolesName, '查勘人员')) $query->where('creator_id', '=', $user->id);
+            })->when($request->input('post_time_start'), function ($query, $post_time_start) {
+                $query->where('post_time', '>', $post_time_start);
+            })->when($request->input('post_time_end'), function ($query, $post_time_end) {
+                $query->where('post_time', '<=', $post_time_end);
+            })->when($request->input('insurance_type'), function ($query, $insurance_type) {
+                $query->where('insurance_type', $insurance_type);
+            })->when(strlen($order_status = $request->input('order_status')), function ($query) use ($order_status) {
+                $query->where('order_status', $order_status);
+            })->when(strlen($close_status = $request->input('close_status')), function ($query) use ($close_status) {
+                $query->where('close_status', $close_status);
+            })->when($request->input('name'), function ($query, $name) {
+                $query->where(function ($query) use ($name) {
+                    $query->where('order_number', 'like', "%$name%")
+                        ->orWhere('case_number', 'like', "%$name%")
+                        ->orWhere('license_plate', 'like', "%$name%")
+                        ->orWhere('vin', 'like', "%$name%");
+                });
             })->paginate(getPerPage());
 
         return success($userList);
@@ -74,10 +98,10 @@ class OrderController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function form(Request $request): JsonResponse
+    public function form(OrderRequest $request): JsonResponse
     {
         $orderParams = $request->only([
-            'company_id',
+            'insurance_company_id',
             'order_number',
             'external_number',
             'case_number',
@@ -111,13 +135,15 @@ class OrderController extends Controller
             'goods_remark',
         ]);
 
-        $order = Order::findOr($request->input('id'), fn() => new User(['company_id' => $request->user()->company_id]));
+        $user = $request->user();
+
+        $order = Order::findOr($request->input('id'), fn() => new Order(['creator_id' => $user->id, 'creator_name' => $user->name]));
 
         $order->fill($orderParams);
 
         $order->save();
 
-        return success($order);
+        return success();
     }
 
 }

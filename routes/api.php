@@ -82,6 +82,8 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('order')->group(function () {
         Route::get('customer', 'OrderController@customer');
+        Route::get('list', 'OrderController@index');
+        Route::post('form', 'OrderController@form');
     });
 
     Route::prefix('goodsPrice')->group(function () {
