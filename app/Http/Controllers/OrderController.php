@@ -145,7 +145,11 @@ class OrderController extends Controller
 
         $user = $request->user();
 
-        $order = Order::findOr($request->input('id'), fn() => new Order(['creator_id' => $user->id, 'creator_name' => $user->name]));
+        $order = Order::findOr($request->input('id'), fn() => new Order([
+            'creator_id' => $user->id,
+            'creator_name' => $user->name,
+            'order_number' => Order::genOrderNumber()
+        ]));
 
         $order->fill($orderParams);
 

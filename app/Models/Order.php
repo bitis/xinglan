@@ -61,4 +61,9 @@ class Order extends Model
     {
         return $this->belongsTo(Company::class, 'insurance_company_id', 'id');
     }
+
+    public static function genOrderNumber(): string
+    {
+        return 'XL' . date('ymdHis') . rand(10, 99);
+    }
 }
