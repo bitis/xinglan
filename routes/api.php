@@ -54,6 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('user')->group(function () {
         Route::get('list', 'UserController@index');
         Route::post('form', 'UserController@form');
+        Route::get('getByRoles', 'UserController@getByRoles');
     });
 
     Route::prefix('goodsType')->group(function () {
@@ -84,6 +85,8 @@ Route::middleware('auth')->group(function () {
         Route::get('customer', 'OrderController@customer');
         Route::get('list', 'OrderController@index');
         Route::post('form', 'OrderController@form');
+        Route::post('dispatchCheckUser', 'OrderController@dispatchCheckUser');
+        Route::post('dispatchProvider', 'OrderController@dispatchProvider');
     });
 
     Route::prefix('goodsPrice')->group(function () {

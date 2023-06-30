@@ -146,4 +146,44 @@ class OrderController extends Controller
         return success();
     }
 
+    /**
+     * 派遣物损查勘人员 （物损公司派遣本公司）
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function dispatchCheckUser(Request $request): JsonResponse
+    {
+        $order = Order::find($request->input('order_id'));
+
+        if (!$order) return fail('工单未找到');
+
+        if ($request->user()->company_id != $order->wusun_company_id) return fail('非本公司订单');
+
+        $order->fill($request->only(['wusun_check_id', 'wusun_check_name', 'wusun_check_phone']));
+
+        $order->dispatch_check_at = now()->toDateTimeString();
+
+        $order->save();
+
+        return success();
+    }
+
+    /**
+     * 派遣服务商（物损公司派遣？）
+     *
+     * @param Request $request
+     * @return JsonResponse|void
+     */
+    public function dispatchProvider(Request $request)
+    {
+        $order = Order::find($request->input('order_id'));
+
+        if (!$order) return fail('工单未找到');
+
+        if ($request->user()->company_id != $order->wusun_company_id) return fail('非本公司订单');
+
+        return success();
+    }
+
 }

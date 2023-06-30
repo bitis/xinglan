@@ -34,7 +34,7 @@ class UserController extends Controller
                 $query->where('company_id', $company_id);
             })->when($role, function ($query, $role) {
                 $query->role($role);
-            })->when($status, function ($query, $status) {
+            })->when(strlen($status), function ($query) use ($status) {
                 $query->where('status', $status);
             })->when($text, function ($query, $text) {
                 $query->where('name', 'like', "%$text%")
@@ -78,4 +78,37 @@ class UserController extends Controller
         return success($user);
     }
 
+    /**
+     * 根据权限获取用户
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function getByRoles(Request $request): JsonResponse
+    {
+        $roleStr = $request->input('roles');
+
+        $withStr = $request->input('with', '');
+
+        $company_id = $request->user()->company_id;
+
+        $roleNames = array_map(fn($role) => $company_id . '_' . $role, explode(',', $roleStr));
+
+        $wantWith = $withStr ? explode(',', $withStr) : false;
+
+        $withs = $wantWith ? array_map(fn($with) => match ($with) {
+            'roles' => 'roles',
+            'company' => 'company:id,name',
+        }, $wantWith) : false;
+
+        $users = User::role($roleNames)
+            ->when($withs, fn($query, $withs) => $query->with($withs))
+            ->where('company_id', $company_id)
+            ->when(strlen($status = $request->input('status')), function ($query) use ($status) {
+                $query->where('status', $status);
+            })
+            ->paginate(getPerPage());
+
+        return success($users);
+    }
 }
