@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
         Route::get('insuranceType', 'EnumController@insuranceType');
         Route::get('menuType', 'EnumController@menuType');
         Route::get('orderStatus', 'EnumController@orderStatus');
+        Route::get('orderCloseStatus', 'EnumController@orderCloseStatus');
     });
 
     Route::prefix('menu')->group(function () {
