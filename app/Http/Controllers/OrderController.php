@@ -190,7 +190,7 @@ class OrderController extends Controller
 
         try {
             $this->dispatch($request->input('order_id'), $params, 'Provider');
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             return fail($exception->getMessage());
         }
 
