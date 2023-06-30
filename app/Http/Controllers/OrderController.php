@@ -111,7 +111,6 @@ class OrderController extends Controller
     {
         $orderParams = $request->only([
             'insurance_company_id',
-            'order_number',
             'external_number',
             'case_number',
             'insurance_check_name',
@@ -168,59 +167,21 @@ class OrderController extends Controller
         $params['dispatch_check_at'] = now()->toDateTimeString();
 
         try {
-            $this->dispatch($request->input('order_id'), $params, 'CheckUser');
-        } catch (\Throwable $exception) {
-            return fail($exception->getMessage());
-        }
+            throw_if(!$order = Order::find($request->input('id')), '工单未找到');
 
-        return success();
-    }
+            throw_if($this->company_id != $order->wusun_company_id, '非本公司订单');
 
-    /**
-     * 派遣服务商（保险公司派遣无损公司）
-     *
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function dispatchProvider(Request $request): JsonResponse
-    {
-        $params = $request->only(['wusun_company_id', 'wusun_company_name', 'dispatch_wusun_at']);
+            $company = Company::find($this->company_id);
 
-        $params['dispatch_check_at'] = now()->toDateTimeString();
-
-        try {
-            $this->dispatch($request->input('order_id'), $params, 'Provider');
-        } catch (\Throwable $exception) {
-            return fail($exception->getMessage());
-        }
-
-        return success();
-    }
-
-    /**
-     * @throws \Throwable
-     */
-    public function dispatch($id, $params, $type)
-    {
-        $order = Order::find($id);
-
-        if (!$order) return fail('工单未找到');
-
-        throw_if($this->company_id != $order->wusun_company_id, '非本公司订单');
-
-        $company = Company::find($this->company_id);
-
-        if ($type == 'CheckUser') {
             throw_if($company->getRawOriginal('type') != CompanyType::WuSun->value, '只有物损公司可以派遣查勘');
+
+            $order->fill($params);
+            $order->save();
+        } catch (\Throwable $exception) {
+            return fail($exception->getMessage());
         }
 
-        if ($type == 'Provider') {
-            throw_if($company->getRawOriginal('type') != CompanyType::BaoXian->value, '只有保险公司可以派遣服务商');
-        }
-
-        $order->fill($params);
-
-        return $order->save();
+        return success();
     }
 
 }
