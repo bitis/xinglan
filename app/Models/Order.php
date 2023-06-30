@@ -52,6 +52,6 @@ class Order extends Model
 
     public function company(): BelongsTo
     {
-        return $this->belongsTo(Company::class, 'company_id', 'id');
+        return $this->belongsTo(Company::class, 'insurance_company_id', 'id');
     }
 }
