@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\CompanyProvider;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\Status;
+use App\Models\Enumerations\WuSunOrderStatus;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -175,6 +176,8 @@ class OrderController extends Controller
 
             throw_if($this->company_id != $order->wusun_company_id, '非本公司订单');
 
+            throw_if($order->wusun_check_accept_at, '查勘已完成');
+
             $company = Company::find($this->company_id);
 
             throw_if($company->getRawOriginal('type') != CompanyType::WuSun->value, '只有物损公司可以派遣查勘');
@@ -184,6 +187,29 @@ class OrderController extends Controller
         } catch (\Throwable $exception) {
             return fail($exception->getMessage());
         }
+
+        return success();
+    }
+
+    /**
+     * 接受派遣
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function accept(Request $request): JsonResponse
+    {
+        if (!$order = Order::find($request->input('id'))) return fail('工单未找到');
+
+        if ($this->company_id != $order->wusun_company_id) return fail('非本公司工单');
+
+        if ($this->user->id != $order->wusun_check_id) return fail('非当前用户工单');
+
+        if ($order->wusun_order_status) return fail('重复操作');
+
+        $order->wusun_order_status = WuSunOrderStatus::AcceptCheck->value;
+        $order->wusun_check_accept_at = now()->toDateTimeString();
+        $order->save();
 
         return success();
     }
