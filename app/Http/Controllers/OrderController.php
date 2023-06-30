@@ -172,7 +172,7 @@ class OrderController extends Controller
         $params['dispatch_check_at'] = now()->toDateTimeString();
 
         try {
-            throw_if(!$order = Order::find($request->input('id')), '工单未找到');
+            throw_if(!$order = Order::find($request->input('order_id')), '工单未找到');
 
             throw_if($this->company_id != $order->wusun_company_id, '非本公司订单');
 
@@ -199,7 +199,7 @@ class OrderController extends Controller
      */
     public function accept(Request $request): JsonResponse
     {
-        if (!$order = Order::find($request->input('id'))) return fail('工单未找到');
+        if (!$order = Order::find($request->input('order_id'))) return fail('工单未找到');
 
         if ($this->company_id != $order->wusun_company_id) return fail('非本公司工单');
 

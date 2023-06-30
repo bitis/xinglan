@@ -88,6 +88,7 @@ Route::middleware('auth')->group(function () {
         Route::post('form', 'OrderController@form');
         Route::post('dispatchCheckUser', 'OrderController@dispatchCheckUser');
         Route::post('dispatchProvider', 'OrderController@dispatchProvider');
+        Route::post('accept', 'OrderController@accept');
     });
 
     Route::prefix('goodsPrice')->group(function () {
