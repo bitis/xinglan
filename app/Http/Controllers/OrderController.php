@@ -8,11 +8,20 @@ use App\Models\CompanyProvider;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\Status;
 use App\Models\Order;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
+    protected int $company_id;
+    protected User $user;
+
+    public function __construct()
+    {
+        $this->user = \request()->user();
+        $this->company_id = $this->user->company_id;
+    }
 
     /**
      * 客户选择
@@ -154,36 +163,64 @@ class OrderController extends Controller
      */
     public function dispatchCheckUser(Request $request): JsonResponse
     {
-        $order = Order::find($request->input('order_id'));
+        $params = $request->only(['wusun_check_id', 'wusun_check_name', 'wusun_check_phone']);
 
-        if (!$order) return fail('工单未找到');
+        $params['dispatch_check_at'] = now()->toDateTimeString();
 
-        if ($request->user()->company_id != $order->wusun_company_id) return fail('非本公司订单');
-
-        $order->fill($request->only(['wusun_check_id', 'wusun_check_name', 'wusun_check_phone']));
-
-        $order->dispatch_check_at = now()->toDateTimeString();
-
-        $order->save();
+        try {
+            $this->dispatch($request->input('order_id'), $params, 'CheckUser');
+        } catch (\Throwable $exception) {
+            return fail($exception->getMessage());
+        }
 
         return success();
     }
 
     /**
-     * 派遣服务商（物损公司派遣？）
+     * 派遣服务商（保险公司派遣无损公司）
      *
      * @param Request $request
-     * @return JsonResponse|void
+     * @return JsonResponse
      */
-    public function dispatchProvider(Request $request)
+    public function dispatchProvider(Request $request): JsonResponse
     {
-        $order = Order::find($request->input('order_id'));
+        $params = $request->only(['wusun_company_id', 'wusun_company_name', 'dispatch_wusun_at']);
+
+        $params['dispatch_check_at'] = now()->toDateTimeString();
+
+        try {
+            $this->dispatch($request->input('order_id'), $params, 'Provider');
+        } catch (\Exception $exception) {
+            return fail($exception->getMessage());
+        }
+
+        return success();
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function dispatch($id, $params, $type)
+    {
+        $order = Order::find($id);
 
         if (!$order) return fail('工单未找到');
 
-        if ($request->user()->company_id != $order->wusun_company_id) return fail('非本公司订单');
+        throw_if($this->company_id != $order->wusun_company_id, '非本公司订单');
 
-        return success();
+        $company = Company::find($this->company_id);
+
+        if ($type == 'CheckUser') {
+            throw_if($company->getRawOriginal('type') != CompanyType::WuSun->value, '只有物损公司可以派遣查勘');
+        }
+
+        if ($type == 'Provider') {
+            throw_if($company->getRawOriginal('type') != CompanyType::BaoXian->value, '只有保险公司可以派遣服务商');
+        }
+
+        $order->fill($params);
+
+        return $order->save();
     }
 
 }

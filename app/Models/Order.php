@@ -43,7 +43,14 @@ class Order extends Model
         'owner_phone',
         'owner_price',
         'images',
-        'goods_remark'
+        'goods_remark',
+        'wusun_company_id',
+        'wusun_company_name',
+        'dispatch_wusun_at',
+        'wusun_check_id',
+        'wusun_check_name',
+        'wusun_check_phone',
+        'dispatch_check_at',
     ];
 
     protected $casts = [
