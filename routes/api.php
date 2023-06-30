@@ -96,4 +96,9 @@ Route::middleware('auth')->group(function () {
         Route::get('cats', 'GoodsPriceController@cats');
         Route::get('catsTree', 'GoodsPriceController@catsTree');
     });
+
+    Route::prefix('bidOption')->group(function () {
+        Route::get('list', 'BidOptionController@index');
+        Route::get('form', 'BidOptionController@form');
+    });
 });
