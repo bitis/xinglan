@@ -12,7 +12,7 @@ class Order extends Model
     use HasFactory, DefaultDatetimeFormat;
 
     protected $fillable = [
-        'company_id',
+        'insurance_company_id',
         'order_number',
         'external_number',
         'case_number',
