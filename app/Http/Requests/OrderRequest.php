@@ -40,7 +40,6 @@ class OrderRequest extends FormRequest
             'order_status' => [Rule::enum(OrderStatus::class)],
             'close_status' => [Rule::enum(OrderCloseStatus::class)],
             'goods_types' => '',
-            'owner_price' => 'decimal:0',
             'images',
             'goods_remark',
         ];
