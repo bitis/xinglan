@@ -30,7 +30,7 @@ enum OrderStatus : int
     {
         return match ($this) {
             OrderStatus::WaitCheck => '待查勘',
-            OrderStatus::Checking => '音勘中',
+            OrderStatus::Checking => '查勘中',
             OrderStatus::WaitRepair => '待施工',
             OrderStatus::Repairing => '施工中',
             OrderStatus::Repaired => '已修复',
