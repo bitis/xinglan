@@ -107,7 +107,10 @@ class UserController extends Controller
             ->when(strlen($status = $request->input('status')), function ($query) use ($status) {
                 $query->where('status', $status);
             })
-            ->paginate(getPerPage());
+            ->when($request->input('name'), function ($query, $text) {
+                $query->where('name', 'like', "%$text%")
+                    ->where('mobile', 'like', "%$text%");
+            })->paginate(getPerPage());
 
         return success($users);
     }
