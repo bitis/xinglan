@@ -100,6 +100,6 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('bidOption')->group(function () {
         Route::get('list', 'BidOptionController@index');
-        Route::get('form', 'BidOptionController@form');
+        Route::post('form', 'BidOptionController@form');
     });
 });

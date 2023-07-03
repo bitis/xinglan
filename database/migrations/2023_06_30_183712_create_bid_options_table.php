@@ -13,6 +13,16 @@ return new class extends Migration
     {
         Schema::create('bid_options', function (Blueprint $table) {
             $table->id();
+            $table->integer('company_id');
+            $table->integer('min_goods_price');
+            $table->integer('mid_goods_price');
+            $table->integer('working_time_deadline_min');
+            $table->integer('resting_time_deadline_min');
+            $table->integer('working_time_deadline_mid');
+            $table->integer('resting_time_deadline_mid');
+            $table->integer('working_time_deadline_max');
+            $table->integer('resting_time_deadline_max');
+            $table->boolean('status');
             $table->timestamps();
         });
     }
