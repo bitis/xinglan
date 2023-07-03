@@ -68,6 +68,7 @@ Route::middleware('auth')->group(function () {
         Route::get('tree', 'CompanyController@tree');
         Route::post('form', 'CompanyController@form');
         Route::get('branch', 'CompanyController@branch');
+        Route::get('items', 'CompanyController@items');
     });
 
     Route::prefix('provider')->group(function () {

@@ -152,4 +152,25 @@ class CompanyController extends Controller
 
         return success(array_merge($top, $second, $three));
     }
+
+    /**
+     * 搜索公司
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function items(Request $request): JsonResponse
+    {
+        $companies = Company::when($request->input('name'), function ($query, $name) {
+                $query->where('name', 'like', "%$name%");
+            })
+            ->when($request->input('type'), function ($query, $type) {
+                $query->where('type', $type);
+            })
+            ->select(['id', 'name'])
+            ->limit(20)
+            ->get();
+
+        return success($companies);
+    }
 }
