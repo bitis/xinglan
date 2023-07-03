@@ -22,6 +22,7 @@ class BidOption extends Model
         'resting_time_deadline_mid',
         'working_time_deadline_max',
         'resting_time_deadline_max',
+        'order_dispatch_role',
         'status'
     ];
 

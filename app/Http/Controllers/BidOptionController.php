@@ -7,6 +7,7 @@ use App\Models\BidOption;
 use App\Models\Company;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class BidOptionController extends Controller
 {
@@ -37,12 +38,13 @@ class BidOptionController extends Controller
             'resting_time_deadline_mid',
             'working_time_deadline_max',
             'resting_time_deadline_max',
+            'order_dispatch_role',
             'status'
         ]);
 
         $bidOption = BidOption::findOr($request->input('id'), fn() => new BidOption());
 
-        $bidOption->fill($params);
+        $bidOption->fill(Arr::whereNotNull($params));
         $bidOption->save();
 
         return success();
