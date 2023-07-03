@@ -13,6 +13,7 @@ class BidOption extends Model
 
     protected $fillable = [
         'company_id',
+        'bid_first_price',
         'min_goods_price',
         'mid_goods_price',
         'working_time_deadline_min',

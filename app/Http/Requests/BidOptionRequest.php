@@ -28,6 +28,7 @@ class BidOptionRequest extends FormRequest
     {
         return [
             'company_id' => ['required_without:id', Rule::unique('bid_options')->ignore($this->input('id'))],
+            'bid_first_price' => 'required_without:id',
             'min_goods_price' => 'required_without:id',
             'mid_goods_price' => 'required_without:id',
             'working_time_deadline_min' => 'required_without:id',

@@ -28,6 +28,7 @@ class BidOptionController extends Controller
     {
         $params = $request->only([
             'company_id',
+            'bid_first_price',
             'min_goods_price',
             'mid_goods_price',
             'working_time_deadline_min',
