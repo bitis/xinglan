@@ -20,6 +20,9 @@ class BidOptionController extends Controller
                     return $query->where('company_id', $request->input('company_id'));
                 return $query->whereIn('company_id', Company::getGroupId($request->user()->company_id));
             })
+            ->when(strlen($status = $request->input('status')), function ($query) use ($status) {
+                $query->where('status', $status);
+            })
             ->paginate(getPerPage());
 
         return success($options);
