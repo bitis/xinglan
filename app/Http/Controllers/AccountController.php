@@ -34,6 +34,8 @@ class AccountController extends Controller
 
         $user->assignRole($company_id . '_查勘人员');
 
+        $user->save();
+
         return success($user);
     }
 

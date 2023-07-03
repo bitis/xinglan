@@ -47,5 +47,7 @@ class CreateCompany implements ShouldQueue
         $user = User::find($company->admim_id);
 
         $user->assignRole($company->id . '_公司管理员');
+
+        $user->save();
     }
 }
