@@ -47,6 +47,7 @@ class BidOptionRequest extends FormRequest
         return [
             'company_id.unique' => '当前公司已存在配置',
             'status.*' => '未知的状态类型',
+            'order_dispatch_role.*' => '派单模式类型错误',
         ];
     }
 }
