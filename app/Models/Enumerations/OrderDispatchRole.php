@@ -9,13 +9,13 @@ enum OrderDispatchRole : int
 
     use EnumArray;
 
-    case Order = 0;
+    case Queue = 0;
     case Area = 1;
 
     public function name(): string
     {
         return match ($this) {
-            OrderDispatchRole::Order => '顺序分派',
+            OrderDispatchRole::Queue => '顺序分派',
             OrderDispatchRole::Area => '区域分派',
         };
     }

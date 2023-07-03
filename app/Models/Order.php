@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Jobs\OrderDispatch;
 use App\Models\Traits\DefaultDatetimeFormat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -65,5 +66,12 @@ class Order extends Model
     public static function genOrderNumber(): string
     {
         return 'XL' . date('ymdHis') . rand(10, 99);
+    }
+
+    protected static function booted()
+    {
+        static::created(function ($order) {
+            OrderDispatch::dispatch($order);
+        });
     }
 }
