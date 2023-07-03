@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Enumerations\OrderDisPatchRole;
 use App\Models\Enumerations\Status;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -36,7 +37,7 @@ class BidOptionRequest extends FormRequest
             'resting_time_deadline_mid' => 'required_without:id',
             'working_time_deadline_max' => 'required_without:id',
             'resting_time_deadline_max' => 'required_without:id',
-            'order_dispatch_role' => 'required_without:id',
+            'order_dispatch_role' => [Rule::enum(OrderDisPatchRole::class)],
             'status' => [Rule::enum(Status::class)],
         ];
     }
