@@ -156,7 +156,7 @@ class OrderController extends Controller
 
         $order->save();
 
-        return success($order);
+        return success($order->load('company:id,name'));
     }
 
     /**
