@@ -4,7 +4,7 @@ namespace App\Models\Enumerations;
 
 use App\Models\Enumerations\Traits\EnumArray;
 
-enum OrderDisPatchRole : int
+enum OrderDispatchRole : int
 {
 
     use EnumArray;
@@ -15,8 +15,8 @@ enum OrderDisPatchRole : int
     public function name(): string
     {
         return match ($this) {
-            OrderDisPatchRole::Order => '顺序分派',
-            OrderDisPatchRole::Area => '区域分派',
+            OrderDispatchRole::Order => '顺序分派',
+            OrderDispatchRole::Area => '区域分派',
         };
     }
 }
