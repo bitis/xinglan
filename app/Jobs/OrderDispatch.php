@@ -68,7 +68,7 @@ class OrderDispatch implements ShouldQueue
 
             foreach ($options as $option) {
                 if (in_array($this->order->area, $option['area']))
-                    $available = ['provider_id' => $option['provider_id'], 'weight' => $option['weight']];
+                    $available[] = $option;
             }
 
             $provider = $this->dispatchByWeight($available);
@@ -98,14 +98,14 @@ class OrderDispatch implements ShouldQueue
             default:
                 $availableProviders = [];
                 $totalWeight = 0;
-                foreach ($available as $item) {
+                foreach ($available as $key => $item) {
                     $totalWeight += $item['weight'] * 100;
-                    $availableProviders = array_pad($availableProviders, $totalWeight, $item['provider_id']);
+                    $availableProviders = array_pad($availableProviders, $totalWeight, $key);
                 }
-var_dump($availableProviders);
+
                 $winner = $availableProviders[random_int(0, $totalWeight)];
 
-                $provider = $available[$winner];
+                $provider = CompanyProvider::find($available[$winner]->relation_id);
         }
 
         return $provider;
