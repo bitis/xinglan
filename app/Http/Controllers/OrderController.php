@@ -97,7 +97,9 @@ class OrderController extends Controller
                         ->orWhere('license_plate', 'like', "%$name%")
                         ->orWhere('vin', 'like', "%$name%");
                 });
-            })->paginate(getPerPage());
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(getPerPage());
 
         return success($userList);
     }
