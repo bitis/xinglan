@@ -21,7 +21,7 @@ class ProviderOptionController extends Controller
     {
         $current_company_id = $request->user()->company_id;
 
-        $options = ProviderOption::with('provider:id,name')
+        $options = ProviderOption::with('provider:id,provider_id,provider_name')
             ->where('company_id', $current_company_id)
             ->when($request->input('province'), function ($query, $province) {
                 $query->where('province', $province);

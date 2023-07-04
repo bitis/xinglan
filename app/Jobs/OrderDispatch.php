@@ -9,6 +9,7 @@ use App\Models\Enumerations\OrderCheckStatus;
 use App\Models\Enumerations\OrderDispatchRole;
 use App\Models\Enumerations\Status;
 use App\Models\Order;
+use App\Models\ProviderOption;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -42,28 +43,71 @@ class OrderDispatch implements ShouldQueue
 
         $config = BidOption::where('company_id', $company->id)->first();
 
-        // 未配置派单规则
-        if (empty($config)) return;
+        $dispatchRole = empty($config) ? OrderDispatchRole::Queue->value : $config->order_dispatch_role;
 
-        $dispatchRole = $config->order_dispatch_role;
+        $provider = [];
 
-        if ($dispatchRole == OrderDispatchRole::Queue) {
+        if ($dispatchRole == OrderDispatchRole::Queue->value) {
             $index = $company->queue_index % count($providers);
 
             $provider = $providers[$index];
-
-            $this->order->fill([
-                'check_wusun_company_id' => $provider->provider_id,
-                'check_wusun_company_name' => $provider->provider_name,
-                'dispatch_check_wusun_at' => now()->toDateTimeString(),
-                'check_status' => OrderCheckStatus::DispatchCompany
-            ]);
-
-            $this->order->save();
 
             $company->queue_index++;
             $company->save();
         }
 
+        if ($dispatchRole == OrderDispatchRole::Area->value) {
+            $options = ProviderOption::where('company_id', $company->id)
+                ->where('insurance_type', $this->order->insurance_type)
+                ->where('province', $this->order->province)
+                ->where('city', $this->order->city)
+                ->where('status', $status)
+                ->get();
+
+            $available = [];
+
+            foreach ($options as $option) {
+                if (in_array($this->order->area, $option['area']))
+                    $available = ['provider_id' => $option['provider_id'], 'weight' => $option['weight']];
+            }
+
+            $provider = $this->dispatchByWeight($available);
+
+        }
+
+        if ($provider) $this->order->fill([
+            'check_wusun_company_id' => $provider->provider_id,
+            'check_wusun_company_name' => $provider->provider_name,
+            'dispatch_check_wusun_at' => now()->toDateTimeString(),
+            'check_status' => OrderCheckStatus::DispatchCompany,
+            'dispatched' => true
+        ]);
+
+        $this->order->save();
+    }
+
+    protected function dispatchByWeight(array $available)
+    {
+        switch (count($available)) {
+            case 0:
+                $provider = null;
+                break;
+            case 1:
+                $provider = $available[0];
+                break;
+            default:
+                $availableProviders = [];
+                $totalWeight = 0;
+                foreach ($available as $item) {
+                    $totalWeight += $item['weight'] * 100;
+                    $availableProviders = array_pad($availableProviders, $totalWeight, $item['provider_id']);
+                }
+var_dump($availableProviders);
+                $winner = $availableProviders[random_int(0, $totalWeight)];
+
+                $provider = $available[$winner];
+        }
+
+        return $provider;
     }
 }

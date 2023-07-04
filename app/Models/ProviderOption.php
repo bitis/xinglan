@@ -27,6 +27,6 @@ class ProviderOption extends Model
 
     public function provider(): BelongsTo
     {
-        return $this->belongsTo(Company::class, 'provider_id', 'id');
+        return $this->belongsTo(CompanyProvider::class, 'provider_id', 'id');
     }
 }

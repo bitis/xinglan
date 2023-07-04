@@ -13,8 +13,8 @@ class Order extends Model
     use HasFactory, DefaultDatetimeFormat;
 
     protected $fillable = [
-        'insurance_company_id',
         'order_number',
+        'insurance_company_id',
         'external_number',
         'case_number',
         'insurance_check_name',
@@ -45,13 +45,20 @@ class Order extends Model
         'owner_price',
         'images',
         'goods_remark',
+        'check_wusun_company_id',
+        'check_wusun_company_name',
+        'dispatch_check_wusun_at',
         'wusun_company_id',
         'wusun_company_name',
-        'dispatch_wusun_at',
+        'confim_wusun_at',
         'wusun_check_id',
         'wusun_check_name',
         'wusun_check_phone',
+        'wusun_check_accept_at',
+        'check_status',
+        'wusun_order_status',
         'dispatch_check_at',
+        'dispatched',
     ];
 
     protected $casts = [
