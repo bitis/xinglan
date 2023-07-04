@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
         Route::get('menuType', 'EnumController@menuType');
         Route::get('orderStatus', 'EnumController@orderStatus');
         Route::get('orderCloseStatus', 'EnumController@orderCloseStatus');
+        Route::get('messageType', 'EnumController@messageType');
     });
 
     Route::prefix('menu')->group(function () {
@@ -102,5 +103,10 @@ Route::middleware('auth')->group(function () {
     Route::prefix('bidOption')->group(function () {
         Route::get('list', 'BidOptionController@index');
         Route::post('form', 'BidOptionController@form');
+    });
+
+    Route::prefix('message')->group(function () {
+        Route::get('list', 'MessageController@index');
+        Route::post('accept', 'BidOptionController@accept');
     });
 });

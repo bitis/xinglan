@@ -5,9 +5,11 @@ namespace App\Jobs;
 use App\Models\BidOption;
 use App\Models\Company;
 use App\Models\CompanyProvider;
+use App\Models\Enumerations\MessageType;
 use App\Models\Enumerations\OrderCheckStatus;
 use App\Models\Enumerations\OrderDispatchRole;
 use App\Models\Enumerations\Status;
+use App\Models\Message;
 use App\Models\Order;
 use App\Models\ProviderOption;
 use Illuminate\Bus\Queueable;
@@ -75,13 +77,29 @@ class OrderDispatch implements ShouldQueue
 
         }
 
-        if ($provider) $this->order->fill([
-            'check_wusun_company_id' => $provider->provider_id,
-            'check_wusun_company_name' => $provider->provider_name,
-            'dispatch_check_wusun_at' => now()->toDateTimeString(),
-            'check_status' => OrderCheckStatus::DispatchCompany,
-            'dispatched' => true
-        ]);
+        if ($provider) {
+            $this->order->fill([
+                'check_wusun_company_id' => $provider->provider_id,
+                'check_wusun_company_name' => $provider->provider_name,
+                'dispatch_check_wusun_at' => now()->toDateTimeString(),
+                'check_status' => OrderCheckStatus::DispatchCompany,
+                'dispatched' => true
+            ]);
+
+            // Message
+            $message = new Message([
+                'send_company_id' => $this->order->insurance_company_id,
+                'to_company_id' => $this->order->check_wusun_company_id,
+                'type' => MessageType::NewOrder->value,
+                'order_id' => $this->order->id,
+                'order_number' => $this->order->order_number,
+                'case_number' => $this->order->case_number,
+                'goods_types' => $this->order->goods_types,
+                'remark' => $this->order->remark,
+                'status' => 0,
+            ]);
+            $message->save();
+        }
 
         $this->order->save();
     }
