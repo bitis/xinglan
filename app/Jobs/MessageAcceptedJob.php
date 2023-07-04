@@ -2,9 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Models\Enumerations\MessageType;
+use App\Models\Enumerations\WuSunCheckStatus;
 use App\Models\Message;
+use App\Models\Order;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -28,5 +30,18 @@ class MessageAcceptedJob implements ShouldQueue
     public function handle(): void
     {
 
+        $order = Order::find($this->message->order_id);
+
+        switch ($this->message->type) {
+            case MessageType::NewOrder->value:// 物损公司接受派单
+                $order->accept_check_wusun_at = $this->message->accept_at;
+                $order->save();
+                break;
+            case MessageType::NewCheckTask->value: // 查勘接受查勘任务
+                $order->wusun_order_status = WuSunCheckStatus::AcceptCheck->value;
+                $order->wusun_check_accept_at = $this->message->accept_at;
+                $order->save();
+                break;
+        }
     }
 }

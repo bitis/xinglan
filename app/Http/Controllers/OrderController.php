@@ -6,8 +6,12 @@ use App\Http\Requests\OrderRequest;
 use App\Models\Company;
 use App\Models\CompanyProvider;
 use App\Models\Enumerations\CompanyType;
+use App\Models\Enumerations\MessageType;
+use App\Models\Enumerations\OrderCheckStatus;
+use App\Models\Enumerations\OrderStatus;
 use App\Models\Enumerations\Status;
-use App\Models\Enumerations\WuSunOrderStatus;
+use App\Models\Enumerations\WuSunCheckStatus;
+use App\Models\Message;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -61,7 +65,7 @@ class OrderController extends Controller
 
         $company_id = $request->input('company_id');
 
-        $roles = $user->getRoleNames()->toArray();
+        $role = str_replace($user->company_id . '_', '', $user->getRoleNames()->toArray()[0]);
 
         $userList = Order::with('company:id,name')
             ->where(function ($query) use ($current_company, $company_id) {
@@ -69,17 +73,32 @@ class OrderController extends Controller
                     return match ($current_company->getRawOriginal('type')) {
                         CompanyType::BaoXian->value,
                         CompanyType::WuSun->value => $query->where('insurance_company_id', $company_id),
-                        CompanyType::WeiXiu->value => $query->where('damage_company_id', $company_id),
+                        CompanyType::WeiXiu->value => $query->where('wusun_company_id', $company_id),
                     };
 
+                $groupId = Company::getGroupId($current_company->id);
+
                 return match ($current_company->getRawOriginal('type')) {
-                    CompanyType::BaoXian->value => $query->where('insurance_company_id', $current_company->id),
-                    CompanyType::WuSun->value => $query->where('damage_company_id', $current_company->id),
+                    CompanyType::BaoXian->value => $query->whereIn('insurance_company_id', $groupId),
+                    CompanyType::WuSun->value => $query->whereIn('wusun_company_id', $groupId)
+                        ->OrWhereIn('check_wusun_company_id', $groupId),
                     CompanyType::WeiXiu->value => $query->where('repair_company_id', $current_company->id),
                 };
-            })->when($roles, function ($query, $roles) use ($user) {
-                $rolesName = implode(',', $roles);
-                if (strpos($rolesName, '查勘人员')) $query->where('creator_id', '=', $user->id);
+            })->when($role, function ($query, $role) use ($user) {
+
+                switch ($role) {
+                    case '查勘人员':
+                        $query->where(function ($query) use ($user) {
+                            $query->where('creator_id', '=', $user->id)
+                                ->orWhere('wusun_check_id', '=', $user->id);
+                        });
+                        break;
+                    case '查勘经理':
+                    case '公司管理员':
+                        break;
+                    default:
+                        $query->where('id', null);
+                }
             })->when($request->input('post_time_start'), function ($query, $post_time_start) {
                 $query->where('post_time', '>', $post_time_start);
             })->when($request->input('post_time_end'), function ($query, $post_time_end) {
@@ -176,7 +195,7 @@ class OrderController extends Controller
         try {
             throw_if(!$order = Order::find($request->input('order_id')), '工单未找到');
 
-            throw_if($this->company_id != $order->wusun_company_id, '非本公司订单');
+            throw_if($this->company_id != $order->check_wusun_company_id, '非本公司订单');
 
             throw_if($order->wusun_check_accept_at, '查勘已完成');
 
@@ -185,7 +204,24 @@ class OrderController extends Controller
             throw_if($company->getRawOriginal('type') != CompanyType::WuSun->value, '只有物损公司可以派遣查勘');
 
             $order->fill($params);
+            $order->wusun_check_status = WuSunCheckStatus::AcceptCheck->value;
+            $order->order_status = OrderStatus::Checking->value;
             $order->save();
+
+            // Message
+            $message = new Message([
+                'send_company_id' => $order->insurance_company_id,
+                'to_company_id' => $order->check_wusun_company_id,
+                'user_id' => $params['wusun_check_id'],
+                'type' => MessageType::NewCheckTask->value,
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'case_number' => $order->case_number,
+                'goods_types' => $order->goods_types,
+                'remark' => $order->remark,
+                'status' => 0,
+            ]);
+            $message->save();
         } catch (\Throwable $exception) {
             return fail($exception->getMessage());
         }
@@ -209,7 +245,7 @@ class OrderController extends Controller
 
         if ($order->wusun_order_status) return fail('重复操作');
 
-        $order->wusun_order_status = WuSunOrderStatus::AcceptCheck->value;
+        $order->wusun_order_status = WuSunCheckStatus::AcceptCheck->value;
         $order->wusun_check_accept_at = now()->toDateTimeString();
         $order->save();
 

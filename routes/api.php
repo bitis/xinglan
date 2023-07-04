@@ -107,6 +107,6 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('message')->group(function () {
         Route::get('list', 'MessageController@index');
-        Route::post('accept', 'BidOptionController@accept');
+        Route::post('accept', 'MessageController@accept');
     });
 });

@@ -32,6 +32,7 @@ class MessageController extends Controller
                 $messageType = [MessageType::NewOrder->value];
                 break;
             case '查勘人员':
+                $messageType = [MessageType::NewCheckTask->value];
                 break;
             case '财务经理':
                 break;
@@ -47,7 +48,7 @@ class MessageController extends Controller
                 $messageType = [];
         }
 
-        $messages = Message::with('sendCompany:id,name')
+        $messages = Message::with(['sendCompany:id,name', 'order'])
             ->where('to_company_id', $company->id)
             ->whereIn('type', $messageType)
             ->orderBy('id', 'desc')
@@ -71,6 +72,8 @@ class MessageController extends Controller
         if (empty($message) or $message->to_company_id != $user->company_id) return fail('操作失败');
 
         if ($message->status == Status::Normal->value) return success();
+
+        if (!empty($message->user_id) and $message->user_id != $user->id) return fail('非本人消息');
 
         $message->status = Status::Normal->value;
         $message->accept_user_id = $user->id;
