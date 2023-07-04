@@ -15,6 +15,7 @@ class ProviderOption extends Model
     ];
 
     protected $fillable = [
+        'relation_id',
         'company_id',
         'provider_id',
         'insurance_type',
@@ -27,6 +28,6 @@ class ProviderOption extends Model
 
     public function provider(): BelongsTo
     {
-        return $this->belongsTo(CompanyProvider::class, 'provider_id', 'id');
+        return $this->belongsTo(CompanyProvider::class, 'relation_id', 'id');
     }
 }

@@ -47,8 +47,11 @@ class ProviderOptionController extends Controller
     {
         $params = $request->only(['company_id', 'provider_id', 'insurance_type', 'province', 'city', 'area', 'weight', 'status']);
 
-        $option = ProviderOption::findOr($request->input('id'), function () {
-            return new ProviderOption();
+        $option = ProviderOption::findOr($request->input('id'), function () use ($params) {
+            $relation_id = CompanyProvider::where('company_id', $params['company_id'])
+                ->where('provider_id', $params['provider_id'])
+                ->first()?->id;
+            return new ProviderOption(['relation_id' => $relation_id]);
         });
 
         $option->fill(Arr::whereNotNull($params));
