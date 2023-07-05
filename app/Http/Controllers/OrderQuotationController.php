@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderQuotation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class OrderQuotationController extends Controller
 {
@@ -37,7 +38,8 @@ class OrderQuotationController extends Controller
 
         $order = Order::find($request->input('order_id'));
 
-        $quotation = OrderQuotation::where('company_id', $user->compnay_id)->findOr($request->input('id'), fn() => new OrderQuotation());
+        $quotation = OrderQuotation::where('company_id', $user->compnay_id)
+            ->findOr($request->input('id'), fn() => new OrderQuotation(['security_code' => Str::random()]));
 
         $quotation->fill($request->only([
             'order_id',

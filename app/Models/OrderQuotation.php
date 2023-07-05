@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Jobs\OrderDispatch;
+use App\Jobs\OrderQuotationQrcodeJob;
 use App\Models\Traits\DefaultDatetimeFormat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,6 +29,7 @@ class OrderQuotation extends Model
         'total_price',
         'images',
         'submit',
+        'security_code'
     ];
 
     protected $casts = [
@@ -36,5 +39,12 @@ class OrderQuotation extends Model
     public function items(): HasMany
     {
         return $this->hasMany(QuotationItem::class);
+    }
+
+   protected static function booted()
+    {
+        static::created(function ($quotation) {
+            OrderQuotationQrcodeJob::dispatch($quotation);
+        });
     }
 }
