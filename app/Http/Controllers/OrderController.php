@@ -8,6 +8,7 @@ use App\Models\CompanyProvider;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\MessageType;
 use App\Models\Enumerations\OrderCheckStatus;
+use App\Models\Enumerations\OrderPlanType;
 use App\Models\Enumerations\OrderStatus;
 use App\Models\Enumerations\Status;
 use App\Models\Enumerations\WuSunStatus;
@@ -247,5 +248,30 @@ class OrderController extends Controller
         $order->save();
 
         return success();
+    }
+
+    /**
+     * 确认维修方案
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function confirmPlan(Request $request): JsonResponse
+    {
+        $order = Order::find($request->input('order_id'));
+        if (empty($order) or $order->wusun_check_id != $request->user()->id) return fail('工单不存在或不属于当前账号');
+
+        $order->fill($request->only(['plan_type', 'owner_name', 'owner_phone', 'owner_price', 'negotiation_content']));
+        $order->plan_confirm_at = now()->toDateTimeString();
+        $order->wusun_status = WuSunStatus::ConfirmPlan->value;
+        $order->plan_confirm_at = now()->toDateTimeString();
+
+        if ($order->plan_type == OrderPlanType::Repair) {
+            $order->fill($request->only(['wusun_repair_other_cost', 'wusun_repair_user_id', 'wusun_repair_remark']));
+        }
+
+        $order->save();
+
+        return success($order);
     }
 }

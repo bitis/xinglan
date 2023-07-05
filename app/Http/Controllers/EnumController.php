@@ -7,6 +7,7 @@ use App\Models\Enumerations\InsuranceType;
 use App\Models\Enumerations\MenuType;
 use App\Models\Enumerations\MessageType;
 use App\Models\Enumerations\OrderCloseStatus;
+use App\Models\Enumerations\OrderPlanType;
 use App\Models\Enumerations\OrderStatus;
 use App\Models\Enumerations\Status;
 use App\Models\Enumerations\WuSunStatus;
@@ -53,5 +54,10 @@ class EnumController extends Controller
     public function wuSunCheckStatus(): JsonResponse
     {
         return success(WuSunStatus::toArray());
+    }
+
+    public function orderPlanType(): JsonResponse
+    {
+        return success(OrderPlanType::toArray());
     }
 }

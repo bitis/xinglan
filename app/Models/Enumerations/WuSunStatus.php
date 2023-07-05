@@ -13,7 +13,7 @@ enum WuSunStatus : int
 
     case FinishedCheck = 2;
 
-    case CheckedPlan = 3;
+    case ConfirmPlan = 3;
 
     case Dispatched = 4;
 
@@ -26,7 +26,7 @@ enum WuSunStatus : int
         return match ($this) {
             WuSunStatus::AcceptCheck => '接受任务',
             WuSunStatus::FinishedCheck => '完成查勘',
-            WuSunStatus::CheckedPlan => '确认方案',
+            WuSunStatus::ConfirmPlan => '确认方案',
             WuSunStatus::Dispatched => '分派施工',
             WuSunStatus::Repairing => '开始施工',
             WuSunStatus::Repaired => '完成施工',

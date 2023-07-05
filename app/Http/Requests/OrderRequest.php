@@ -45,7 +45,7 @@ class OrderRequest extends FormRequest
         ];
     }
 
-    public function messages()
+    public function messages(): array
     {
         return [
             'case_number.unique' => '报案号已经存在',

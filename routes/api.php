@@ -92,6 +92,7 @@ Route::middleware('auth')->group(function () {
         Route::post('dispatchCheckUser', 'OrderController@dispatchCheckUser');
         Route::post('dispatchProvider', 'OrderController@dispatchProvider');
         Route::post('check', 'OrderController@check'); // 物损查勘人员查勘
+        Route::post('confirmPlan', 'OrderController@confirmPlan'); // 物损确认方案
     });
 
     Route::prefix('goodsPrice')->group(function () {
