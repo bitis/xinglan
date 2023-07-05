@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Enumerations\MessageType;
-use App\Models\Enumerations\WuSunCheckStatus;
+use App\Models\Enumerations\WuSunStatus;
 use App\Models\Message;
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
@@ -38,7 +38,7 @@ class MessageAcceptedJob implements ShouldQueue
                 $order->save();
                 break;
             case MessageType::NewCheckTask->value: // 查勘接受查勘任务
-                $order->wusun_order_status = WuSunCheckStatus::AcceptCheck->value;
+                $order->wusun_status = WuSunStatus::AcceptCheck->value;
                 $order->wusun_check_accept_at = $this->message->accept_at;
                 $order->save();
                 break;

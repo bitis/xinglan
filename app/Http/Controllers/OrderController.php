@@ -10,7 +10,7 @@ use App\Models\Enumerations\MessageType;
 use App\Models\Enumerations\OrderCheckStatus;
 use App\Models\Enumerations\OrderStatus;
 use App\Models\Enumerations\Status;
-use App\Models\Enumerations\WuSunCheckStatus;
+use App\Models\Enumerations\WuSunStatus;
 use App\Models\Message;
 use App\Models\Order;
 use App\Models\User;
@@ -204,7 +204,7 @@ class OrderController extends Controller
             throw_if($company->getRawOriginal('type') != CompanyType::WuSun->value, '只有物损公司可以派遣查勘');
 
             $order->fill($params);
-            $order->wusun_check_status = WuSunCheckStatus::AcceptCheck->value;
+            $order->wusun_status = WuSunStatus::AcceptCheck->value;
             $order->order_status = OrderStatus::Checking->value;
             $order->save();
 
@@ -242,7 +242,7 @@ class OrderController extends Controller
 
         $order->fill($request->only(['images', 'remark']));
 
-        $order->wusun_check_status = WuSunCheckStatus::FinishedCheck;
+        $order->wusun_status = WuSunStatus::FinishedCheck;
         $order->wusun_checked_at = now()->toDateTimeString();
         $order->save();
 
