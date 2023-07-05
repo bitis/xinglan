@@ -54,7 +54,7 @@ class OrderQuotationController extends Controller
             'submit'
         ]));
 
-        $quotation->compnay_id = $user->compnay_id;
+        $quotation->company_id = $user->company_id;
 
         $quotation->save();
 
