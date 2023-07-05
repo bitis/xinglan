@@ -32,7 +32,8 @@ Route::middleware('auth')->group(function () {
         Route::get('orderStatus', 'EnumController@orderStatus');
         Route::get('orderCloseStatus', 'EnumController@orderCloseStatus');
         Route::get('messageType', 'EnumController@messageType');
-        Route::get('wuSunCheckStatus', 'WuSunCheckStatus@wuSunCheckStatus');
+        Route::get('wuSunCheckStatus', 'EnumController@wuSunCheckStatus');
+        Route::get('orderPlanType', 'EnumController@orderPlanType');
     });
 
     Route::prefix('menu')->group(function () {
@@ -93,6 +94,12 @@ Route::middleware('auth')->group(function () {
         Route::post('dispatchProvider', 'OrderController@dispatchProvider');
         Route::post('check', 'OrderController@check'); // 物损查勘人员查勘
         Route::post('confirmPlan', 'OrderController@confirmPlan'); // 物损确认方案
+    });
+
+    Route::prefix('quotation')->group(function () {
+        Route::post('list', 'OrderQuotationController@index'); // 获取某个某单的所有报价 （保险公司开标）
+        Route::get('getByOrderId', 'OrderQuotationController@getByOrderId'); // 获取当前公司某工单的报价想详情 （物损公司）
+        Route::post('form', 'OrderQuotationController@customer'); // 提交报价（物损公司）
     });
 
     Route::prefix('goodsPrice')->group(function () {

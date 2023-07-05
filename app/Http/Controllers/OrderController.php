@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\OrderRequest;
 use App\Models\Company;
 use App\Models\CompanyProvider;
+use App\Models\Enumerations\CheckStatus;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\MessageType;
 use App\Models\Enumerations\OrderCheckStatus;
@@ -14,6 +15,7 @@ use App\Models\Enumerations\Status;
 use App\Models\Enumerations\WuSunStatus;
 use App\Models\Message;
 use App\Models\Order;
+use App\Models\OrderQuotation;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -274,4 +276,19 @@ class OrderController extends Controller
 
         return success($order);
     }
+
+    /**
+     * 获取某个某单的所有报价 （保险公司开标）
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function quotations(Request $request): JsonResponse
+    {
+        $quotations = OrderQuotation::where('order_id', $request->input('order_id'))
+            ->where('check_status', CheckStatus::Accept->value)->get();
+
+        return success($quotations);
+    }
+
 }
