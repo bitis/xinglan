@@ -9,6 +9,7 @@ use App\Models\Enumerations\MessageType;
 use App\Models\Enumerations\OrderCloseStatus;
 use App\Models\Enumerations\OrderStatus;
 use App\Models\Enumerations\Status;
+use App\Models\Enumerations\WuSunCheckStatus;
 use App\Models\GoodsType;
 use Illuminate\Http\JsonResponse;
 
@@ -47,5 +48,10 @@ class EnumController extends Controller
     public function messageType(): JsonResponse
     {
         return success(MessageType::toArray());
+    }
+
+    public function wuSunCheckStatus(): JsonResponse
+    {
+        return success(WuSunCheckStatus::toArray());
     }
 }

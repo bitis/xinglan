@@ -230,26 +230,22 @@ class OrderController extends Controller
     }
 
     /**
-     * 接受派遣
-     *
+     * 完成查勘 （物损查看人员）
      * @param Request $request
      * @return JsonResponse
      */
-    public function accept(Request $request): JsonResponse
+    public function check(Request $request): JsonResponse
     {
-        if (!$order = Order::find($request->input('order_id'))) return fail('工单未找到');
+        $order = Order::find($request->input('order_id'));
 
-        if ($this->company_id != $order->wusun_company_id) return fail('非本公司工单');
+        if (empty($order) or $order->wusun_check_id != $request->user()->id) return fail('工单不存在或不属于当前账号');
 
-        if ($this->user->id != $order->wusun_check_id) return fail('非当前用户工单');
+        $order->fill($request->only(['images', 'remark']));
 
-        if ($order->wusun_order_status) return fail('重复操作');
-
-        $order->wusun_order_status = WuSunCheckStatus::AcceptCheck->value;
-        $order->wusun_check_accept_at = now()->toDateTimeString();
+        $order->wusun_check_status = WuSunCheckStatus::FinishedCheck;
+        $order->wusun_checked_at = now()->toDateTimeString();
         $order->save();
 
         return success();
     }
-
 }

@@ -56,6 +56,7 @@ class Order extends Model
         'wusun_check_name',
         'wusun_check_phone',
         'wusun_check_accept_at',
+        'wusun_checked_at',
         'wusun_check_status',
         'wusun_order_status',
         'dispatch_check_at',

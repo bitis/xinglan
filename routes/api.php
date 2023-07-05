@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
         Route::get('orderStatus', 'EnumController@orderStatus');
         Route::get('orderCloseStatus', 'EnumController@orderCloseStatus');
         Route::get('messageType', 'EnumController@messageType');
+        Route::get('wuSunCheckStatus', 'WuSunCheckStatus@wuSunCheckStatus');
     });
 
     Route::prefix('menu')->group(function () {
@@ -90,7 +91,7 @@ Route::middleware('auth')->group(function () {
         Route::post('form', 'OrderController@form');
         Route::post('dispatchCheckUser', 'OrderController@dispatchCheckUser');
         Route::post('dispatchProvider', 'OrderController@dispatchProvider');
-        Route::post('accept', 'OrderController@accept');
+        Route::post('check', 'OrderController@check'); // 物损查勘人员查勘
     });
 
     Route::prefix('goodsPrice')->group(function () {

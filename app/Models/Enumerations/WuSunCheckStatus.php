@@ -11,26 +11,22 @@ enum WuSunCheckStatus : int
 
     case AcceptCheck = 1;
 
-    case ArrivedCheckLocation = 2;
+    case FinishedCheck = 2;
 
-    case FinishedCheck = 3;
+    case CheckedPlan = 3;
 
-    case Checked = 4;
+    case Dispatched = 4;
 
-    case Dispatched = 5;
+    case Repairing = 5;
 
-    case Repairing = 6;
-
-    case Repaired = 7;
-
+    case Repaired = 6;
 
     public function name(): string
     {
         return match ($this) {
             WuSunCheckStatus::AcceptCheck => '接受任务',
-            WuSunCheckStatus::ArrivedCheckLocation => '抵达现场',
             WuSunCheckStatus::FinishedCheck => '完成查勘',
-            WuSunCheckStatus::Checked => '完成确认',
+            WuSunCheckStatus::CheckedPlan => '确认方案',
             WuSunCheckStatus::Dispatched => '分派施工',
             WuSunCheckStatus::Repairing => '开始施工',
             WuSunCheckStatus::Repaired => '完成施工',
