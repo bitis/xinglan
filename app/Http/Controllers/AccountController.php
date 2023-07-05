@@ -112,7 +112,7 @@ class AccountController extends Controller
                 return fail('密码校验失败');
             }
 
-            $user->password = encrypt($editPassword);
+            $user->password = bcrypt($editPassword);
 
             $user->api_token = Str::random(32);
         }

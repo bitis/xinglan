@@ -98,7 +98,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('quotation')->group(function () {
         Route::post('list', 'OrderQuotationController@index'); // 获取某个某单的所有报价 （保险公司开标）
-        Route::get('getByOrderId', 'OrderQuotationController@getByOrderId'); // 获取当前公司某工单的报价想详情 （物损公司）
+        Route::get('getByOrderId', 'OrderQuotationController@getByOrderId'); // 获取当前公司某工单的报价详情 （物损公司）
         Route::post('form', 'OrderQuotationController@form'); // 提交报价（物损公司）
     });
 
