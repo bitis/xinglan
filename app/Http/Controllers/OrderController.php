@@ -8,7 +8,6 @@ use App\Models\CompanyProvider;
 use App\Models\Enumerations\CheckStatus;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\MessageType;
-use App\Models\Enumerations\OrderCheckStatus;
 use App\Models\Enumerations\OrderPlanType;
 use App\Models\Enumerations\OrderStatus;
 use App\Models\Enumerations\Status;
@@ -97,6 +96,7 @@ class OrderController extends Controller
                         });
                         break;
                     case '查勘经理':
+                    case 'admin':
                     case '公司管理员':
                         break;
                     default:
