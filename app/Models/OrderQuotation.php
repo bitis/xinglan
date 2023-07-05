@@ -11,6 +11,8 @@ class OrderQuotation extends Model
 {
     use HasFactory, DefaultDatetimeFormat;
 
+    protected $with = ['items'];
+
     protected $fillable = [
         'order_id',
         'company_id',
