@@ -33,7 +33,7 @@ class OrderQuotationQrcodeJob implements ShouldQueue
     {
         $quotation = $this->quotation;
 
-        $security_url = config('app.url') . '/security/code/' . $quotation->security_code;
+        $security_url = config('app.url') . '/quota/security/code/' . $quotation->security_code;
 
         $opt = new QROptions([
             'version' => 5,
