@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Enumerations\CheckStatus;
 use App\Models\Order;
 use App\Models\OrderQuotation;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -69,5 +70,19 @@ class OrderQuotationController extends Controller
         }
 
         return success();
+    }
+
+    /**
+     * 生成报价单
+     *
+     * @param string $code
+     * @return View
+     */
+    public function getBySecurityCode(string $code): View
+    {
+        $quotation = OrderQuotation::with(['company','order', 'order.company'])->where('security_code', $code)->first();
+
+        return view('quota.table')
+            ->with(compact('quotation'));
     }
 }

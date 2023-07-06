@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\OrderQuotation;
 use chillerlan\QRCode\Common\EccLevel;
 use chillerlan\QRCode\Output\QROutputInterface;
 use chillerlan\QRCode\QRCode;
@@ -20,7 +21,7 @@ class OrderQuotationQrcodeJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected $quotation)
+    public function __construct(protected OrderQuotation $quotation)
     {
         //
     }
@@ -32,7 +33,7 @@ class OrderQuotationQrcodeJob implements ShouldQueue
     {
         $quotation = $this->quotation;
 
-        $security_url = config('app.url') . '/security/code?=' . $quotation->security_code;
+        $security_url = config('app.url') . '/security/code/' . $quotation->security_code;
 
         $opt = new QROptions([
             'version' => 5,
@@ -45,11 +46,11 @@ class OrderQuotationQrcodeJob implements ShouldQueue
 
         $tempFile = (new QRCode($opt))->render($security_url);
 
-        $file_name = md5($tempFile) . '.png';
+        $file_name = 'security_code/' . md5($tempFile) . '.png';
 
-        Storage::disk('oss')->put('security_code/' . $file_name, $tempFile);
+        Storage::disk('oss')->put($file_name, $tempFile);
 
-        $quotation->qrcode = $security_url;
+        $quotation->qrcode = $file_name;
         $quotation->save();
     }
 }
