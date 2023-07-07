@@ -19,14 +19,15 @@ class ApprovalOptionController extends Controller
     public function index(Request $request): JsonResponse
     {
         $company_id = $request->input('company_id');
-        $current_company_id = $request->user()->id;
+        $current_company_id = $request->user()->company_id;
 
-        $options = ApprovalOption::where(function ($query) use ($current_company_id, $company_id) {
-            if ($company_id) return $query->where('company_id', $company_id);
-            return $query->whereIn('company_id', Company::getGroupId($current_company_id));
-        })->when($request->input('type'), function ($query, $type) {
-            $query->where('type', $type);
-        })->paginate(getPerPage());
+        $options = ApprovalOption::with(['company:id,name', 'approver:id,name,mobile,avatar'])
+            ->where(function ($query) use ($current_company_id, $company_id) {
+                if ($company_id) return $query->where('company_id', $company_id);
+                return $query->whereIn('company_id', Company::getGroupId($current_company_id));
+            })->when($request->input('type'), function ($query, $type) {
+                $query->where('type', $type);
+            })->paginate(getPerPage());
 
         return success($options);
     }
