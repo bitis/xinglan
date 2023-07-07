@@ -90,6 +90,7 @@ Route::middleware('auth')->group(function () {
         Route::get('customer', 'OrderController@customer');
         Route::get('list', 'OrderController@index');
         Route::post('form', 'OrderController@form');
+        Route::get('detail', 'OrderController@detail');
         Route::post('dispatchCheckUser', 'OrderController@dispatchCheckUser');
         Route::post('dispatchProvider', 'OrderController@dispatchProvider');
         Route::post('check', 'OrderController@check'); // 物损查勘人员查勘

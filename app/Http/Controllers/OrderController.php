@@ -187,6 +187,19 @@ class OrderController extends Controller
     }
 
     /**
+     * 工单详情
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function detail(Request $request): JsonResponse
+    {
+        $order = Order::with('company:id,name,type,logo')->find($request->input('id'));
+
+        return success($order);
+    }
+
+    /**
      * 派遣物损查勘人员 （物损公司派遣本公司）
      *
      * @param Request $request
