@@ -9,11 +9,24 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Ramsey\Uuid\Exception\TimeSourceException;
 
 class OrderQuotationController extends Controller
 {
+
     /**
-     * 获取当前公司某工单的报价想详情 （物损公司）
+     * 报价大厅
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function index(Request $request): JsonResponse
+    {
+        return success();
+    }
+
+    /**
+     * 获取当前公司某工单的报价详情 （物损公司）
      *
      * @param Request $request
      * @return JsonResponse

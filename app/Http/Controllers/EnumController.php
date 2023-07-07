@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Enumerations\ApprovalType;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\InsuranceType;
 use App\Models\Enumerations\MenuType;
@@ -59,5 +60,10 @@ class EnumController extends Controller
     public function orderPlanType(): JsonResponse
     {
         return success(OrderPlanType::toArray());
+    }
+
+    public function approvalType(): JsonResponse
+    {
+        return success(ApprovalType::toArray());
     }
 }

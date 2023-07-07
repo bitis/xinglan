@@ -119,4 +119,13 @@ Route::middleware('auth')->group(function () {
         Route::get('list', 'MessageController@index');
         Route::post('accept', 'MessageController@accept');
     });
+
+    Route::prefix('approval')->group(function () {
+        Route::prefix('option')->group(function () {
+            Route::get('list', 'ApprovalOptionController@index');
+            Route::post('form', 'ApprovalOptionController@form');
+        });
+        Route::get('list', 'MessageController@index');
+        Route::post('accept', 'MessageController@accept');
+    });
 });
