@@ -26,17 +26,17 @@ class OrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'insurance_company_id' => 'required|exists:companies,id',
+            'insurance_company_id' => 'required_without:id|exists:companies,id',
             'case_number' => [Rule::unique('orders')->ignore($this->input('id'))],
             'post_time' => 'date_format:Y-m-d H:i:s',
             'insurance_type' => [Rule::enum(InsuranceType::class)],
             'license_plate' => [Rule::requiredIf($this->input('insurance_type') == InsuranceType::Car->value)],
             'vin' => [Rule::requiredIf($this->input('insurance_type') == InsuranceType::Car->value)],
-//            'locations' => 'required',
-//            'province' => 'required',
-//            'city' => 'required',
-//            'area' => 'required',
-//            'address' => 'required',
+            'locations' => 'required_without:id',
+            'province' => 'required_without:id',
+            'city' => 'required_without:id',
+            'area' => 'required_without:id',
+            'address' => 'required_without:id',
             'order_status' => [Rule::enum(OrderStatus::class)],
             'close_status' => [Rule::enum(OrderCloseStatus::class)],
             'goods_types' => '',
