@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\BidOption;
 use App\Models\Company;
 use App\Models\CompanyProvider;
+use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\MessageType;
 use App\Models\Enumerations\OrderCheckStatus;
 use App\Models\Enumerations\OrderDispatchRole;
@@ -41,6 +42,18 @@ class OrderDispatch implements ShouldQueue
 
         $company = Company::find($this->order->insurance_company_id);
 
+        /**
+         * 物损公司自建工单直接派发给自己
+         */
+        if ($this->order->creator_company_type == CompanyType::WuSun->value) {
+            $provider = CompanyProvider::where('company_id', $company->id)
+                ->where('provider_id', $this->order->creator_company_id)
+                ->where('status', $status)
+                ->first();
+
+            goto CONFIRM_PROVIDER;
+        }
+
         // 无可用外协单位
         if (!$providers = CompanyProvider::where('company_id', $company->id)->where('status', $status)->get()) return;
 
@@ -57,9 +70,7 @@ class OrderDispatch implements ShouldQueue
 
             $company->queue_index++;
             $company->save();
-        }
-
-        if ($dispatchRole == OrderDispatchRole::Area->value) {
+        } elseif ($dispatchRole == OrderDispatchRole::Area->value) {
             $options = ProviderOption::where('company_id', $company->id)
                 ->where('insurance_type', $this->order->insurance_type)
                 ->where('province', $this->order->province)
@@ -75,8 +86,9 @@ class OrderDispatch implements ShouldQueue
             }
 
             $provider = $this->dispatchByWeight($available);
-
         }
+
+        CONFIRM_PROVIDER:
 
         if ($provider) {
             $this->order->fill([

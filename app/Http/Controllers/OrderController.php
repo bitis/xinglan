@@ -169,10 +169,13 @@ class OrderController extends Controller
         ]);
 
         $user = $request->user();
+        $company = $user->company;
 
         $order = Order::findOr($request->input('id'), fn() => new Order([
             'creator_id' => $user->id,
             'creator_name' => $user->name,
+            'creator_company_id' => $company->id,
+            'creator_company_type' => $company->type,
             'order_number' => Order::genOrderNumber()
         ]));
 
