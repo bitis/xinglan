@@ -90,7 +90,7 @@ class UserController extends Controller
 
         $withStr = $request->input('with', '');
 
-        $company_id = $request->user()->company_id;
+        $company_id = $request->input('company_id') ?: $request->user()->company_id;
 
         $roleNames = array_map(fn($role) => $company_id . '_' . $role, explode(',', $roleStr));
 
