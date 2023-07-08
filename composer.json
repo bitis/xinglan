@@ -17,6 +17,7 @@
         "laravel/sanctum": "^3.2",
         "laravel/telescope": "^4.15",
         "laravel/tinker": "^2.8",
+        "phpoffice/phpspreadsheet": "^1.29",
         "wilon/php-number2chinese": "^1.0"
     },
     "require-dev": {

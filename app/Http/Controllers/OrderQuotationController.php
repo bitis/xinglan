@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Enumerations\CheckStatus;
 use App\Models\Order;
 use App\Models\OrderQuotation;
+use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Ramsey\Uuid\Exception\TimeSourceException;
+use PhpOffice\PhpSpreadsheet\Reader\Xls;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use function Composer\Autoload\includeFile;
 
 class OrderQuotationController extends Controller
 {
@@ -86,14 +88,75 @@ class OrderQuotationController extends Controller
     }
 
     /**
+     * 导入报价明细
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function import(Request $request): JsonResponse
+    {
+        $file = $request->file('file');
+
+        $extension = strtolower($file->extension());
+
+        if ($extension !== 'xlsx' && $extension !== 'xls') {
+            return fail('文件格式不正确');
+        }
+
+        try {
+            $quotation = OrderQuotation::where('order_id', $request->input('order_id'))
+                ->where('company_id', $request->user()->company_id)
+                ->first();
+
+            if (!$quotation) {
+                $quotation = new OrderQuotation([
+                    'order_id' => $request->input('order_id'),
+                    'company_id' => $request->user()->company_id,
+                ]);
+                $quotation->save();
+            }
+
+            $reader = match ($extension) {
+                'xlsx' => new Xlsx(),
+                'xls' => new Xls(),
+            };
+
+            $items = [];
+            $sheet = $reader->load($file->getRealPath())->getSheet(0)->toArray();
+            foreach ($sheet as $index => $row) {
+                if ($index === 0) continue;
+                $items[] = [
+                    'order_quotation_id' => $quotation->id,
+                    'sort_num' => $index,
+                    'name' => $row[0],
+                    'specs' => $row[1],
+                    'unit' => $row[2],
+                    'number' => $row[3],
+                    'price' => $row[4],
+                    'total_price' => $row[5],
+                    'remark' => $row[6],
+                ];
+            }
+
+            $quotation->items()->delete();
+
+            $quotation->items()->createMany($items);
+        } catch (Exception $e) {
+            return fail($e->getMessage());
+        }
+
+        return success();
+    }
+
+    /**
      * 生成报价单
      *
      * @param string $code
      * @return View
      */
-    public function getBySecurityCode(string $code): View
+    public
+    function getBySecurityCode(string $code): View
     {
-        $quotation = OrderQuotation::with(['company','order', 'order.company'])->where('security_code', $code)->first();
+        $quotation = OrderQuotation::with(['company', 'order', 'order.company'])->where('security_code', $code)->first();
 
         return view('quota.table')
             ->with(compact('quotation'));
