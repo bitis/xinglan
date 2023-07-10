@@ -101,7 +101,9 @@ class UserController extends Controller
             'company' => 'company:id,name',
         }, $wantWith) : false;
 
-        $users = User::role($roleNames)
+        $users = User::when($roleStr, function ($query) use ($roleNames) {
+            $query->role($roleNames);
+        })
             ->when($withs, fn($query, $withs) => $query->with($withs))
             ->where('company_id', $company_id)
             ->when(strlen($status = $request->input('status')), function ($query) use ($status) {
