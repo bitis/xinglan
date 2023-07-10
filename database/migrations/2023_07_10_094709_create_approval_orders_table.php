@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('approval_options', function (Blueprint $table) {
+        Schema::create('approval_orders', function (Blueprint $table) {
             $table->id();
+            $table->integer('order_id');
             $table->integer('company_id');
-            $table->integer('type');
-            $table->integer('approve_mode');
-            $table->integer('review_type');
-            $table->string('review_conditions')->nullable();
+            $table->integer('approval_type');
             $table->timestamps();
         });
     }
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('approval_options');
+        Schema::dropIfExists('approval_orders');
     }
 };

@@ -12,7 +12,7 @@ class Approver extends Model
     /**
      * 审核
      */
-    const TYPE_APPROVER = 1;
+    const TYPE_CHECKER = 1;
 
     /**
      * 复核
@@ -23,6 +23,10 @@ class Approver extends Model
      * 抄送
      */
     const TYPE_RECEIVER = 3;
+
+    const STEP_CHECKER = 1;
+    const STEP_REVIEWER = 2;
+    const STEP_RECEIVER = 3;
 
     protected $fillable = ['approval_option_id', 'type', 'user_id'];
 }

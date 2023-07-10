@@ -11,14 +11,14 @@ enum ApprovalMode : int
 
     case OR = 1;
 
-    case AND = 2;
+    case QUEUE = 2;
 
 
     public function name(): string
     {
         return match ($this) {
             ApprovalMode::OR => '或签',
-            ApprovalMode::AND => '依次审批',
+            ApprovalMode::QUEUE => '依次审批',
         };
     }
 }

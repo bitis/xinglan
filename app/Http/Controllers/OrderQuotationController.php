@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\ApprovalOption;
+use App\Models\ApprovalOrder;
+use App\Models\Approver;
+use App\Models\Enumerations\ApprovalMode;
+use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\ApprovalType;
 use App\Models\Order;
 use App\Models\OrderQuotation;
@@ -53,8 +57,9 @@ class OrderQuotationController extends Controller
 
         $order = Order::find($request->input('order_id'));
 
-        $quotation = OrderQuotation::where('company_id', $user->compnay_id)
-            ->findOr($request->input('id'), fn() => new OrderQuotation(['security_code' => Str::random()]));
+        $quotation = OrderQuotation::where('order_id', $request->input('order_id'))
+            ->where('company_id', $user->company_id)
+            ->firstOr(fn() => new OrderQuotation(['security_code' => Str::random()]));
 
         $quotation->fill($request->only([
             'order_id',
@@ -84,11 +89,66 @@ class OrderQuotationController extends Controller
 
         $quotation->items()->createMany($request->input('items'));
 
-        $approvers = $option->approver;
+        if ($quotation->submit) {
 
-//        foreach ( as $item) {
-//
-//        }
+            $approvers = $option->approver;
+
+            $approvalOrder = ApprovalOrder::create([
+                'order_id' => $order->id,
+                'company_id' => $quotation->company_id,
+                'approval_type' => $option->type,
+            ]);
+
+            $checkers = [];
+            $reviewers = [];
+            $receivers = [];
+
+            foreach ($approvers as $approver) {
+                if ($approver->pivot->type == Approver::TYPE_CHECKER) {
+                    $checkers[] = $approver['id'];
+                } elseif ($approver->pivot->type == Approver::TYPE_REVIEWER) {
+                    $reviewers[] = $approver['id'];
+                } elseif ($approver->pivot->type == Approver::TYPE_RECEIVER) {
+                    $receivers[] = $approver['id'];
+                }
+            }
+
+            $insert = [];
+            foreach ($checkers as $index => $checker) {
+                $insert[] = [
+                    'user_id' => $checker,
+                    'company_id' => $quotation->company_id,
+                    'step' => Approver::STEP_CHECKER,
+                    'approval_status' => ApprovalStatus::Pending->value,
+                    'hidden' => $index > 0 && $option->approve_mode == ApprovalMode::QUEUE->value,
+                ];
+            }
+
+            if ($quotation->profit_margin_ratio < $option->review_conditions) {
+                foreach ($reviewers as $reviewer) {
+                    $insert[] = [
+                        'user_id' => $reviewer,
+                        'company_id' => $quotation->company_id,
+                        'step' => Approver::STEP_REVIEWER,
+                        'approval_status' => ApprovalStatus::Pending->value,
+                        'hidden' => true,
+                    ];
+                }
+            }
+
+            foreach ($receivers as $receiver) {
+                $insert[] = [
+                    'user_id' => $receiver,
+                    'company_id' => $quotation->company_id,
+                    'step' => Approver::STEP_RECEIVER,
+                    'approval_status' => ApprovalStatus::Pending->value,
+                    'hidden' => true,
+                ];
+            }
+
+            $approvalOrder->process()->delete();
+            if ($insert) $approvalOrder->process()->createMany($insert);
+        }
 
         return success();
     }

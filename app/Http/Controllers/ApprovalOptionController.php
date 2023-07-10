@@ -63,7 +63,7 @@ class ApprovalOptionController extends Controller
 
         $approvers = [];
 
-        $merge($approvers, $request->input('approver', []), Approver::TYPE_APPROVER);
+        $merge($approvers, $request->input('approver', []), Approver::TYPE_CHECKER);
         $merge($approvers, $request->input('reviewer', []), Approver::TYPE_REVIEWER);
         $merge($approvers, $request->input('receiver', []), Approver::TYPE_RECEIVER);
 

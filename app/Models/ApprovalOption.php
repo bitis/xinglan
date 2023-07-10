@@ -15,8 +15,8 @@ class ApprovalOption extends Model
     protected $fillable = [
         'company_id',
         'type',
-        'approve_type',
-        'review_type',
+        'approve_mode',
+        'review_mode',
         'review_conditions',
     ];
 
@@ -36,4 +36,10 @@ class ApprovalOption extends Model
     {
         return $this->belongsTo(Company::class);
     }
+
+    public static function findByType($company_id, $type)
+    {
+        return self::where('company_id', $company_id)->where('type', $type)->first();
+    }
+
 }
