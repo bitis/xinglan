@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ApprovalOption;
+use App\Models\Enumerations\ApprovalType;
 use App\Models\Order;
 use App\Models\OrderQuotation;
 use Exception;
@@ -11,7 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
-use function Composer\Autoload\includeFile;
 
 class OrderQuotationController extends Controller
 {
@@ -35,7 +36,7 @@ class OrderQuotationController extends Controller
      */
     public function getByOrderId(Request $request): JsonResponse
     {
-        $quotation = OrderQuotation::where('company_id', $request->user()->id)
+        $quotation = OrderQuotation::where('company_id', $request->user()->company_id)
             ->where('order_id', $request->input('order_id'))
             ->first();
 
@@ -72,6 +73,11 @@ class OrderQuotationController extends Controller
             'submit'
         ]));
 
+        if ($quotation->submit) {
+            if (!$option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalQuotation->value))
+                return fail('请先配置审批流程');
+        }
+
         $quotation->company_id = $user->company_id;
 
         $quotation->save();
@@ -80,9 +86,11 @@ class OrderQuotationController extends Controller
 
         $quotation->items()->createMany($request->input('items'));
 
-        if ($quotation->submit) {
-            // TODO 提交审核
-        }
+        $approvers = $option->approver;
+
+//        foreach ( as $item) {
+//
+//        }
 
         return success();
     }
