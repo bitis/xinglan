@@ -285,7 +285,7 @@ class OrderController extends Controller
         $order->plan_confirm_at = now()->toDateTimeString();
 
         if ($order->plan_type == OrderPlanType::Repair) {
-            $order->fill($request->only(['wusun_repair_other_cost', 'wusun_repair_user_id', 'wusun_repair_remark']));
+            $order->fill($request->only(['wusun_repair_manager', 'wusun_plan_confirm_remark']));
         }
 
         $order->save();
