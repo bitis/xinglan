@@ -13,14 +13,14 @@ enum CheckStatus : int
 
     case Accept = 1;
 
-    case Denial = 2;
+    case Reject = 2;
 
     public function name(): string
     {
         return match ($this) {
             CheckStatus::Wait => '等待审核',
             CheckStatus::Accept => '通过',
-            CheckStatus::Denial => '拒绝',
+            CheckStatus::Reject => '拒绝',
         };
     }
 }

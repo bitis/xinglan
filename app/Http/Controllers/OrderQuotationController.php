@@ -31,9 +31,12 @@ class OrderQuotationController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $customersId = CompanyProvider::where('provider_id', $request->user()->company_id)->pluck('company_id');
+        $company_id = $request->user()->company_id;
+        $customersId = CompanyProvider::where('provider_id', $company_id)->pluck('company_id');
 
-        $orders = Order::with('company')
+        $orders = Order::with(['company:id,name', 'quotation' => function ($query) use ($company_id) {
+            return $query->where('company_id', $company_id);
+        }])
             ->where('bid_type', 1)
             ->whereIn('insurance_company_id', $customersId)
             ->paginate(getPerPage());

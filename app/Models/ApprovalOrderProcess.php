@@ -21,7 +21,9 @@ class ApprovalOrderProcess extends Model
         'remark',
         'completed_at',
         'hidden',
-        'mode'
+        'mode',
+        'approval_type',
+        'order_id'
     ];
 
     public function approvalOrder(): HasOne

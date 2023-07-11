@@ -12,13 +12,15 @@ enum ApprovalStatus: int
 
     case Accepted = 1;
     case Rejected = 2;
+    case Canceled = 3;
 
     public function name(): string
     {
         return match ($this) {
             ApprovalStatus::Pending => '未审核',
             ApprovalStatus::Accepted => '同意',
-            ApprovalStatus::Rejected => '拒绝'
+            ApprovalStatus::Rejected => '拒绝',
+            ApprovalStatus::Canceled => '取消'
         };
     }
 }
