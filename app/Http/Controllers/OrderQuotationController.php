@@ -34,10 +34,18 @@ class OrderQuotationController extends Controller
         $company_id = $request->user()->company_id;
         $customersId = CompanyProvider::where('provider_id', $company_id)->pluck('company_id');
 
-        $orders = Order::with(['company:id,name', 'quotations' => function ($query) use ($company_id) {
-            return $query->where('company_id', $company_id)->without('items');
-        }])
+        $orders = Order::with('company:id,name')
+            ->join('order_quotations as quotation', 'orders.id', '=', 'quotation.order_id')
             ->where('bid_type', 1)
+            ->when($request->input('status'), function ($query, $status) {
+                // 1 待报价 2 报价超时 3 未中标 4 已中标
+               return match ($status) {
+                    '1' => $query->where('bid_status', 0)->whereNull('quotation.id'),
+                    '2' => $query->where('bid_status', 1)->whereNull('quotation.id'),
+                    '3' => $query->where('bid_status', 1)->where('quotation.win', 0),
+                    '4' => $query->where('bid_status', 1)->where('quotation.win', 1),
+                };
+            })
             ->whereIn('insurance_company_id', $customersId)
             ->paginate(getPerPage());
 
