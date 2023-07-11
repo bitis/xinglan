@@ -16,6 +16,7 @@ class ApprovalOrderProcess extends Model
         'approval_order_id',
         'company_id',
         'user_id',
+        'name',
         'step',
         'approval_status',
         'remark',

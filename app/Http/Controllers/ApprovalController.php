@@ -11,6 +11,7 @@ use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\ApprovalType;
 use App\Models\Enumerations\CheckStatus;
 use App\Models\Enumerations\Status;
+use App\Models\Order;
 use App\Models\OrderQuotation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -53,6 +54,38 @@ class ApprovalController extends Controller
         return success($process);
     }
 
+    /**
+     * 审核详情
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function detail(Request $request): JsonResponse
+    {
+        $company_id = $request->user()->company_id;
+        $process = ApprovalOrderProcess::with('company:id,name')
+            ->where('id', $request->input('process_id'))->first();
+
+        $withs = [];
+
+        if ($process->approval_type == ApprovalType::ApprovalQuotation->value)
+            $withs['quotations'] = function ($query) use ($company_id) {
+                return $query->where('company_id', $company_id);
+            };
+
+        $process->order = Order::with(array_merge(['company:id,name'], $withs))->find($process->order_id);
+
+        $process->approval_list = ApprovalOrderProcess::where('approval_order_id', $process->approval_order_id)->get();
+
+        return success($process);
+    }
+
+    /**
+     * 审批操作
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function form(Request $request): JsonResponse
     {
         $process = ApprovalOrderProcess::where('id', $request->input('process_id'))->first();

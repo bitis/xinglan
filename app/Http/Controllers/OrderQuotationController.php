@@ -121,18 +121,19 @@ class OrderQuotationController extends Controller
 
             foreach ($approvers as $approver) {
                 if ($approver->pivot->type == Approver::TYPE_CHECKER) {
-                    $checkers[] = $approver['id'];
+                    $checkers[] = ['id' => $approver['id'], 'name' => $approver['name']];
                 } elseif ($approver->pivot->type == Approver::TYPE_REVIEWER) {
-                    $reviewers[] = $approver['id'];
+                    $reviewers[] = ['id' => $approver['id'], 'name' => $approver['name']];
                 } elseif ($approver->pivot->type == Approver::TYPE_RECEIVER) {
-                    $receivers[] = $approver['id'];
+                    $receivers[] = ['id' => $approver['id'], 'name' => $approver['name']];
                 }
             }
 
             $insert = [];
             foreach ($checkers as $index => $checker) {
                 $insert[] = [
-                    'user_id' => $checker,
+                    'user_id' => $checker['id'],
+                    'name' => $checker['name'],
                     'order_id' => $order->id,
                     'company_id' => $quotation->company_id,
                     'step' => Approver::STEP_CHECKER,
@@ -146,7 +147,8 @@ class OrderQuotationController extends Controller
             if ($quotation->profit_margin_ratio < $option->review_conditions) {
                 foreach ($reviewers as $reviewer) {
                     $insert[] = [
-                        'user_id' => $reviewer,
+                        'user_id' => $reviewer['id'],
+                        'name' => $reviewer['name'],
                         'order_id' => $order->id,
                         'company_id' => $quotation->company_id,
                         'step' => Approver::STEP_REVIEWER,
@@ -160,7 +162,8 @@ class OrderQuotationController extends Controller
 
             foreach ($receivers as $receiver) {
                 $insert[] = [
-                    'user_id' => $receiver,
+                    'user_id' => $receiver['id'],
+                    'name' => $receiver['name'],
                     'order_id' => $order->id,
                     'company_id' => $quotation->company_id,
                     'step' => Approver::STEP_RECEIVER,

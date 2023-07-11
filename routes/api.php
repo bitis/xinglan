@@ -127,6 +127,7 @@ Route::middleware('auth')->group(function () {
             Route::post('form', 'ApprovalOptionController@form');
         });
         Route::get('list', 'ApprovalController@index');
+        Route::get('detail', 'ApprovalController@detail');
         Route::post('form', 'ApprovalController@form');
     });
 });
