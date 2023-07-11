@@ -6,6 +6,7 @@ use App\Models\ApprovalOption;
 use App\Models\ApprovalOrder;
 use App\Models\ApprovalOrderProcess;
 use App\Models\Approver;
+use App\Models\CompanyProvider;
 use App\Models\Enumerations\ApprovalMode;
 use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\ApprovalType;
@@ -30,7 +31,14 @@ class OrderQuotationController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        return success();
+        $customersId = CompanyProvider::where('provider_id', $request->user()->company_id)->pluck('company_id');
+
+        $orders = Order::with('company')
+            ->where('bid_type', 1)
+            ->whereIn('insurance_company_id', $customersId)
+            ->paginate(getPerPage());
+
+        return success($orders);
     }
 
     /**
@@ -41,7 +49,8 @@ class OrderQuotationController extends Controller
      */
     public function getByOrderId(Request $request): JsonResponse
     {
-        $quotation = OrderQuotation::where('order_id', $request->input('order_id'))->first();
+        $quotation = OrderQuotation::where('company_id', $request->user()->company_id)
+            ->where('order_id', $request->input('order_id'))->first();
 
         return success($quotation);
     }

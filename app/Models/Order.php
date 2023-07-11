@@ -67,6 +67,8 @@ class Order extends Model
         'wusun_plan_confirm_remark',
         'dispatch_check_at',
         'dispatched',
+        'bid_type',
+        'bid_status'
     ];
 
     protected $casts = [

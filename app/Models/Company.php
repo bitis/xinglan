@@ -101,4 +101,14 @@ class Company extends Model
 
         return array_merge([$id], $second, $three);
     }
+
+    public function customers(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Company::class,
+            'company_providers',
+            'provider_id',
+            'company_id',
+        );
+    }
 }
