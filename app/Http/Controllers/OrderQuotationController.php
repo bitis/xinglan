@@ -46,6 +46,11 @@ class OrderQuotationController extends Controller
                     '4' => $query->where('bid_status', 1)->where('quotation.win', 1),
                 };
             })
+            ->when($request->input('name'), function ($query, $name) {
+                $query->where('order_number', 'like', '%' . $name . '%')
+                    ->orWhere('case_number', 'like', '%' . $name . '%')
+                    ->orWhere('license_plate', 'like', '%' . $name . '%');
+            })
             ->whereIn('insurance_company_id', $customersId)
             ->paginate(getPerPage());
 
