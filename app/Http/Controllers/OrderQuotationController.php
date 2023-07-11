@@ -34,8 +34,8 @@ class OrderQuotationController extends Controller
         $company_id = $request->user()->company_id;
         $customersId = CompanyProvider::where('provider_id', $company_id)->pluck('company_id');
 
-        $orders = Order::with(['company:id,name', 'quotation' => function ($query) use ($company_id) {
-            return $query->where('company_id', $company_id);
+        $orders = Order::with(['company:id,name', 'quotations' => function ($query) use ($company_id) {
+            return $query->where('company_id', $company_id)->without('items');
         }])
             ->where('bid_type', 1)
             ->whereIn('insurance_company_id', $customersId)
