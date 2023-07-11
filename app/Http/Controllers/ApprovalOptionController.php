@@ -49,7 +49,7 @@ class ApprovalOptionController extends Controller
         if (!in_array($request->input('company_id'), Company::getGroupId($request->user()->company_id)))
             return fail('非法操作');
 
-        $option->fill($request->only(['company_id', 'type', 'approve_type', 'review_type', 'review_conditions']));
+        $option->fill($request->only(['company_id', 'type', 'approve_mode', 'review_mode', 'review_conditions']));
 
         $option->save();
 

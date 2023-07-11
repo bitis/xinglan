@@ -89,4 +89,9 @@ class Order extends Model
             OrderDispatch::dispatch($order);
         });
     }
+
+    public function isBidOrder(): bool
+    {
+        return $this->bid_type == 1;
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ApprovalOption;
 use App\Models\ApprovalOrder;
+use App\Models\ApprovalOrderProcess;
 use App\Models\Approver;
 use App\Models\Enumerations\ApprovalMode;
 use App\Models\Enumerations\ApprovalStatus;
@@ -93,6 +94,9 @@ class OrderQuotationController extends Controller
 
             $approvers = $option->approver;
 
+            ApprovalOrder::where('order_id', $order->id)->where('company_id', $quotation->company_id)->delete();
+            ApprovalOrderProcess::where('order_id', $order->id)->where('company_id', $quotation->company_id)->delete();
+
             $approvalOrder = ApprovalOrder::create([
                 'order_id' => $order->id,
                 'company_id' => $quotation->company_id,
@@ -117,9 +121,12 @@ class OrderQuotationController extends Controller
             foreach ($checkers as $index => $checker) {
                 $insert[] = [
                     'user_id' => $checker,
+                    'order_id' => $order->id,
                     'company_id' => $quotation->company_id,
                     'step' => Approver::STEP_CHECKER,
                     'approval_status' => ApprovalStatus::Pending->value,
+                    'mode' => $option->approve_mode,
+                    'approval_type' => $option->type,
                     'hidden' => $index > 0 && $option->approve_mode == ApprovalMode::QUEUE->value,
                 ];
             }
@@ -128,9 +135,12 @@ class OrderQuotationController extends Controller
                 foreach ($reviewers as $reviewer) {
                     $insert[] = [
                         'user_id' => $reviewer,
+                        'order_id' => $order->id,
                         'company_id' => $quotation->company_id,
                         'step' => Approver::STEP_REVIEWER,
                         'approval_status' => ApprovalStatus::Pending->value,
+                        'mode' => $option->review_mode,
+                        'approval_type' => $option->type,
                         'hidden' => true,
                     ];
                 }
@@ -139,9 +149,12 @@ class OrderQuotationController extends Controller
             foreach ($receivers as $receiver) {
                 $insert[] = [
                     'user_id' => $receiver,
+                    'order_id' => $order->id,
                     'company_id' => $quotation->company_id,
                     'step' => Approver::STEP_RECEIVER,
                     'approval_status' => ApprovalStatus::Pending->value,
+                    'mode' => ApprovalMode::QUEUE->value,
+                    'approval_type' => $option->type,
                     'hidden' => true,
                 ];
             }

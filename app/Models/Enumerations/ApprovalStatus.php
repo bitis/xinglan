@@ -10,15 +10,15 @@ enum ApprovalStatus: int
 
     case Pending = 0;
 
-    case Accept = 1;
-    case Reject = 2;
+    case Accepted = 1;
+    case Rejected = 2;
 
     public function name(): string
     {
         return match ($this) {
             ApprovalStatus::Pending => '未审核',
-            ApprovalStatus::Accept => '同意',
-            ApprovalStatus::Reject => '拒绝'
+            ApprovalStatus::Accepted => '同意',
+            ApprovalStatus::Rejected => '拒绝'
         };
     }
 }
