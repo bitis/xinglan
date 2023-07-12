@@ -34,6 +34,7 @@ Route::middleware('auth')->group(function () {
         Route::get('messageType', 'EnumController@messageType');
         Route::get('wuSunCheckStatus', 'EnumController@wuSunCheckStatus');
         Route::get('orderPlanType', 'EnumController@orderPlanType');
+        Route::get('approvalType', 'EnumController@approvalType');
     });
 
     Route::prefix('menu')->group(function () {
