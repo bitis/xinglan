@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\BidOpeningJob;
+use App\Jobs\QuotaBillPdfJob;
 use App\Models\ApprovalOrder;
 use App\Models\ApprovalOrderProcess;
 use App\Models\Approver;
@@ -293,6 +294,9 @@ class ApprovalController extends Controller
             }
             $order->save();
         }
+
+        // 生成报价单
+        QuotaBillPdfJob::dispatch($quotation);
     }
 
     /**
