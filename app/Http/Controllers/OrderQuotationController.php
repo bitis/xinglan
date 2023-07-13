@@ -54,6 +54,10 @@ class OrderQuotationController extends Controller
                     ->orWhere('license_plate', 'like', '%' . $name . '%');
             })
             ->whereIn('insurance_company_id', $customersId)
+            ->selectRaw('orders.*, quotation.company_id, quotation.plan_type, quotation.repair_days,
+             quotation.repair_cost, quotation.other_cost, quotation.total_cost, quotation.profit_margin,
+             quotation.profit_margin_ratio, quotation.repair_remark, quotation.total_price, quotation.images,
+             quotation.check_status, quotation.checked_at, quotation.win, quotation.bid_end_time, quotation.submit')
             ->paginate(getPerPage());
 
         return success($orders);
@@ -101,7 +105,9 @@ class OrderQuotationController extends Controller
             'repair_remark',
             'total_price',
             'images',
-            'submit'
+            'submit',
+            'quotation_remark',
+            'modify_quotation_remark'
         ]));
 
         if ($quotation->submit) {
