@@ -183,7 +183,7 @@ class OrderController extends Controller
         /**
          * 物损公司自建工单直接派发给自己
          */
-        if ($company->type == CompanyType::WuSun->value) {
+        if ($company->getRawOriginal('type') == CompanyType::WuSun->value) {
             $order->fill([
                 'check_wusun_company_id' => $company->id,
                 'check_wusun_company_name' => $company->name,
