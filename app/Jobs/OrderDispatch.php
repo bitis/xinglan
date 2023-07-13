@@ -42,18 +42,6 @@ class OrderDispatch implements ShouldQueue
 
         $company = Company::find($this->order->insurance_company_id);
 
-        /**
-         * 物损公司自建工单直接派发给自己
-         */
-        if (Company::find($this->order->creator_company_id)->type == CompanyType::WuSun->value) {
-            $provider = CompanyProvider::where('company_id', $company->id)
-                ->where('provider_id', $this->order->creator_company_id)
-                ->where('status', $status)
-                ->first();
-
-            goto CONFIRM_PROVIDER;
-        }
-
         // 无可用外协单位
         if (!$providers = CompanyProvider::where('company_id', $company->id)->where('status', $status)->get()) return;
 

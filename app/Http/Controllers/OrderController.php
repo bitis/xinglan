@@ -175,11 +175,39 @@ class OrderController extends Controller
             'creator_id' => $user->id,
             'creator_name' => $user->name,
             'creator_company_id' => $company->id,
-            'creator_company_type' => $company->type,
             'order_number' => Order::genOrderNumber()
         ]));
 
         $order->fill($orderParams);
+
+        /**
+         * 物损公司自建工单直接派发给自己
+         */
+        if ($company->type == CompanyType::WuSun->value) {
+            $order->fill([
+                'check_wusun_company_id' => $company->id,
+                'check_wusun_company_name' => $company->name,
+                'dispatch_check_wusun_at' => now()->toDateTimeString(),
+                'order_status' => OrderStatus::WaitCheck->value,
+                'dispatched' => true
+            ]);
+
+            $order->save();
+
+            // Message
+            $message = new Message([
+                'send_company_id' => $order->insurance_company_id,
+                'to_company_id' => $order->check_wusun_company_id,
+                'type' => MessageType::NewOrder->value,
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'case_number' => $order->case_number,
+                'goods_types' => $order->goods_types,
+                'remark' => $order->remark,
+                'status' => 0,
+            ]);
+            $message->save();
+        }
 
         $order->save();
 
