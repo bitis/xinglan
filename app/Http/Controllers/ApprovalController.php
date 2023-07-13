@@ -45,8 +45,8 @@ class ApprovalController extends Controller
             ->when($request->input('approval_type'), function ($query, $approval_type) {
                 $query->where('approval_type', $approval_type);
             })
-            ->when(explode(',', $request->input('step', '')), function ($query, $step) {
-                if ($step && is_array($step) && count($step)) $query->whereIn('step', $step);
+            ->when($request->input('step', ''), function ($query, $step) {
+                if ($step) $query->whereIn('step', explode(',', $step));
             })
             ->where('hidden', false)
             ->paginate(getPerPage());
