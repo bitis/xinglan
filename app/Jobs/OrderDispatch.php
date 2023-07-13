@@ -45,7 +45,7 @@ class OrderDispatch implements ShouldQueue
         /**
          * 物损公司自建工单直接派发给自己
          */
-        if ($this->order->creator_company_type == CompanyType::WuSun->value) {
+        if (Company::find($this->order->creator_company_id)->type == CompanyType::WuSun->value) {
             $provider = CompanyProvider::where('company_id', $company->id)
                 ->where('provider_id', $this->order->creator_company_id)
                 ->where('status', $status)

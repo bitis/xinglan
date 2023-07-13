@@ -77,6 +77,9 @@ class Order extends Model
         'images' => 'array'
     ];
 
+    const BID_STATUS_PROGRESSING = 0;
+    const BID_STATUS_FINISHED = 1;
+
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class, 'insurance_company_id', 'id');
