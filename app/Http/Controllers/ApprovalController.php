@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\BidOpeningJob;
 use App\Models\ApprovalOrder;
 use App\Models\ApprovalOrderProcess;
 use App\Models\Approver;
@@ -286,8 +287,9 @@ class ApprovalController extends Controller
                 }
 
                 $order->bid_type = 1;
-                $order->bid_status = 0;
+                $order->bid_status = Order::BID_STATUS_PROGRESSING;
                 $order->bid_end_time = now()->addHours($duration)->toDateTimeString();
+                BidOpeningJob::dispatch($order->id)->delay(now()->addHours($duration));
             }
             $order->save();
         }
