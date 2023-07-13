@@ -35,7 +35,7 @@ class OrderQuotationController extends Controller
         $customersId = CompanyProvider::where('provider_id', $company_id)->pluck('company_id');
 
         $orders = Order::with('company:id,name')
-            ->join('order_quotations as quotation', 'orders.id', '=', 'quotation.order_id')
+            ->leftJoin('order_quotations as quotation', 'orders.id', '=', 'quotation.order_id')
             ->where(function ($query) use ($company_id) {
                 $query->where('bid_type', 1)->orWhere('check_wusun_company_id', $company_id);
             })
