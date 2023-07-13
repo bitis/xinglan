@@ -37,6 +37,8 @@ class BidOpeningJob implements ShouldQueue
             'submit' => 1
         ])->orderBy('total_price', 'asc')->get();
 
+        if (!$quotations->count()) return;
+
         $order->bid_status = Order::BID_STATUS_FINISHED;
 
         foreach ($quotations as $index => $quotation) {
