@@ -164,6 +164,7 @@ class ApprovalController extends Controller
                         $reviewers[0]->save();
                     } else {
                         $this->completeStep($reviewers);
+                        $this->notifyReceiver($receivers, $approvalOrder);
                     }
                 } else {
                     $this->notifyReceiver($receivers, $approvalOrder);
