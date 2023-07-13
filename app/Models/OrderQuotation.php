@@ -32,7 +32,9 @@ class OrderQuotation extends Model
         'security_code',
         'pdf',
         'win',
-        'bid_end_time'
+        'bid_end_time',
+        'quotation_remark',
+        'modify_quotation_remark'
     ];
 
     protected $casts = [
