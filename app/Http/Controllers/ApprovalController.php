@@ -69,7 +69,7 @@ class ApprovalController extends Controller
         $withs = [];
 
         if ($process->approval_type == ApprovalType::ApprovalQuotation->value)
-            $withs['quotations'] = function ($query) use ($company_id) {
+            $withs['quotation'] = function ($query) use ($company_id) {
                 return $query->where('company_id', $company_id);
             };
 
