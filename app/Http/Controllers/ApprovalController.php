@@ -190,8 +190,15 @@ class ApprovalController extends Controller
     protected function startReview($reviewers, $receivers, $approvalOrder): void
     {
         if ($reviewers) {
-            $reviewers[0]->hidden = false;
-            $reviewers[0]->save();
+            if ($reviewers[0]->mode == ApprovalMode::QUEUE->value) {
+                $reviewers[0]->hidden = false;
+                $reviewers[0]->save();
+            } else {
+                foreach ($reviewers as $reviewer) {
+                    $reviewer->hidden = false;
+                    $reviewer->save();
+                }
+            }
         } else {
             $this->notifyReceiver($receivers, $approvalOrder);
         }
