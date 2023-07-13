@@ -30,7 +30,9 @@ class OrderQuotation extends Model
         'images',
         'submit',
         'security_code',
-        'pdf'
+        'pdf',
+        'win',
+        'bid_end_time'
     ];
 
     protected $casts = [
