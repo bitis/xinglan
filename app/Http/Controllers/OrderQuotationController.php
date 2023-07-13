@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+use function Symfony\Component\String\s;
 
 class OrderQuotationController extends Controller
 {
@@ -121,7 +122,7 @@ class OrderQuotationController extends Controller
 
         $quotation->items()->delete();
 
-        $quotation->items()->createMany($request->input('items'));
+        $quotation->items()->createMany($request->input('items', []));
 
         if ($quotation->submit) {
 
@@ -268,12 +269,23 @@ class OrderQuotationController extends Controller
      * @param string $code
      * @return View
      */
-    public
-    function getBySecurityCode(string $code): View
+    public function getBySecurityCode(string $code): View
     {
         $quotation = OrderQuotation::with(['company', 'order', 'order.company'])->where('security_code', $code)->first();
 
         return view('quota.table')
             ->with(compact('quotation'));
+    }
+
+
+    /**
+     * 核价
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function confirm(Request $request)
+    {
+        return success();
     }
 }
