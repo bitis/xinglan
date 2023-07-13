@@ -9,7 +9,6 @@ enum ApprovalStatus: int
     use EnumArray;
 
     case Pending = 0;
-
     case Accepted = 1;
     case Rejected = 2;
     case Canceled = 3;

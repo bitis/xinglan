@@ -36,10 +36,12 @@ class OrderQuotationController extends Controller
 
         $orders = Order::with('company:id,name')
             ->join('order_quotations as quotation', 'orders.id', '=', 'quotation.order_id')
-            ->where('bid_type', 1)
+            ->where(function ($query) use ($company_id) {
+                $query->where('bid_type', 1)->orWhere('check_wusun_company_id', $company_id);
+            })
             ->when($request->input('status'), function ($query, $status) {
                 // 1 待报价 2 报价超时 3 未中标 4 已中标
-               return match ($status) {
+                return match ($status) {
                     '1' => $query->where('bid_status', 0)->whereNull('quotation.id'),
                     '2' => $query->where('bid_status', 1)->whereNull('quotation.id'),
                     '3' => $query->where('bid_status', 1)->where('quotation.win', 0),
