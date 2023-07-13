@@ -19,7 +19,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
-use function Symfony\Component\String\s;
 
 class OrderQuotationController extends Controller
 {
@@ -156,6 +155,8 @@ class OrderQuotationController extends Controller
                 $insert[] = [
                     'user_id' => $checker['id'],
                     'name' => $checker['name'],
+                    'creator_id' => $user->id,
+                    'creator_name' => $user->name,
                     'order_id' => $order->id,
                     'company_id' => $quotation->company_id,
                     'step' => Approver::STEP_CHECKER,
@@ -171,6 +172,8 @@ class OrderQuotationController extends Controller
                     $insert[] = [
                         'user_id' => $reviewer['id'],
                         'name' => $reviewer['name'],
+                        'creator_id' => $user->id,
+                        'creator_name' => $user->name,
                         'order_id' => $order->id,
                         'company_id' => $quotation->company_id,
                         'step' => Approver::STEP_REVIEWER,
@@ -186,6 +189,8 @@ class OrderQuotationController extends Controller
                 $insert[] = [
                     'user_id' => $receiver['id'],
                     'name' => $receiver['name'],
+                    'creator_id' => $user->id,
+                    'creator_name' => $user->name,
                     'order_id' => $order->id,
                     'company_id' => $quotation->company_id,
                     'step' => Approver::STEP_RECEIVER,
@@ -279,13 +284,14 @@ class OrderQuotationController extends Controller
 
 
     /**
-     * 核价
+     * 核价定损（保险公司）
      *
      * @param Request $request
      * @return JsonResponse
      */
-    public function confirm(Request $request)
+    public function confirm(Request $request): JsonResponse
     {
+
         return success();
     }
 }
