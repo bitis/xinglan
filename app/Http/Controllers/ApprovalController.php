@@ -124,6 +124,7 @@ class ApprovalController extends Controller
                     $cancel->approval_status = ApprovalStatus::Canceled;
                     $cancel->save();
                 }
+                DB::commit();
                 return success();
             }
 
