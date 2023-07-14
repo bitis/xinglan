@@ -279,6 +279,7 @@ class ApprovalController extends Controller
             // 首次报价低于竞价金额，直接分配工单
             if (!$bidOption or $quotation->total_price < $bidOption->bid_first_price) {
                 $order->bid_type = 2;
+                $order->bid_status = 1;
                 $order->wusun_company_id = $approvalOrder->company_id;
                 $order->wusun_company_name = $quotation->company->name;
                 $order->confim_wusun_at = now()->toDateTimeString();
