@@ -107,7 +107,7 @@ class ProviderQuotationController extends Controller
             return fail('当前状态不能修改核价内容');
 
         try {
-            $option = ApprovalOption::findByType($order->insurance_company_id, ApprovalType::ApprovalQuotation->value);
+            $option = ApprovalOption::findByType($order->insurance_company_id, ApprovalType::ApprovalAssessment->value);
 
             DB::beginTransaction();
 
