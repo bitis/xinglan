@@ -79,6 +79,10 @@ Route::middleware('auth')->group(function () {
         Route::get('list', 'ProviderController@index');
         Route::post('form', 'ProviderController@form');
         Route::get('items', 'ProviderController@items');
+        Route::prefix('quotation')->group(function () {
+            Route::get('list', 'ProviderQuotationController@index'); // 服务商报价管理 （保险公司）
+            Route::get('detail', 'ProviderQuotationController@detail'); // 服务商报价详情 （保险公司）（核价、开标）
+        });
     });
 
     Route::prefix('providerOption')->group(function () {

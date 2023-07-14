@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Jobs\OrderDispatch;
+use App\Models\Enumerations\CheckStatus;
 use App\Models\Traits\DefaultDatetimeFormat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -70,7 +71,11 @@ class Order extends Model
         'dispatch_check_at',
         'dispatched',
         'bid_type',
-        'bid_status'
+        'bid_status',
+        'confirmed_price',
+        'confirmed_repair_days',
+        'confirmed_remark',
+        'confirmed_at',
     ];
 
     protected $casts = [
@@ -104,11 +109,14 @@ class Order extends Model
 
     public function quotations(): HasMany
     {
-        return $this->hasMany(OrderQuotation::class);
+        return $this->hasMany(OrderQuotation::class)
+            ->where('order_quotations.check_status', '=', CheckStatus::Accept->value);
     }
 
     public function quotation(): HasOne
     {
-        return $this->hasOne(OrderQuotation::class);
+        return $this->hasOne(OrderQuotation::class)
+            ->where('order_quotations.check_status', '=', CheckStatus::Accept->value)
+            ->where('win', '=', 1);
     }
 }

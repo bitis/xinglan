@@ -16,6 +16,7 @@ use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
@@ -110,99 +111,106 @@ class OrderQuotationController extends Controller
             'modify_quotation_remark'
         ]));
 
-        if ($quotation->submit) {
-            if (!$option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalQuotation->value))
-                return fail('请先配置审批流程');
-        }
+        try {
+            DB::beginTransaction();
 
-        $quotation->company_id = $user->company_id;
-
-        $quotation->save();
-
-        $quotation->items()->delete();
-
-        $quotation->items()->createMany($request->input('items', []));
-
-        if ($quotation->submit) {
-
-            $approvers = $option->approver;
-
-            ApprovalOrder::where('order_id', $order->id)->where('company_id', $quotation->company_id)->delete();
-            ApprovalOrderProcess::where('order_id', $order->id)->where('company_id', $quotation->company_id)->delete();
-
-            $approvalOrder = ApprovalOrder::create([
-                'order_id' => $order->id,
-                'company_id' => $quotation->company_id,
-                'approval_type' => $option->type,
-            ]);
-
-            $checkers = [];
-            $reviewers = [];
-            $receivers = [];
-
-            foreach ($approvers as $approver) {
-                if ($approver->pivot->type == Approver::TYPE_CHECKER) {
-                    $checkers[] = ['id' => $approver['id'], 'name' => $approver['name']];
-                } elseif ($approver->pivot->type == Approver::TYPE_REVIEWER) {
-                    $reviewers[] = ['id' => $approver['id'], 'name' => $approver['name']];
-                } elseif ($approver->pivot->type == Approver::TYPE_RECEIVER) {
-                    $receivers[] = ['id' => $approver['id'], 'name' => $approver['name']];
-                }
+            if ($quotation->submit) {
+                $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalQuotation->value);
             }
 
-            $insert = [];
-            foreach ($checkers as $index => $checker) {
-                $insert[] = [
-                    'user_id' => $checker['id'],
-                    'name' => $checker['name'],
-                    'creator_id' => $user->id,
-                    'creator_name' => $user->name,
+            $quotation->company_id = $user->company_id;
+
+            $quotation->save();
+
+            $quotation->items()->delete();
+
+            $quotation->items()->createMany($request->input('items', []));
+
+            if ($quotation->submit) {
+
+                $approvers = $option->approver;
+
+                ApprovalOrder::where('order_id', $order->id)->where('company_id', $quotation->company_id)->delete();
+                ApprovalOrderProcess::where('order_id', $order->id)->where('company_id', $quotation->company_id)->delete();
+
+                $approvalOrder = ApprovalOrder::create([
                     'order_id' => $order->id,
                     'company_id' => $quotation->company_id,
-                    'step' => Approver::STEP_CHECKER,
-                    'approval_status' => ApprovalStatus::Pending->value,
-                    'mode' => $option->approve_mode,
                     'approval_type' => $option->type,
-                    'hidden' => $index > 0 && $option->approve_mode == ApprovalMode::QUEUE->value,
-                ];
-            }
+                ]);
 
-            if ($quotation->profit_margin_ratio < $option->review_conditions) {
-                foreach ($reviewers as $reviewer) {
+                $checkers = [];
+                $reviewers = [];
+                $receivers = [];
+
+                foreach ($approvers as $approver) {
+                    if ($approver->pivot->type == Approver::TYPE_CHECKER) {
+                        $checkers[] = ['id' => $approver['id'], 'name' => $approver['name']];
+                    } elseif ($approver->pivot->type == Approver::TYPE_REVIEWER) {
+                        $reviewers[] = ['id' => $approver['id'], 'name' => $approver['name']];
+                    } elseif ($approver->pivot->type == Approver::TYPE_RECEIVER) {
+                        $receivers[] = ['id' => $approver['id'], 'name' => $approver['name']];
+                    }
+                }
+
+                $insert = [];
+                foreach ($checkers as $index => $checker) {
                     $insert[] = [
-                        'user_id' => $reviewer['id'],
-                        'name' => $reviewer['name'],
+                        'user_id' => $checker['id'],
+                        'name' => $checker['name'],
                         'creator_id' => $user->id,
                         'creator_name' => $user->name,
                         'order_id' => $order->id,
                         'company_id' => $quotation->company_id,
-                        'step' => Approver::STEP_REVIEWER,
+                        'step' => Approver::STEP_CHECKER,
                         'approval_status' => ApprovalStatus::Pending->value,
-                        'mode' => $option->review_mode,
+                        'mode' => $option->approve_mode,
+                        'approval_type' => $option->type,
+                        'hidden' => $index > 0 && $option->approve_mode == ApprovalMode::QUEUE->value,
+                    ];
+                }
+
+                if ($quotation->profit_margin_ratio < $option->review_conditions) {
+                    foreach ($reviewers as $reviewer) {
+                        $insert[] = [
+                            'user_id' => $reviewer['id'],
+                            'name' => $reviewer['name'],
+                            'creator_id' => $user->id,
+                            'creator_name' => $user->name,
+                            'order_id' => $order->id,
+                            'company_id' => $quotation->company_id,
+                            'step' => Approver::STEP_REVIEWER,
+                            'approval_status' => ApprovalStatus::Pending->value,
+                            'mode' => $option->review_mode,
+                            'approval_type' => $option->type,
+                            'hidden' => true,
+                        ];
+                    }
+                }
+
+                foreach ($receivers as $receiver) {
+                    $insert[] = [
+                        'user_id' => $receiver['id'],
+                        'name' => $receiver['name'],
+                        'creator_id' => $user->id,
+                        'creator_name' => $user->name,
+                        'order_id' => $order->id,
+                        'company_id' => $quotation->company_id,
+                        'step' => Approver::STEP_RECEIVER,
+                        'approval_status' => ApprovalStatus::Pending->value,
+                        'mode' => ApprovalMode::QUEUE->value,
                         'approval_type' => $option->type,
                         'hidden' => true,
                     ];
                 }
-            }
 
-            foreach ($receivers as $receiver) {
-                $insert[] = [
-                    'user_id' => $receiver['id'],
-                    'name' => $receiver['name'],
-                    'creator_id' => $user->id,
-                    'creator_name' => $user->name,
-                    'order_id' => $order->id,
-                    'company_id' => $quotation->company_id,
-                    'step' => Approver::STEP_RECEIVER,
-                    'approval_status' => ApprovalStatus::Pending->value,
-                    'mode' => ApprovalMode::QUEUE->value,
-                    'approval_type' => $option->type,
-                    'hidden' => true,
-                ];
+                $approvalOrder->process()->delete();
+                if ($insert) $approvalOrder->process()->createMany($insert);
             }
-
-            $approvalOrder->process()->delete();
-            if ($insert) $approvalOrder->process()->createMany($insert);
+            DB::commit();
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return fail($exception->getMessage());
         }
 
         return success();
@@ -282,7 +290,6 @@ class OrderQuotationController extends Controller
             ->with(compact('quotation'));
     }
 
-
     /**
      * 核价定损（保险公司）
      *
@@ -291,7 +298,6 @@ class OrderQuotationController extends Controller
      */
     public function confirm(Request $request): JsonResponse
     {
-
         return success();
     }
 }
