@@ -82,6 +82,7 @@ Route::middleware('auth')->group(function () {
         Route::prefix('quotation')->group(function () {
             Route::get('list', 'ProviderQuotationController@index'); // 服务商报价管理 （保险公司）
             Route::get('detail', 'ProviderQuotationController@detail'); // 服务商报价详情 （保险公司）（核价、开标）
+            Route::get('confirm', 'ProviderQuotationController@confirm'); // 核价 （保险公司）
         });
     });
 
@@ -100,6 +101,11 @@ Route::middleware('auth')->group(function () {
         Route::post('dispatchProvider', 'OrderController@dispatchProvider');
         Route::post('check', 'OrderController@check'); // 物损查勘人员查勘
         Route::post('confirmPlan', 'OrderController@confirmPlan'); // 物损确认方案
+
+        Route::prefix('repair')->group(function () {
+            Route::post('form', 'OrderRepairController@form');
+            Route::get('detail', 'OrderRepairController@detail');
+        });
     });
 
     Route::prefix('quotation')->group(function () {
