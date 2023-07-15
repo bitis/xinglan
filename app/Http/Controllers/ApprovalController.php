@@ -12,7 +12,9 @@ use App\Models\Enumerations\ApprovalMode;
 use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\ApprovalType;
 use App\Models\Enumerations\CheckStatus;
+use App\Models\Enumerations\MessageType;
 use App\Models\Enumerations\Status;
+use App\Models\Message;
 use App\Models\Order;
 use App\Models\OrderQuotation;
 use Illuminate\Http\JsonResponse;
@@ -318,6 +320,25 @@ class ApprovalController extends Controller
      */
     protected function approvalAssessment(ApprovalOrder $approvalOrder, $accept): void
     {
+        $order = $approvalOrder->order;
 
+        $order->confirmed_check_status = $accept ? CheckStatus::Accept->value : CheckStatus::Reject->value;
+        $order->confirmed_at = now()->toDateTimeString();
+        $order->save();
+
+        // Message
+        $message = new Message([
+            'send_company_id' => $order->insurance_company_id,
+            'to_company_id' => $order->wusun_company_id,
+            'type' => MessageType::ConfirmedPrice->value,
+            'order_id' => $order->id,
+            'order_number' => $order->order_number,
+            'case_number' => $order->case_number,
+            'goods_types' => $order->goods_types,
+            'remark' => $order->confirmed_remark,
+            'status' => 0,
+        ]);
+
+        $message->save();
     }
 }
