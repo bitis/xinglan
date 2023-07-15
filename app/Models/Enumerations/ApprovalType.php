@@ -14,7 +14,6 @@ enum ApprovalType : int
 
     case ApprovalQuotation = 1;
     case ApprovalAssessment = 2;
-    case ApprovalNegotiate = 3;
     case ApprovalRepairCost = 4;
     case ApprovalRepaired = 5;
     case ApprovalPayment = 6;
@@ -26,7 +25,6 @@ enum ApprovalType : int
         return match ($this) {
             ApprovalType::ApprovalQuotation => '对外报价审核',
             ApprovalType::ApprovalAssessment => '核价（定损）审核',
-            ApprovalType::ApprovalNegotiate => '谈赔成本审核',
             ApprovalType::ApprovalRepairCost => '施工修复成本审核',
             ApprovalType::ApprovalRepaired => '已修复资料审核',
             ApprovalType::ApprovalPayment => '付款审核',
