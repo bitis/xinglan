@@ -82,7 +82,7 @@ Route::middleware('auth')->group(function () {
         Route::prefix('quotation')->group(function () {
             Route::get('list', 'ProviderQuotationController@index'); // 服务商报价管理 （保险公司）
             Route::get('detail', 'ProviderQuotationController@detail'); // 服务商报价详情 （保险公司）（核价、开标）
-            Route::get('confirm', 'ProviderQuotationController@confirm'); // 核价 （保险公司）
+            Route::post('confirm', 'ProviderQuotationController@confirm'); // 核价 （保险公司）
         });
     });
 
