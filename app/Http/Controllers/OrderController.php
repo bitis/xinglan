@@ -312,10 +312,6 @@ class OrderController extends Controller
         $order->wusun_status = WuSunStatus::ConfirmPlan->value;
         $order->plan_confirm_at = now()->toDateTimeString();
 
-        if ($order->plan_type == OrderPlanType::Repair) {
-            $order->fill($request->only(['wusun_repair_manager', 'wusun_plan_confirm_remark']));
-        }
-
         $order->save();
 
         return success($order);

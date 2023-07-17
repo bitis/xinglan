@@ -66,8 +66,6 @@ class Order extends Model
         'negotiation_content',
         'plan_confirm_at',
         'plan_checked_at',
-        'wusun_repair_manager',
-        'wusun_plan_confirm_remark',
         'dispatch_check_at',
         'dispatched',
         'bid_type',
