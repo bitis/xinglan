@@ -82,7 +82,6 @@ Route::middleware('auth')->group(function () {
         Route::prefix('quotation')->group(function () {
             Route::get('list', 'ProviderQuotationController@index'); // 服务商报价管理 （保险公司）
             Route::get('detail', 'ProviderQuotationController@detail'); // 服务商报价详情 （保险公司）（核价、开标）
-            Route::post('confirm', 'ProviderQuotationController@confirm'); // 核价 （保险公司）
         });
     });
 
@@ -118,6 +117,7 @@ Route::middleware('auth')->group(function () {
         Route::get('getByOrderId', 'OrderQuotationController@getByOrderId'); // 获取当前公司某工单的报价详情 （物损公司）
         Route::post('form', 'OrderQuotationController@form'); // 提交报价（物损公司）
         Route::post('import', 'OrderQuotationController@import'); // 导入报价明细（物损公司）
+        Route::post('confirm', 'OrderQuotationController@confirm'); // 核价、定损
     });
 
     Route::prefix('goodsPrice')->group(function () {

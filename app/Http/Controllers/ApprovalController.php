@@ -312,7 +312,7 @@ class ApprovalController extends Controller
     }
 
     /**
-     * 核价定损审批通过（保险公司）；
+     * 核价/定损审批通过；
      *
      * @param ApprovalOrder $approvalOrder
      * @param $accept
