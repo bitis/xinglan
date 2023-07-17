@@ -105,6 +105,11 @@ Route::middleware('auth')->group(function () {
         Route::prefix('repair')->group(function () {
             Route::post('form', 'OrderRepairController@form');
             Route::get('detail', 'OrderRepairController@detail');
+
+            Route::prefix('dispatch')->group(function () {
+                Route::post('form', 'OrderRepairDispatchController@form');
+                Route::get('detail', 'OrderRepairDispatchController@detail');
+            });
         });
     });
 
