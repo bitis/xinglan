@@ -74,6 +74,8 @@ class Order extends Model
         'confirmed_repair_days',
         'confirmed_remark',
         'confirmed_at',
+        'confirm_user_id',
+        'wusun_repair_user_id'
     ];
 
     protected $casts = [
@@ -116,5 +118,10 @@ class Order extends Model
         return $this->hasOne(OrderQuotation::class)
             ->where('order_quotations.check_status', '=', CheckStatus::Accept->value)
             ->where('win', '=', 1);
+    }
+
+    public function wusun(): BelongsTo
+    {
+        return $this->belongsTo(Company::class, 'wusun_company_id', 'id');
     }
 }

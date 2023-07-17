@@ -8,7 +8,6 @@ use App\Models\CompanyProvider;
 use App\Models\Enumerations\CheckStatus;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\MessageType;
-use App\Models\Enumerations\OrderPlanType;
 use App\Models\Enumerations\OrderStatus;
 use App\Models\Enumerations\Status;
 use App\Models\Enumerations\WuSunStatus;
@@ -92,7 +91,16 @@ class OrderController extends Controller
                     case '查勘人员':
                         $query->where(function ($query) use ($user) {
                             $query->where('creator_id', '=', $user->id)
-                                ->orWhere('wusun_check_id', '=', $user->id);
+                                ->orWhere('wusun_check_id', '=', $user->id)
+                                ->orWhere('wusun_repair_user_id', '=', $user->id);
+                        });
+                        break;
+                    case '施工经理':
+                    case '施工人员':
+                        $query->where(function ($query) use ($user) {
+                            $query->where('creator_id', '=', $user->id)
+                                ->orWhere('wusun_check_id', '=', $user->id)
+                                ->orWhere('wusun_repair_user_id', '=', $user->id);
                         });
                         break;
                     case '查勘经理':
@@ -222,7 +230,7 @@ class OrderController extends Controller
      */
     public function detail(Request $request): JsonResponse
     {
-        $order = Order::with('company:id,name,type,logo')->find($request->input('id'));
+        $order = Order::with(['company:id,name,type,logo', 'wusun:id,name'])->find($request->input('id'));
 
         return success($order);
     }
