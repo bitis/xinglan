@@ -49,4 +49,9 @@ class OrderRepairPlan extends Model
     {
         return $this->hasMany(RepairTask::class, 'repair_plan_id', 'id');
     }
+
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class, 'order_id', 'id');
+    }
 }

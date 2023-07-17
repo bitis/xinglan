@@ -62,6 +62,11 @@ class OrderRepairDispatchController extends Controller
            $plan->tasks()->createMany($request->input('tasks'));
        }
 
+       if ($plan->repair_type == 1) {
+          $plan->order->wusun_repair_user_id =  $plan->repair_user_id;
+          $plan->order->save();
+       }
+
         return success();
     }
 }
