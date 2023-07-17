@@ -10,6 +10,7 @@ use App\Models\CompanyProvider;
 use App\Models\Enumerations\ApprovalMode;
 use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\ApprovalType;
+use App\Models\Enumerations\CheckStatus;
 use App\Models\Order;
 use App\Models\OrderQuotation;
 use Exception;
@@ -128,8 +129,6 @@ class OrderQuotationController extends Controller
 
             if ($quotation->submit) {
 
-                $approvers = $option->approver;
-
                 ApprovalOrder::where('order_id', $order->id)->where('company_id', $quotation->company_id)->delete();
                 ApprovalOrderProcess::where('order_id', $order->id)->where('company_id', $quotation->company_id)->delete();
 
@@ -139,19 +138,7 @@ class OrderQuotationController extends Controller
                     'approval_type' => $option->type,
                 ]);
 
-                $checkers = [];
-                $reviewers = [];
-                $receivers = [];
-
-                foreach ($approvers as $approver) {
-                    if ($approver->pivot->type == Approver::TYPE_CHECKER) {
-                        $checkers[] = ['id' => $approver['id'], 'name' => $approver['name']];
-                    } elseif ($approver->pivot->type == Approver::TYPE_REVIEWER) {
-                        $reviewers[] = ['id' => $approver['id'], 'name' => $approver['name']];
-                    } elseif ($approver->pivot->type == Approver::TYPE_RECEIVER) {
-                        $receivers[] = ['id' => $approver['id'], 'name' => $approver['name']];
-                    }
-                }
+                list($checkers, $reviewers, $receivers) = ApprovalOption::groupByType($option->approver);
 
                 $insert = [];
                 foreach ($checkers as $index => $checker) {
@@ -291,13 +278,87 @@ class OrderQuotationController extends Controller
     }
 
     /**
-     * 核价定损（保险公司）
+     * 保险公司核价、物损公司定损
      *
      * @param Request $request
      * @return JsonResponse
      */
     public function confirm(Request $request): JsonResponse
     {
+        $user = $request->user();
+
+        $order = Order::where('id', $request->input('order_id'))->first();
+
+        if (!$order) return fail('订单不存在');
+
+        try {
+            DB::beginTransaction();
+
+            $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalAssessment->value);
+
+            if ($order->confirmed_check_status == CheckStatus::Accept->value)
+                throw new Exception('已审核通过，不允许定损价格');
+
+            $order->fill($request->only([
+                'confirmed_price', 'confirmed_repair_days', 'confirmed_remark'
+            ]));
+
+            $order->confirm_user_id = $user->id;
+
+            $order->save();
+
+            ApprovalOrder::where('order_id', $order->id)->where('company_id', $order->wusun_company_id)->delete();
+            ApprovalOrderProcess::where('order_id', $order->id)->where('company_id', $order->wusun_company_id)->delete();
+
+            $approvalOrder = ApprovalOrder::create([
+                'order_id' => $order->id,
+                'company_id' => $order->wusun_company_id,
+                'approval_type' => $option->type,
+            ]);
+
+            list($checkers, $reviewers, $receivers) = ApprovalOption::groupByType($option->approver);
+
+            $insert = [];
+            foreach ($checkers as $index => $checker) {
+                $insert[] = [
+                    'user_id' => $checker['id'],
+                    'name' => $checker['name'],
+                    'creator_id' => $user->id,
+                    'creator_name' => $user->name,
+                    'order_id' => $order->id,
+                    'company_id' => $order->insurance_company_id,
+                    'step' => Approver::STEP_CHECKER,
+                    'approval_status' => ApprovalStatus::Pending->value,
+                    'mode' => $option->approve_mode,
+                    'approval_type' => $option->type,
+                    'hidden' => $index > 0 && $option->approve_mode == ApprovalMode::QUEUE->value,
+                ];
+            }
+
+            foreach ($receivers as $receiver) {
+                $insert[] = [
+                    'user_id' => $receiver['id'],
+                    'name' => $receiver['name'],
+                    'creator_id' => $user->id,
+                    'creator_name' => $user->name,
+                    'order_id' => $order->id,
+                    'company_id' => $order->insurance_company_id,
+                    'step' => Approver::STEP_RECEIVER,
+                    'approval_status' => ApprovalStatus::Pending->value,
+                    'mode' => ApprovalMode::QUEUE->value,
+                    'approval_type' => $option->type,
+                    'hidden' => true,
+                ];
+            }
+
+            $approvalOrder->process()->delete();
+            if ($insert) $approvalOrder->process()->createMany($insert);
+            DB::commit();
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return fail($exception->getMessage());
+        }
+
         return success();
     }
 }

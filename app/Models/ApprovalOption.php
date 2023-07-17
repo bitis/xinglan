@@ -48,4 +48,23 @@ class ApprovalOption extends Model
         return $option;
     }
 
+
+    public static function groupByType($approvers)
+    {
+        $checkers = [];
+        $reviewers = [];
+        $receivers = [];
+
+        foreach ($approvers as $approver) {
+            if ($approver->pivot->type == Approver::TYPE_CHECKER) {
+                $checkers[] = ['id' => $approver['id'], 'name' => $approver['name']];
+            } elseif ($approver->pivot->type == Approver::TYPE_REVIEWER) {
+                $reviewers[] = ['id' => $approver['id'], 'name' => $approver['name']];
+            } elseif ($approver->pivot->type == Approver::TYPE_RECEIVER) {
+                $receivers[] = ['id' => $approver['id'], 'name' => $approver['name']];
+            }
+        }
+
+        return [$checkers, $receivers, $reviewers];
+    }
 }
