@@ -38,7 +38,7 @@ class QuotaBillPdfJob implements ShouldQueue
 
         $fileContent = file_get_contents($tempFile);
 
-        $ossFile = 'quota_bill/' . date('Ymd') . '/' . md5($fileContent) . '.pdf';
+        $ossFile = '/quota_bill/' . date('Ymd') . '/' . md5($fileContent) . '.pdf';
 
         Storage::disk('oss')->put($ossFile, $fileContent);
 
