@@ -289,7 +289,7 @@ class OrderController extends Controller
 
         $order->fill($request->only(['images', 'remark']));
 
-        $order->wusun_status = WuSunStatus::FinishedCheck;
+        $order->wusun_status = WuSunStatus::FinishedCheck->value;
         $order->wusun_checked_at = now()->toDateTimeString();
         $order->save();
 
