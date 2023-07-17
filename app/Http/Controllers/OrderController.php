@@ -230,7 +230,7 @@ class OrderController extends Controller
      */
     public function detail(Request $request): JsonResponse
     {
-        $order = Order::with(['company:id,name,type,logo', 'wusun:id,name'])->find($request->input('id'));
+        $order = Order::with(['company:id,name,type,logo', 'check_wusun:id,name', 'wusun:id,name'])->find($request->input('id'));
 
         return success($order);
     }

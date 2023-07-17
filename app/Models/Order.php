@@ -124,4 +124,9 @@ class Order extends Model
     {
         return $this->belongsTo(Company::class, 'wusun_company_id', 'id');
     }
+
+    public function check_wusun(): BelongsTo
+    {
+        return $this->belongsTo(Company::class, 'check_wusun_company_id', 'id');
+    }
 }
