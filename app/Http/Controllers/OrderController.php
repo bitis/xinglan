@@ -174,6 +174,9 @@ class OrderController extends Controller
             'owner_price',
             'images',
             'goods_remark',
+            'review_images',
+            'review_remark',
+            'review_at'
         ]);
 
         $user = $request->user();
@@ -186,12 +189,14 @@ class OrderController extends Controller
             'order_number' => Order::genOrderNumber()
         ]));
 
+        $is_create = empty($order->id);
+
         $order->fill($orderParams);
 
         /**
          * 物损公司自建工单直接派发给自己
          */
-        if ($company->getRawOriginal('type') == CompanyType::WuSun->value) {
+        if ($is_create && $company->getRawOriginal('type') == CompanyType::WuSun->value) {
             $order->fill([
                 'check_wusun_company_id' => $company->id,
                 'check_wusun_company_name' => $company->name,
