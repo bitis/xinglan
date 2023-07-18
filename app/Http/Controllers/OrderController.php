@@ -17,6 +17,7 @@ use App\Models\OrderQuotation;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class OrderController extends Controller
 {
@@ -191,7 +192,7 @@ class OrderController extends Controller
 
         $is_create = empty($order->id);
 
-        $order->fill($orderParams);
+        $order->fill(Arr::whereNotNull($orderParams));
 
         /**
          * 物损公司自建工单直接派发给自己
