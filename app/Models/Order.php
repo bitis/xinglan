@@ -75,7 +75,10 @@ class Order extends Model
         'confirmed_remark',
         'confirmed_at',
         'confirm_user_id',
-        'wusun_repair_user_id'
+        'wusun_repair_user_id',
+        'review_images',
+        'review_remark',
+        'review_at'
     ];
 
     protected $casts = [
