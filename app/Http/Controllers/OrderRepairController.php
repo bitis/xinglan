@@ -12,19 +12,30 @@ class OrderRepairController extends Controller
     {
         $order_id = $request->input('order_id');
 
-        $company_id = $request->user()->company_id;
+        $plan = OrderRepairPlan::with('tasks')->where('order_id', $order_id)->first();
 
-        $plan = OrderRepairPlan::where('order_id', $order_id)->first();
-
-        if ($plan->repair_type == 1) { // 自修
-
-        }
-
-        return success();
+        return success($plan);
     }
 
     public function form(Request $request): JsonResponse
     {
+        $order_id = $request->input('order_id');
+
+        $plan = OrderRepairPlan::where('order_id', $order_id)->first();
+
+        $plan->fill($request->only([
+            'repair_status',
+            'repair_start_at',
+            'repair_end_at',
+            'cost_images',
+            'before_repair_images',
+            'repair_images',
+            'after_repair_images',
+            'repair_remark'
+        ]));
+
+        $plan->save();
+
         return success();
     }
 }

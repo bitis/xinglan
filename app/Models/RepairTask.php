@@ -18,5 +18,8 @@ class RepairTask extends Model
         'repair_company_name',
         'repair_cost',
         'image',
+        'wusun_confirmed',
+        'repair_user_id',
+        'repair_user_name',
     ];
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\OrderRepairPlan;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -31,8 +32,8 @@ class OrderRepairDispatchController extends Controller
      */
     public function form(Request $request): JsonResponse
     {
-       $plan = OrderRepairPlan::updateOrCreate([
-           'id' => $request->input('id'),
+        $plan = OrderRepairPlan::updateOrCreate([
+            'id' => $request->input('id'),
             'order_id' => $request->input('order_id')
         ], array_merge($request->only([
             'company_id',
@@ -42,6 +43,7 @@ class OrderRepairDispatchController extends Controller
             'repair_company_id',
             'repair_company_name',
             'repair_user_id',
+            'repair_user_name',
             'repair_cost',
             'cost_tables',
             'plan_text',
@@ -50,22 +52,26 @@ class OrderRepairDispatchController extends Controller
             'checked_at',
         ]), [
             'create_user_id' => $request->user()->id
-       ]));
+        ]));
 
-       if ($request->input('costs')) {
-           $plan->costs()->delete();
-           $plan->costs()->createMany($request->input('costs'));
-       }
+        if ($request->input('costs')) {
+            $plan->costs()->delete();
+            $plan->costs()->createMany($request->input('costs'));
+        }
 
-       if ($request->input('tasks')) {
-           $plan->tasks()->delete();
-           $plan->tasks()->createMany($request->input('tasks'));
-       }
+        if ($request->input('tasks')) {
+            $plan->tasks()->delete();
+            $plan->tasks()->createMany($request->input('tasks'));
+        }
 
-       if ($plan->repair_type == 1) {
-          $plan->order->wusun_repair_user_id =  $plan->repair_user_id;
-          $plan->order->save();
-       }
+        if ($plan->repair_type == 1) {
+            $plan->repair_company_id = $plan->company_id;
+            $plan->repair_company_name = Company::find($plan->company_id)->name;
+            $plan->save();
+
+            $plan->order->wusun_repair_user_id = $plan->repair_user_id;
+            $plan->order->save();
+        }
 
         return success();
     }

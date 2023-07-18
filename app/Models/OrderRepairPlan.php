@@ -29,10 +29,25 @@ class OrderRepairPlan extends Model
         'create_user_id',
         'check_status',
         'checked_at',
+        'repair_status',
+        'repair_start_at',
+        'repair_end_at',
+        'cost_images',
+        'before_repair_images',
+        'repair_images',
+        'after_repair_images'
     ];
 
+    const REPAIR_STATUS_WAIT = 0;
+    const REPAIR_STATUS_START = 1;
+    const REPAIR_STATUS_DONE = 2;
+
     protected $casts = [
-        'cost_tables' => 'array'
+        'cost_tables' => 'array',
+        'before_repair_images' => 'array',
+        'cost_images' => 'array',
+        'repair_images' => 'array',
+        'after_repair_images' => 'array',
     ];
 
     public function company(): BelongsTo
