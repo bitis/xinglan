@@ -236,7 +236,12 @@ class OrderController extends Controller
      */
     public function detail(Request $request): JsonResponse
     {
-        $order = Order::with(['company:id,name,type,logo', 'check_wusun:id,name', 'wusun:id,name'])->find($request->input('id'));
+        $order = Order::with([
+            'company:id,name,type,logo',
+            'check_wusun:id,name',
+            'wusun:id,name',
+            'repair_plan'
+        ])->find($request->input('id'));
 
         return success($order);
     }
@@ -345,4 +350,18 @@ class OrderController extends Controller
         return success($quotations);
     }
 
+    /**
+     * 结案
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function close(Request $request): JsonResponse
+    {
+        $order = Order::find($request->input('order_id'));
+
+
+
+        return success();
+    }
 }

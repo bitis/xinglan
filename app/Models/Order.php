@@ -132,4 +132,9 @@ class Order extends Model
     {
         return $this->belongsTo(Company::class, 'check_wusun_company_id', 'id');
     }
+
+    public function repair_plan(): HasOne
+    {
+        return $this->hasOne(OrderRepairPlan::class, 'order_id', 'id');
+    }
 }
