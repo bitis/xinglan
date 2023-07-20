@@ -81,7 +81,7 @@ class MessageController extends Controller
                 return $query->where('type', $messageType);
             })
             ->where(function ($query) use ($absRole, $user) {
-                if (!in_array($absRole, ['公司管理员', '施工经理', '查勘经理'])) {
+                if (!in_array($absRole, ['admin', '公司管理员', '施工经理', '查勘经理'])) {
                     $query->where('user_id', $user->id);
                 }
             })
