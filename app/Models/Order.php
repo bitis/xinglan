@@ -41,7 +41,6 @@ class Order extends Model
         'remark',
         'customer_remark',
         'order_status',
-        'close_status',
         'goods_types',
         'goods_name',
         'owner_name',
@@ -78,7 +77,11 @@ class Order extends Model
         'wusun_repair_user_id',
         'review_images',
         'review_remark',
-        'review_at'
+        'review_at',
+        'guarantee_period',
+        'close_remark',
+        'close_at',
+        'close_status'
     ];
 
     protected $casts = [
