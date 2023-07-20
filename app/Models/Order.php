@@ -140,4 +140,9 @@ class Order extends Model
     {
         return $this->hasOne(OrderRepairPlan::class, 'order_id', 'id');
     }
+
+    public function insurers(): HasMany
+    {
+        return $this->hasMany(OrderInsurer::class);
+    }
 }

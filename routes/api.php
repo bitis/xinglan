@@ -56,6 +56,10 @@ Route::middleware('auth')->group(function () {
         Route::post('form', 'AccountController@form');
     });
 
+    Route::prefix('insurer')->group(function () {
+        Route::get('list', 'InsurerController@index');
+    });
+
     Route::prefix('user')->group(function () {
         Route::get('list', 'UserController@index');
         Route::post('form', 'UserController@form');

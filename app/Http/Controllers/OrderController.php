@@ -186,7 +186,7 @@ class OrderController extends Controller
             'goods_remark',
             'review_images',
             'review_remark',
-            'review_at'
+            'review_at',
         ]);
 
         $user = $request->user();
@@ -232,9 +232,15 @@ class OrderController extends Controller
             $message->save();
         }
 
+        if ($insurers = $request->input('insurers')) {
+
+            $order->insurers()->delete();
+            $order->insurers()->createMany($insurers);
+        }
+
         $order->save();
 
-        return success($order->load('company:id,name'));
+        return success($order->load(['company:id,name', 'insurers']));
     }
 
     /**
@@ -249,7 +255,8 @@ class OrderController extends Controller
             'company:id,name,type,logo',
             'check_wusun:id,name',
             'wusun:id,name',
-            'repair_plan'
+            'repair_plan',
+            'insurers'
         ])->find($request->input('id'));
 
         return success($order);
