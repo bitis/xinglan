@@ -13,6 +13,7 @@ use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\ApprovalType;
 use App\Models\Enumerations\CheckStatus;
 use App\Models\Enumerations\MessageType;
+use App\Models\Enumerations\OrderCloseStatus;
 use App\Models\Enumerations\Status;
 use App\Models\Message;
 use App\Models\Order;
@@ -240,7 +241,7 @@ class ApprovalController extends Controller
         $this->complete($approvalOrder);
     }
 
-    protected function complete(ApprovalOrder $approvalOrder, $accept = true): void
+    protected function complete(ApprovalOrder $approvalOrder, bool $accept = true): void
     {
         $approvalOrder->completed_at = now()->toDateTimeString();
         $approvalOrder->save();
@@ -248,6 +249,7 @@ class ApprovalController extends Controller
         match ($approvalOrder->approval_type) {
             ApprovalType::ApprovalQuotation->value => $this->approvalQuotation($approvalOrder, $accept),
             ApprovalType::ApprovalAssessment->value => $this->approvalAssessment($approvalOrder, $accept),
+            ApprovalType::ApprovalClose->value => $this->approvalClose($approvalOrder, $accept),
         };
     }
 
@@ -336,6 +338,36 @@ class ApprovalController extends Controller
             'case_number' => $order->case_number,
             'goods_types' => $order->goods_types,
             'remark' => $order->confirmed_remark,
+            'status' => 0,
+        ]);
+
+        $message->save();
+    }
+
+    /**
+     * 结案审核
+     *
+     * @param ApprovalOrder $approvalOrder
+     * @param bool $accept
+     * @return void
+     */
+    private function approvalClose(ApprovalOrder $approvalOrder, bool $accept): void
+    {
+        $order = $approvalOrder->order;
+
+        $order->close_status = $accept ? OrderCloseStatus::Closed->value : OrderCloseStatus::Pursuance->value;
+        $order->save();
+
+        // Message
+        $message = new Message([
+            'send_company_id' => $order->wusun_company_id,
+            'to_company_id' => $order->wusun_company_id,
+            'type' => MessageType::OrderClosed->value,
+            'order_id' => $order->id,
+            'order_number' => $order->order_number,
+            'case_number' => $order->case_number,
+            'goods_types' => $order->goods_types,
+            'remark' => $order->close_remark,
             'status' => 0,
         ]);
 

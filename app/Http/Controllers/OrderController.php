@@ -3,11 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\OrderRequest;
+use App\Models\ApprovalOption;
+use App\Models\ApprovalOrder;
+use App\Models\ApprovalOrderProcess;
+use App\Models\Approver;
 use App\Models\Company;
 use App\Models\CompanyProvider;
+use App\Models\Enumerations\ApprovalMode;
+use App\Models\Enumerations\ApprovalStatus;
+use App\Models\Enumerations\ApprovalType;
 use App\Models\Enumerations\CheckStatus;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\MessageType;
+use App\Models\Enumerations\OrderCloseStatus;
 use App\Models\Enumerations\OrderStatus;
 use App\Models\Enumerations\Status;
 use App\Models\Enumerations\WuSunStatus;
@@ -18,6 +26,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -360,7 +369,69 @@ class OrderController extends Controller
     {
         $order = Order::find($request->input('order_id'));
 
+        $user = $request->user();
+        try {
+            DB::beginTransaction();
+            $order->guarantee_period = $request->input('guarantee_period');
+            $order->close_remark = $request->input('close_remark');
+            $order->close_status = OrderCloseStatus::CloseCheck->value;
+            $order->close_at = now()->toDateTimeString();
+            $order->save();
 
+            $option = ApprovalOption::findByType($order->company_id, ApprovalType::ApprovalClose->value);
+
+            ApprovalOrder::where('order_id', $order->id)->where('company_id', $order->wusun_company_id)->delete();
+            ApprovalOrderProcess::where('order_id', $order->id)->where('company_id', $order->wusun_company_id)->delete();
+
+            $approvalOrder = ApprovalOrder::create([
+                'order_id' => $order->id,
+                'company_id' => $order->wusun_company_id,
+                'approval_type' => $option->type,
+            ]);
+
+            list($checkers, $reviewers, $receivers) = ApprovalOption::groupByType($option->approver);
+
+            $insert = [];
+            foreach ($checkers as $index => $checker) {
+                $insert[] = [
+                    'user_id' => $checker['id'],
+                    'name' => $checker['name'],
+                    'creator_id' => $user->id,
+                    'creator_name' => $user->name,
+                    'order_id' => $order->id,
+                    'company_id' => $order->wusun_company_id,
+                    'step' => Approver::STEP_CHECKER,
+                    'approval_status' => ApprovalStatus::Pending->value,
+                    'mode' => $option->approve_mode,
+                    'approval_type' => $option->type,
+                    'hidden' => $index > 0 && $option->approve_mode == ApprovalMode::QUEUE->value,
+                ];
+            }
+
+            foreach ($receivers as $receiver) {
+                $insert[] = [
+                    'user_id' => $receiver['id'],
+                    'name' => $receiver['name'],
+                    'creator_id' => $user->id,
+                    'creator_name' => $user->name,
+                    'order_id' => $order->id,
+                    'company_id' => $order->wusun_company_id,
+                    'step' => Approver::STEP_RECEIVER,
+                    'approval_status' => ApprovalStatus::Pending->value,
+                    'mode' => ApprovalMode::QUEUE->value,
+                    'approval_type' => $option->type,
+                    'hidden' => true,
+                ];
+            }
+
+            $approvalOrder->process()->delete();
+            if ($insert) $approvalOrder->process()->createMany($insert);
+
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return fail($exception->getMessage());
+        }
 
         return success();
     }

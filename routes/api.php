@@ -100,6 +100,7 @@ Route::middleware('auth')->group(function () {
         Route::post('dispatchProvider', 'OrderController@dispatchProvider');
         Route::post('check', 'OrderController@check'); // 物损查勘人员查勘
         Route::post('confirmPlan', 'OrderController@confirmPlan'); // 物损确认方案
+        Route::post('close', 'OrderController@close'); // 关闭
 
         Route::prefix('repair')->group(function () {
             Route::post('form', 'OrderRepairController@form');
