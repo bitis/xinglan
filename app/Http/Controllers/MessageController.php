@@ -12,6 +12,12 @@ use Illuminate\Http\Request;
 class MessageController extends Controller
 {
 
+    /**
+     * 消息列表
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -20,7 +26,11 @@ class MessageController extends Controller
 
         $messageType = [];
 
-        switch (str_replace($company->id . '_', '', $role)) {
+        $inputType = $request->input('type');
+
+        $absRole = str_replace($company->id . '_', '', $role);
+
+        switch ($absRole) {
             case '公司管理员':
                 $messageType = [MessageType::NewOrder->value];
                 break;
@@ -50,7 +60,26 @@ class MessageController extends Controller
 
         $messages = Message::with(['sendCompany:id,name', 'order'])
             ->where('to_company_id', $company->id)
-            ->whereIn('type', $messageType)
+            ->when(strlen($status = $request->input('status')), function ($query) use ($status) {
+                $query->where('status', $status);
+            })
+            ->when($request->input('order_number'), function ($query, $order_number) {
+                $query->where('order_number', 'like', '%' . $order_number . '%');
+            })
+            ->where(function ($query) use ($inputType, $messageType) {
+                if ($inputType && in_array($inputType, $messageType))
+                    return $query->where('type', $inputType);
+
+                return $query->whereIn('type', $messageType);
+            })
+            ->where(function ($query) use ($absRole, $user) {
+                if (!in_array($absRole, ['公司管理员', '施工经理','查勘经理'])) {
+                    $query->where('user_id', $user->id);
+                }
+            })
+            ->when($request->input('date'), function ($query, $date) {
+                $query->where('created_at', '>=', $date)->where('created_at', '<=', $date . ' 23:59:59');
+            })
             ->orderBy('id', 'desc')
             ->paginate(getPerPage());
 
