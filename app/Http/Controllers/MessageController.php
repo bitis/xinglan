@@ -70,7 +70,7 @@ class MessageController extends Controller
                 if ($inputType && in_array($inputType, $messageType))
                     return $query->where('type', $inputType);
 
-                return $query->whereIn('type', $messageType);
+                return $query->where('type', $messageType);
             })
             ->where(function ($query) use ($absRole, $user) {
                 if (!in_array($absRole, ['公司管理员', '施工经理','查勘经理'])) {
