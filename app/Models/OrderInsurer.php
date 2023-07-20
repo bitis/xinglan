@@ -10,6 +10,6 @@ class OrderInsurer extends Model
     use HasFactory;
 
     protected $fillable = [
-        'order_id', 'insurer_id', 'type', 'policy_number'
+        'order_id', 'insurer_id', 'insurer_name', 'type', 'policy_number'
     ];
 }
