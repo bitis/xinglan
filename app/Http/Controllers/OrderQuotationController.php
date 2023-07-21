@@ -33,7 +33,7 @@ class OrderQuotationController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        if ($request->user()->hasRole('admin')) return success();
+        if ($request->user()->hasRole('admin')) return success('超级管理员无法查看');
 
         $company_id = $request->user()->company_id;
         $customersId = CompanyProvider::where('provider_id', $company_id)->pluck('company_id');
