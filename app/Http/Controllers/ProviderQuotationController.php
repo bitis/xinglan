@@ -31,9 +31,9 @@ class ProviderQuotationController extends Controller
         $company_id = $request->input('company_id');
         $current_company = $request->user()->company;
 
-        if ($request->user()->hasRole('admin')) return success();
+        if ($request->user()->hasRole('admin')) return fail('超级管理员无法查看');
 
-        if (empty($current_company)) return fail('所属公司不存在');
+        elseif (empty($current_company)) return fail('所属公司不存在');
 
         $orders = Order::with('company:id,name')
             ->where('bid_type', '>', 0)

@@ -49,7 +49,7 @@ class OrderController extends Controller
     {
         $current_company = $request->user()->company;
 
-        if ($request->user()->hasRole('admin')) return success();
+        if ($request->user()->hasRole('admin')) return fail('超级管理员无法查看');
 
         if (empty($current_company)) return fail('所属公司不存在');
 
