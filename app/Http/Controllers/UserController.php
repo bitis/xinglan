@@ -90,6 +90,8 @@ class UserController extends Controller
 
         $withStr = $request->input('with', '');
 
+        if ($request->user()->hasRole('admin')) return success();
+
         $company_id = $request->input('company_id') ?: $request->user()->company_id;
 
         $roleNames = array_map(fn($role) => $company_id . '_' . $role, explode(',', $roleStr));
