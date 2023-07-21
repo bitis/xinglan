@@ -28,7 +28,7 @@ class MessageController extends Controller
 
         $inputType = $request->input('type');
 
-        $absRole = str_replace($company->id . '_', '', $role);
+        $absRole = str_replace($company?->id . '_', '', $role);
 
         switch ($absRole) {
             case 'admin':
@@ -67,7 +67,7 @@ class MessageController extends Controller
         }
 
         $messages = Message::with(['sendCompany:id,name', 'order'])
-            ->where('to_company_id', $company->id)
+            ->where('to_company_id', $company?->id)
             ->when(strlen($status = $request->input('status')), function ($query) use ($status) {
                 $query->where('status', $status);
             })
