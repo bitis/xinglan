@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Auth\Login;
 use App\Http\Requests\Auth\Register;
 use App\Models\Company;
+use App\Models\Enumerations\Status;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -54,6 +55,10 @@ class AccountController extends Controller
 
         if (!Hash::check($password, $user->password)) {
             return fail('密码校验失败');
+        }
+
+        if ($user->status == Status::Disable->value) {
+            return fail('账号已被禁用');
         }
 
         $user->api_token = Str::random(32);
