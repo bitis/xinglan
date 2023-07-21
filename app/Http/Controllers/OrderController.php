@@ -49,6 +49,10 @@ class OrderController extends Controller
     {
         $current_company = $request->user()->company;
 
+        if ($request->user()->hasRole('admin')) return success();
+
+        if (empty($current_company)) return fail('所属公司不存在');
+
         if ($current_company?->getRawOriginal('type') == CompanyType::BaoXian->value)
             return success([
                 ['id' => $current_company->id, 'name' => $current_company->name]
