@@ -75,6 +75,8 @@ class OrderController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        if ($request->user()->hasRole('admin')) return success('超级管理员无法查看');
+
         $user = $request->user();
         $current_company = $user->company;
 
