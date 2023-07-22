@@ -206,7 +206,7 @@ class OrderController extends Controller
             'creator_id' => $user->id,
             'creator_name' => $user->name,
             'creator_company_id' => $company->id,
-            'creator_company_type' => $company->type,
+            'creator_company_type' => $company->getRawOriginal('type'),
             'order_number' => Order::genOrderNumber()
         ]));
 
