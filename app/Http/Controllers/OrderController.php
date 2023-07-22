@@ -297,7 +297,7 @@ class OrderController extends Controller
             throw_if($company->getRawOriginal('type') != CompanyType::WuSun->value, '只有物损公司可以派遣查勘');
 
             $order->fill($params);
-            $order->wusun_status = WuSunStatus::AcceptCheck->value;
+            $order->wusun_check_status = Order::WUSUN_CHECK_STATUS_CHECKING;
             $order->order_status = OrderStatus::Checking->value;
             $order->save();
 
@@ -335,7 +335,7 @@ class OrderController extends Controller
 
         $order->fill($request->only(['images', 'remark']));
 
-        $order->wusun_status = WuSunStatus::FinishedCheck->value;
+        $order->wusun_check_status = Order::WUSUN_CHECK_STATUS_FINISHED;
         $order->wusun_checked_at = now()->toDateTimeString();
         $order->save();
 
@@ -354,8 +354,6 @@ class OrderController extends Controller
         if (empty($order) or $order->wusun_check_id != $request->user()->id) return fail('工单不存在或不属于当前账号');
 
         $order->fill($request->only(['plan_type', 'owner_name', 'owner_phone', 'owner_price', 'negotiation_content']));
-        $order->plan_confirm_at = now()->toDateTimeString();
-        $order->wusun_status = WuSunStatus::ConfirmPlan->value;
         $order->plan_confirm_at = now()->toDateTimeString();
 
         $order->save();

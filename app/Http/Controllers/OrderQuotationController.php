@@ -299,7 +299,7 @@ class OrderQuotationController extends Controller
             $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalAssessment->value);
 
             if ($order->confirmed_check_status == CheckStatus::Accept->value)
-                throw new Exception('已审核通过，不允许定损价格');
+                throw new Exception('已审核通过，不能重复操作');
 
             $order->fill($request->only([
                 'confirmed_price', 'confirmed_repair_days', 'confirmed_remark'

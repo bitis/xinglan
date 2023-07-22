@@ -92,6 +92,23 @@ class Order extends Model
     const BID_STATUS_PROGRESSING = 0;
     const BID_STATUS_FINISHED = 1;
 
+    /**
+     * 未查勘
+     */
+    const WUSUN_CHECK_STATUS_WAITING = 0;
+
+    /**
+     * 查勘中
+     */
+    const WUSUN_CHECK_STATUS_CHECKING = 1;
+
+    /**
+     * 查勘完成
+     */
+    const WUSUN_CHECK_STATUS_FINISHED = 2;
+
+
+
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class, 'insurance_company_id', 'id');
