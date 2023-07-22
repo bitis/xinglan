@@ -394,7 +394,7 @@ class OrderController extends Controller
             $order->close_at = now()->toDateTimeString();
             $order->save();
 
-            $option = ApprovalOption::findByType($order->company_id, ApprovalType::ApprovalClose->value);
+            $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalClose->value);
 
             ApprovalOrder::where('order_id', $order->id)->where('company_id', $order->wusun_company_id)->delete();
             ApprovalOrderProcess::where('order_id', $order->id)->where('company_id', $order->wusun_company_id)->delete();
