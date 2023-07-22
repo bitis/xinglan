@@ -12,7 +12,7 @@ enum MessageType : int
     case NewOrder = 0;
     case NewCheckTask = 1;
     case ConfirmedPrice = 2;
-//    case OrderClosed = 3;
+    case OrderClosed = 3;
     case OrderDispatch = 4;
 
     public function name(): string
@@ -21,7 +21,7 @@ enum MessageType : int
             MessageType::NewOrder => '新增订单',
             MessageType::NewCheckTask => '分派查勘任务',
             MessageType::ConfirmedPrice => '客户核价',
-//            MessageType::OrderClosed => '工单关闭',
+            MessageType::OrderClosed => '工单关闭',
             MessageType::OrderDispatch => '中标通知',
         };
     }

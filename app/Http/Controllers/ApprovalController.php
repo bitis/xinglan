@@ -54,6 +54,7 @@ class ApprovalController extends Controller
                 if ($step) $query->whereIn('step', explode(',', $step));
             })
             ->where('hidden', false)
+            ->orderBy('id', 'desc')
             ->paginate(getPerPage());
 
         return success($process);
