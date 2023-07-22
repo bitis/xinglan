@@ -46,10 +46,10 @@ class OrderQuotationController extends Controller
             ->when($request->input('status'), function ($query, $status) {
                 // 1 待报价 2 报价超时 3 未中标 4 已中标
                 return match ($status) {
-                    '1' => $query->where('bid_status', 0)->whereNull('quotation.id'),
-                    '2' => $query->where('bid_status', 1)->whereNull('quotation.id'),
-                    '3' => $query->where('bid_status', 1)->where('quotation.win', 0),
-                    '4' => $query->where('bid_status', 1)->where('quotation.win', 1),
+                    '1' => $query->where('bid_status', Order::BID_STATUS_PROGRESSING)->whereNull('quotation.id'),
+                    '2' => $query->where('bid_status', Order::BID_STATUS_FINISHED)->whereNull('quotation.id'),
+                    '3' => $query->where('bid_status', Order::BID_STATUS_FINISHED)->where('quotation.win', 0),
+                    '4' => $query->where('bid_status', Order::BID_STATUS_FINISHED)->where('quotation.win', 1),
                 };
             })
             ->when($request->input('name'), function ($query, $name) {

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Company;
 use App\Models\OrderQuotation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -41,6 +42,8 @@ class QuotaBillPdfJob implements ShouldQueue
         $ossFile = '/quota_bill/' . date('Ymd') . '/' . md5($fileContent) . '.pdf';
 
         Storage::disk('oss')->put($ossFile, $fileContent);
+
+        $quotation->company_name = Company::find($quotation->company_id)->name;
 
         $quotation->pdf = $ossFile;
 

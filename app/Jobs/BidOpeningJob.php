@@ -28,7 +28,7 @@ class BidOpeningJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $order = Order::find(18);
+        $order = Order::find($this->order_id);
 
         if (!$order or $order->bid_status != 0) return;
 

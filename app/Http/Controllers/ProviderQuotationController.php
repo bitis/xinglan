@@ -10,7 +10,6 @@ use App\Models\Company;
 use App\Models\Enumerations\ApprovalMode;
 use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\ApprovalType;
-use App\Models\Enumerations\CheckStatus;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
@@ -90,6 +89,38 @@ class ProviderQuotationController extends Controller
     }
 
     /**
+     * 手动开标（）
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function pick(Request $request): JsonResponse
+    {
+        $order = Order::find($request->input('order_id'));
+
+        if ($order->bid_type != Order::BID_TYPE_JINGJIA) return fail('非竞价工单，不可手动开标');
+
+        if ($order->bid_status == Order::BID_STATUS_FINISHED) return fail('不可重复开标');
+
+        $order->bid_status = Order::BID_STATUS_FINISHED;
+        $order->bid_end_time = now()->toDateTimeString();
+        $order->confim_wusun_at = $order->bid_end_time;
+        $order->fill($request->only([
+            'wusun_company_id',
+            'wusun_company_name'
+        ]));
+
+        $order->quotations()->where('company_id', $request->input('wusun_company_id'))->update([
+            'win' => 1,
+            'bid_end_time' => now()->toDateTimeString()
+        ]);
+
+        $order->save();
+
+        return success();
+    }
+
+    /**
      * 核价（保险公司）
      *
      * @param Request $request
@@ -105,7 +136,7 @@ class ProviderQuotationController extends Controller
 
         if ($order->confirmed_at) return fail('订单已核价');
 
-        if ($order->bid_status != 1) return fail('该订单暂不能核价');
+        if ($order->bid_status != Order::BID_STATUS_PROGRESSING) return fail('该订单暂不能核价');
 
         if ($order->confirm_price_status == Order::CONFIRM_PRICE_STATUS_FINISHED)
             return fail('当前订单已经核价，不可重复操作');

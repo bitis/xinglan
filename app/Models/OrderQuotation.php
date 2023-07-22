@@ -18,6 +18,7 @@ class OrderQuotation extends Model
     protected $fillable = [
         'order_id',
         'company_id',
+        'company_name',
         'plan_type',
         'repair_days',
         'repair_cost',
