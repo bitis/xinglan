@@ -298,8 +298,10 @@ class OrderQuotationController extends Controller
 
             $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalAssessment->value);
 
-            if ($order->confirmed_check_status == CheckStatus::Accept->value)
-                throw new Exception('已审核通过，不能重复操作');
+            if ($order->confirm_price_status == Order::CONFIRM_PRICE_STATUS_APPROVAL)
+                throw new Exception('当前状态审批中，不能进行编辑');
+            if ($order->confirm_price_status == Order::CONFIRM_PRICE_STATUS_FINISHED)
+                throw new Exception('当前状态已完成，不能进行编辑');
 
             $order->fill($request->only([
                 'confirmed_price', 'confirmed_repair_days', 'confirmed_remark'

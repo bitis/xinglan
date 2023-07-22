@@ -111,6 +111,10 @@ class Order extends Model
     const REPAIR_STATUS_REPAIRING = 1;
     const REPAIR_STATUS_FINISHED = 2;
 
+    const CONFIRM_PRICE_STATUS_WAIT = 0; // 未核价
+    const CONFIRM_PRICE_STATUS_APPROVAL = 1; // 审核中
+    const CONFIRM_PRICE_STATUS_FINISHED = 2; // 已核价
+
 
     public function company(): BelongsTo
     {

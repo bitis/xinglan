@@ -107,8 +107,8 @@ class ProviderQuotationController extends Controller
 
         if ($order->bid_status != 1) return fail('该订单暂不能核价');
 
-        if ($order->confirmed_price && $order->confirmed_check_status != CheckStatus::Reject->value)
-            return fail('当前状态不能修改核价内容');
+        if ($order->confirm_price_status == Order::CONFIRM_PRICE_STATUS_FINISHED)
+            return fail('当前订单已经核价，不可重复操作');
 
         try {
             $option = ApprovalOption::findByType($order->insurance_company_id, ApprovalType::ApprovalAssessment->value);
@@ -120,6 +120,8 @@ class ProviderQuotationController extends Controller
                 'confirmed_repair_days',
                 'confirmed_remark',
             ]));
+
+            $order->confirm_price_status = Order::CONFIRM_PRICE_STATUS_APPROVAL;
 
             $order->save();
 

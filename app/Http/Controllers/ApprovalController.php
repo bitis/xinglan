@@ -324,8 +324,7 @@ class ApprovalController extends Controller
     {
         $order = $approvalOrder->order;
 
-        $order->confirmed_check_status = $accept ? CheckStatus::Accept->value : CheckStatus::Reject->value;
-        $order->confirm_price_status = $accept;
+        $order->confirm_price_status = $accept ? Order::CONFIRM_PRICE_STATUS_FINISHED : Order::CONFIRM_PRICE_STATUS_WAIT;
         $order->confirmed_at = now()->toDateTimeString();
         $order->save();
 
