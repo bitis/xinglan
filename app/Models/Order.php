@@ -86,11 +86,15 @@ class Order extends Model
     ];
 
     protected $casts = [
-        'images' => 'array'
+        'images' => 'array',
+        'review_images' => 'array'
     ];
 
     const BID_STATUS_PROGRESSING = 0;
     const BID_STATUS_FINISHED = 1;
+
+    const BID_TYPE_JINGJIA = 1; // 竞价
+    const BID_TYPE_FENPAI = 2; // 不经竞价、直接分派
 
     /**
      * 未查勘
