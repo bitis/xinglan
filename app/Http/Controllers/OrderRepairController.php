@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\OrderRepairPlan;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,6 +22,8 @@ class OrderRepairController extends Controller
     {
         $order_id = $request->input('order_id');
 
+        $order = Order::find($order_id);
+
         $plan = OrderRepairPlan::where('order_id', $order_id)->first();
 
         $plan->fill($request->only([
@@ -35,6 +38,33 @@ class OrderRepairController extends Controller
         ]));
 
         $plan->save();
+
+        $order->repair_status = $plan->repair_status;
+        $order->save();
+
+        return success();
+    }
+
+    /**
+     * 回退施工状态
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function rollback(Request $request): JsonResponse
+    {
+        $order_id = $request->input('order_id');
+        $order = Order::find($order_id);
+        $plan = OrderRepairPlan::with('tasks')->where('order_id', $order_id)->first();
+
+        if ($plan->status > OrderRepairPlan::REPAIR_STATUS_WAIT) {
+            $plan->status -= 1;
+            $plan->save();
+        } else {
+            $plan->delete();
+            $order->repair_status = Order::REPAIR_STATUS_WAIT;
+            $order->save();
+        }
 
         return success();
     }

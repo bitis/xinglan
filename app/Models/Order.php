@@ -107,6 +107,9 @@ class Order extends Model
      */
     const WUSUN_CHECK_STATUS_FINISHED = 2;
 
+    const REPAIR_STATUS_WAIT = 0;
+    const REPAIR_STATUS_REPAIRING = 1;
+    const REPAIR_STATUS_FINISHED = 2;
 
 
     public function company(): BelongsTo
