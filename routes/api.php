@@ -115,7 +115,7 @@ Route::middleware('auth')->group(function () {
         Route::prefix('repair')->group(function () {
             Route::post('form', 'OrderRepairController@form');
             Route::get('detail', 'OrderRepairController@detail');
-            Route::get('rollback', 'OrderRepairController@rollback');
+            Route::post('rollback', 'OrderRepairController@rollback');
 
             Route::prefix('dispatch')->group(function () {
                 Route::post('form', 'OrderRepairDispatchController@form');
