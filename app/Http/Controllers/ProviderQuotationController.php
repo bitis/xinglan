@@ -11,6 +11,8 @@ use App\Models\Enumerations\ApprovalMode;
 use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\ApprovalType;
 use App\Models\Enumerations\CompanyType;
+use App\Models\Enumerations\MessageType;
+use App\Models\Message;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -115,7 +117,26 @@ class ProviderQuotationController extends Controller
             'bid_end_time' => now()->toDateTimeString()
         ]);
 
+        $order->quotations()->where('company_id', $request->input('wusun_company_id'))->update([
+            'win' => 2,
+            'bid_end_time' => now()->toDateTimeString()
+        ]);
+
         $order->save();
+
+        // Message
+        $message = new Message([
+            'send_company_id' => $order->insurance_company_id,
+            'to_company_id' => $request->input('wusun_company_id'),
+            'type' => MessageType::OrderDispatch->value,
+            'order_id' => $order->id,
+            'order_number' => $order->order_number,
+            'case_number' => $order->case_number,
+            'goods_types' => $order->goods_types,
+            'remark' => $order->remark,
+            'status' => 0,
+        ]);
+        $message->save();
 
         return success();
     }

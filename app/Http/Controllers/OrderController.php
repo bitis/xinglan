@@ -401,7 +401,7 @@ class OrderController extends Controller
 
             $approvalOrder = ApprovalOrder::create([
                 'order_id' => $order->id,
-                'company_id' => $order->wusun_company_id,
+                'company_id' => $user->company_id,
                 'approval_type' => $option->type,
             ]);
 
@@ -415,7 +415,7 @@ class OrderController extends Controller
                     'creator_id' => $user->id,
                     'creator_name' => $user->name,
                     'order_id' => $order->id,
-                    'company_id' => $order->wusun_company_id,
+                    'company_id' => $user->company_id,
                     'step' => Approver::STEP_CHECKER,
                     'approval_status' => ApprovalStatus::Pending->value,
                     'mode' => $option->approve_mode,
@@ -431,7 +431,7 @@ class OrderController extends Controller
                     'creator_id' => $user->id,
                     'creator_name' => $user->name,
                     'order_id' => $order->id,
-                    'company_id' => $order->wusun_company_id,
+                    'company_id' => $user->company_id,
                     'step' => Approver::STEP_RECEIVER,
                     'approval_status' => ApprovalStatus::Pending->value,
                     'mode' => ApprovalMode::QUEUE->value,

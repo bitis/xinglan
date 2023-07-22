@@ -4,6 +4,8 @@ namespace App\Jobs;
 
 use App\Models\Company;
 use App\Models\Enumerations\CheckStatus;
+use App\Models\Enumerations\MessageType;
+use App\Models\Message;
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -48,6 +50,20 @@ class BidOpeningJob implements ShouldQueue
                 $order->wusun_company_id = $quotation->company_id;
                 $order->wusun_company_name = Company::find($quotation->company_id)->name;
                 $order->confim_wusun_at = $order->bid_end_time;
+
+                // Message
+                $message = new Message([
+                    'send_company_id' => $order->insurance_company_id,
+                    'to_company_id' => $order->check_wusun_company_id,
+                    'type' => MessageType::OrderDispatch->value,
+                    'order_id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'case_number' => $order->case_number,
+                    'goods_types' => $order->goods_types,
+                    'remark' => $order->remark,
+                    'status' => 0,
+                ]);
+                $message->save();
             } else {
                 $quotation->win = 2;
             }
