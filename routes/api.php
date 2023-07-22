@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\Route;
 */
 Route::get('area', 'AreaController@index');
 
+Route::prefix('appVersion')->group(function () {
+   Route::get('latest', 'AppVersionController@latest');
+   Route::get('form', 'AppVersionController@form')->middleware('auth');
+});
+
 Route::prefix('auth')->group(function () {
     Route::post('login', 'AccountController@login');
     Route::post('register', 'AccountController@register');

@@ -36,7 +36,6 @@ class OrderRepairDispatchController extends Controller
             'id' => $request->input('id'),
             'order_id' => $request->input('order_id')
         ], array_merge($request->only([
-            'company_id',
             'plan_type',
             'repair_type',
             'repair_days',
@@ -51,6 +50,7 @@ class OrderRepairDispatchController extends Controller
             'check_status',
             'checked_at',
         ]), [
+            'company_id' => $request->user()->company_id,
             'create_user_id' => $request->user()->id
         ]));
 
