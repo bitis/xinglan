@@ -19,9 +19,9 @@ enum OrderStatus : int
 
     case Repaired = 4;
 
-    case Cancelled = 90;
-
-    case Recycled = 91;
+//    case Cancelled = 90;
+//
+//    case Recycled = 91;
 
     case Mediated = 99;
 
@@ -34,8 +34,8 @@ enum OrderStatus : int
             OrderStatus::WaitRepair => '待施工',
             OrderStatus::Repairing => '施工中',
             OrderStatus::Repaired => '已修复',
-            OrderStatus::Cancelled => '已取消',
-            OrderStatus::Recycled => '已回收',
+//            OrderStatus::Cancelled => '已取消',
+//            OrderStatus::Recycled => '已回收',
             OrderStatus::Mediated => '协调处理',
         };
     }
