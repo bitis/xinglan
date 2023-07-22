@@ -143,8 +143,12 @@ class OrderController extends Controller
                         ->orWhere('license_plate', 'like', "%$name%")
                         ->orWhere('vin', 'like', "%$name%");
                 });
-            })
-            ->orderBy('id', 'desc')
+            })->when($request->input('create_type'), function ($query, $create_type) use ($current_company) {
+                if ($create_type == 1) // 自己创建
+                    return $query->where('creator_company_id', $current_company->id);
+                if ($current_company->type == CompanyType::WuSun->value)
+                    return $query->where('creator_company_type', CompanyType::BaoXian->value);
+            })->orderBy('id', 'desc')
             ->paginate(getPerPage());
 
         return success($userList);
@@ -202,6 +206,7 @@ class OrderController extends Controller
             'creator_id' => $user->id,
             'creator_name' => $user->name,
             'creator_company_id' => $company->id,
+            'creator_company_type' => $company->type,
             'order_number' => Order::genOrderNumber()
         ]));
 

@@ -34,6 +34,7 @@ class Order extends Model
         'creator_id',
         'creator_name',
         'creator_company_id',
+        'creator_company_type',
         'insurance_people',
         'insurance_phone',
         'driver_name',
