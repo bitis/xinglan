@@ -16,7 +16,6 @@ use App\Models\Enumerations\CheckStatus;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\MessageType;
 use App\Models\Enumerations\OrderCloseStatus;
-use App\Models\Enumerations\OrderStatus;
 use App\Models\Enumerations\Status;
 use App\Models\Message;
 use App\Models\Order;
@@ -187,6 +186,7 @@ class OrderController extends Controller
             'review_images',
             'review_remark',
             'review_at',
+            'bid_type'
         ]);
 
         $user = $request->user();
@@ -204,33 +204,43 @@ class OrderController extends Controller
 
         $order->fill(Arr::whereNotNull($orderParams));
 
-        /**
-         * 物损公司自建工单直接派发给自己
-         */
-        if ($is_create && $company->getRawOriginal('type') == CompanyType::WuSun->value) {
-            $order->fill([
-                'check_wusun_company_id' => $company->id,
-                'check_wusun_company_name' => $company->name,
-                'dispatch_check_wusun_at' => now()->toDateTimeString(),
-                'dispatched' => true,
-            ]);
 
-            $order->save();
+        if ($is_create) {
+            /**
+             * 物损公司自建工单直接派发给自己
+             */
+            if ($company->getRawOriginal('type') == CompanyType::WuSun->value) {
+                $order->fill([
+                    'check_wusun_company_id' => $company->id,
+                    'check_wusun_company_name' => $company->name,
+                    'dispatch_check_wusun_at' => now()->toDateTimeString(),
+                    'dispatched' => true,
+                ]);
 
-            // Message
-            $message = new Message([
-                'send_company_id' => $order->insurance_company_id,
-                'to_company_id' => $order->check_wusun_company_id,
-                'type' => MessageType::NewOrder->value,
-                'order_id' => $order->id,
-                'order_number' => $order->order_number,
-                'case_number' => $order->case_number,
-                'goods_types' => $order->goods_types,
-                'remark' => $order->remark,
-                'status' => 0,
-            ]);
-            $message->save();
+                $order->save();
+
+                // Message
+                $message = new Message([
+                    'send_company_id' => $order->insurance_company_id,
+                    'to_company_id' => $order->check_wusun_company_id,
+                    'type' => MessageType::NewOrder->value,
+                    'order_id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'case_number' => $order->case_number,
+                    'goods_types' => $order->goods_types,
+                    'remark' => $order->remark,
+                    'status' => 0,
+                ]);
+                $message->save();
+            }
+            elseif($order->bid_type == Order::BID_TYPE_JINGJIA) {
+                $order->fill([
+                    'wusun_check_status' => 2,
+                ]);
+
+            }
         }
+
 
         if ($insurers = $request->input('insurers')) {
 

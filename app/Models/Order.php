@@ -81,7 +81,8 @@ class Order extends Model
         'guarantee_period',
         'close_remark',
         'close_at',
-        'close_status'
+        'close_status',
+        'quote_status'
     ];
 
     protected $casts = [
@@ -115,9 +116,9 @@ class Order extends Model
     const REPAIR_STATUS_FINISHED = 2;
 
 
-     const QUOTE_STATUS_WAIT = 0; // 未报价
-     const QUOTE_STATUS_APPROVAL = 1; // 审核中
-     const QUOTE_STATUS_FINISHED = 2; // 已报价
+    const QUOTE_STATUS_WAIT = 0; // 未报价
+    const QUOTE_STATUS_APPROVAL = 1; // 审核中
+    const QUOTE_STATUS_FINISHED = 2; // 已报价
 
     const CONFIRM_PRICE_STATUS_WAIT = 0; // 未核价
     const CONFIRM_PRICE_STATUS_APPROVAL = 1; // 审核中
@@ -137,7 +138,7 @@ class Order extends Model
     protected static function booted()
     {
         static::created(function ($order) {
-            OrderDispatch::dispatch($order);
+            if ($order->bid_type != Order::BID_TYPE_JINGJIA) OrderDispatch::dispatch($order);
         });
     }
 
