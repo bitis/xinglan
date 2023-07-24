@@ -26,10 +26,17 @@ class VerificationCode extends Model
      */
     public static function verify($phone_number, $code): bool
     {
-        return VerificationCode::where('phone_number', $phone_number)
+        $verification_code = VerificationCode::where('phone_number', $phone_number)
             ->where('code', $code)
             ->where('verified', false)
             ->where('expiration_date', '>', now())
-            ->exists();
+            ->first();
+
+        if (!$verification_code) return false;
+
+        $verification_code->verified = true;
+        $verification_code->save();
+
+        return true;
     }
 }

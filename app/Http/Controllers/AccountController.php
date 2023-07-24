@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\Register;
 use App\Models\Company;
 use App\Models\Enumerations\Status;
 use App\Models\User;
+use App\Models\VerificationCode;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -133,11 +134,21 @@ class AccountController extends Controller
      * 重置密码
      *
      * @param Request $request
-     * @return void
+     * @return JsonResponse
      */
-    public function resetPassword(Request $request)
+    public function resetPassword(Request $request): JsonResponse
     {
-        $request->input('password');
+        $mobile = $request->input('phone_number');
+
+        $user = User::where('mobile', $mobile)->first();
+
+        if (!VerificationCode::verify($mobile, $request->input('code')))
+            return fail('验证码错误');
+
+        $user->password = bcrypt($request->input('password'));
+        $user->save();
+
+        return success();
     }
 
 }
