@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::get('area', 'AreaController@index');
+Route::get('verify/code', 'VerificationCodeController@get');
 
 Route::prefix('appVersion')->group(function () {
    Route::get('latest', 'AppVersionController@latest');
