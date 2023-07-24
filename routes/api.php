@@ -24,6 +24,7 @@ Route::prefix('auth')->group(function () {
     Route::post('login', 'AccountController@login');
     Route::post('register', 'AccountController@register');
     Route::post('logout', 'AccountController@logout')->middleware('auth');
+    Route::post('reset-password', 'AccountController@resetPassword');
 });
 
 Route::middleware('auth')->group(function () {

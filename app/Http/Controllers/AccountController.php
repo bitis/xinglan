@@ -129,4 +129,15 @@ class AccountController extends Controller
         return success();
     }
 
+    /**
+     * 重置密码
+     *
+     * @param Request $request
+     * @return void
+     */
+    public function resetPassword(Request $request)
+    {
+        $request->input('password');
+    }
+
 }
