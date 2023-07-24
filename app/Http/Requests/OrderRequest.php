@@ -37,7 +37,6 @@ class OrderRequest extends FormRequest
             'city' => 'required_without:id',
             'area' => 'required_without:id',
             'address' => 'required_without:id',
-            'order_status' => [Rule::enum(OrderStatus::class)],
             'close_status' => [Rule::enum(OrderCloseStatus::class)],
             'goods_types' => '',
             'images',
@@ -50,7 +49,6 @@ class OrderRequest extends FormRequest
         return [
             'case_number.unique' => '报案号已经存在',
             'insurance_type.enum' => '未知的保险类型',
-            'order_status.enum' => '未知的工单状态',
             'close_status.enum' => '未知的工单关闭状态',
         ];
     }

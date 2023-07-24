@@ -83,7 +83,6 @@ class OrderDispatch implements ShouldQueue
                 'check_wusun_company_id' => $provider->provider_id,
                 'check_wusun_company_name' => $provider->provider_name,
                 'dispatch_check_wusun_at' => now()->toDateTimeString(),
-                'order_status' => OrderStatus::WaitCheck->value,
                 'dispatched' => true
             ]);
 

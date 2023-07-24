@@ -18,12 +18,10 @@ use App\Models\Enumerations\MessageType;
 use App\Models\Enumerations\OrderCloseStatus;
 use App\Models\Enumerations\OrderStatus;
 use App\Models\Enumerations\Status;
-use App\Models\Enumerations\WuSunStatus;
 use App\Models\Message;
 use App\Models\Order;
 use App\Models\OrderLog;
 use App\Models\OrderQuotation;
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -178,7 +176,6 @@ class OrderController extends Controller
             'driver_phone',
             'remark',
             'customer_remark',
-            'order_status',
             'close_status',
             'goods_types',
             'goods_name',
@@ -215,8 +212,7 @@ class OrderController extends Controller
                 'check_wusun_company_id' => $company->id,
                 'check_wusun_company_name' => $company->name,
                 'dispatch_check_wusun_at' => now()->toDateTimeString(),
-                'order_status' => OrderStatus::WaitCheck->value,
-                'dispatched' => true
+                'dispatched' => true,
             ]);
 
             $order->save();
@@ -263,6 +259,19 @@ class OrderController extends Controller
             'insurers'
         ])->find($request->input('id'));
 
+        $quotation = OrderQuotation::where('company_id', $order->company_id)->where('order_id', $order->id)->first();
+
+        $order->quote_status = 0; // 报价状态 0 未报 1 审核中 2 已报
+
+        if ($quotation) {
+            if ($quotation->submit) {
+                $order->quote_status++;
+                if ($quotation->check_status) {
+                    $order->quote_status++;
+                }
+            }
+        }
+
         return success($order);
     }
 
@@ -293,7 +302,6 @@ class OrderController extends Controller
 
             $order->fill($params);
             $order->wusun_check_status = Order::WUSUN_CHECK_STATUS_CHECKING;
-            $order->order_status = OrderStatus::Checking->value;
             $order->save();
 
             // Message

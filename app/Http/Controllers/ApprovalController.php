@@ -281,13 +281,14 @@ class ApprovalController extends Controller
 
             $bidOption = BidOption::where('company_id', $approvalOrder->company_id)->where('status', Status::Normal->value)->first();
 
-            // 首次报价低于竞价金额，直接分配工单
-            if (!$bidOption or $quotation->total_price < $bidOption->bid_first_price) {
+            // 首次报价低于竞价金额，或者是当前公司创建的工单，直接分配工单
+            if (!$bidOption or $quotation->total_price < $bidOption->bid_first_price or $order->creator_company_id = $approvalOrder->company_id) {
                 $order->bid_type = Order::BID_TYPE_FENPAI;
                 $order->bid_status = Order::BID_STATUS_FINISHED;
                 $order->wusun_company_id = $approvalOrder->company_id;
                 $order->wusun_company_name = $quotation->company->name;
                 $order->confim_wusun_at = now()->toDateTimeString();
+                $order->wusun_company_id = $approvalOrder->company_id;
             } else {
                 $now = date('His');
 

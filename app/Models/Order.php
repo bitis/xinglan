@@ -41,7 +41,6 @@ class Order extends Model
         'driver_phone',
         'remark',
         'customer_remark',
-        'order_status',
         'goods_types',
         'goods_name',
         'owner_name',
@@ -114,6 +113,11 @@ class Order extends Model
     const REPAIR_STATUS_WAIT = 0;
     const REPAIR_STATUS_REPAIRING = 1;
     const REPAIR_STATUS_FINISHED = 2;
+
+
+     const QUOTE_STATUS_WAIT = 0; // 未报价
+     const QUOTE_STATUS_APPROVAL = 1; // 审核中
+     const QUOTE_STATUS_FINISHED = 2; // 已报价
 
     const CONFIRM_PRICE_STATUS_WAIT = 0; // 未核价
     const CONFIRM_PRICE_STATUS_APPROVAL = 1; // 审核中
