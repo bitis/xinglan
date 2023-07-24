@@ -82,7 +82,6 @@ class Order extends Model
         'close_remark',
         'close_at',
         'close_status',
-        'quote_status'
     ];
 
     protected $casts = [
