@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Common\Messages\VerificationCode;
+use App\Models\VerificationCode as VerificationCodeModel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Overtrue\EasySms\EasySms;
-use App\Models\VerificationCode as VerificationCodeModel;
 use Overtrue\EasySms\Exceptions\NoGatewayAvailableException;
 
 class VerificationCodeController extends Controller
@@ -18,7 +18,7 @@ class VerificationCodeController extends Controller
 
         try {
             $result = $easySms->send($request->input('phone_number'), new VerificationCode($code));
-dd($result);
+
             VerificationCodeModel::create([
                 'phone_number' => $request->input('phone_number'),
                 'code' => $code,

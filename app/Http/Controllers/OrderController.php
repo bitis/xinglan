@@ -21,6 +21,7 @@ use App\Models\Enumerations\Status;
 use App\Models\Enumerations\WuSunStatus;
 use App\Models\Message;
 use App\Models\Order;
+use App\Models\OrderLog;
 use App\Models\OrderQuotation;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -30,14 +31,6 @@ use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
-    protected int $company_id;
-    protected User $user;
-
-    public function __construct()
-    {
-        $this->user = \request()->user();
-        $this->company_id = $this->user->company_id;
-    }
 
     /**
      * 客户选择
@@ -285,14 +278,16 @@ class OrderController extends Controller
 
         $params['dispatch_check_at'] = now()->toDateTimeString();
 
+        $user = $request->user();
+
         try {
             throw_if(!$order = Order::find($request->input('order_id')), '工单未找到');
 
-            throw_if($this->company_id != $order->check_wusun_company_id, '非本公司订单');
+            throw_if($user->company_id != $order->check_wusun_company_id, '非本公司订单');
 
             throw_if($order->wusun_check_accept_at, '查勘已完成');
 
-            $company = Company::find($this->company_id);
+            $company = Company::find($user->company_id);
 
             throw_if($company->getRawOriginal('type') != CompanyType::WuSun->value, '只有物损公司可以派遣查勘');
 
@@ -450,5 +445,20 @@ class OrderController extends Controller
         }
 
         return success();
+    }
+
+    /**
+     * 工单变动日志
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function logs(Request $request): JsonResponse
+    {
+        $logs = OrderLog::where('order_id', $request->input('order_id'))
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return success($logs);
     }
 }

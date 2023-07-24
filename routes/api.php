@@ -17,7 +17,7 @@ Route::get('verify/code', 'VerificationCodeController@get');
 
 Route::prefix('appVersion')->group(function () {
    Route::get('latest', 'AppVersionController@latest');
-   Route::get('form', 'AppVersionController@form')->middleware('auth');
+   Route::post('form', 'AppVersionController@form')->middleware('auth');
 });
 
 Route::prefix('auth')->group(function () {
@@ -112,6 +112,7 @@ Route::middleware('auth')->group(function () {
         Route::post('check', 'OrderController@check'); // 物损查勘人员查勘
         Route::post('confirmPlan', 'OrderController@confirmPlan'); // 物损确认方案
         Route::post('close', 'OrderController@close'); // 关闭
+        Route::get('logs', 'OrderController@logs'); // 变更日志
 
         Route::prefix('repair')->group(function () {
             Route::post('form', 'OrderRepairController@form');
