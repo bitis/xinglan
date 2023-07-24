@@ -256,11 +256,12 @@ class OrderController extends Controller
             'check_wusun:id,name',
             'wusun:id,name',
             'repair_plan',
-            'insurers'
+            'insurers',
         ])->find($request->input('id'));
 
         $quotation = OrderQuotation::where('company_id', $order->company_id)->where('order_id', $order->id)->first();
 
+        $order->quotation = $quotation;
         $order->quote_status = 0; // 报价状态 0 未报 1 审核中 2 已报
 
         if ($quotation) {
