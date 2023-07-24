@@ -154,9 +154,7 @@ class Order extends Model
 
     public function quotation(): HasOne
     {
-        return $this->hasOne(OrderQuotation::class)
-            ->where('order_quotations.check_status', '=', CheckStatus::Accept->value)
-            ->where('win', '=', 1);
+        return $this->hasOne(OrderQuotation::class);
     }
 
     public function wusun(): BelongsTo

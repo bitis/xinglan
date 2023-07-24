@@ -122,6 +122,7 @@ class OrderQuotationController extends Controller
             }
 
             $quotation->company_id = $user->company_id;
+            $quotation->company_name = $user->company->name;
 
             $quotation->save();
 
