@@ -148,6 +148,7 @@ class OrderController extends Controller
                 elseif ($current_company->type == CompanyType::WuSun->value)
                     $query->where('creator_company_type', CompanyType::BaoXian->value);
             })
+            ->selectRaw('orders.*')
             ->orderBy('orders.id', 'desc')
             ->paginate(getPerPage());
 
