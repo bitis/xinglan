@@ -76,7 +76,7 @@ class OrderController extends Controller
 
         $role = str_replace($user->company_id . '_', '', $user->getRoleNames()->toArray()[0]);
 
-        $userList = Order::with('company:id,name')
+        $orders = Order::with('company:id,name')
             ->where(function ($query) use ($current_company, $company_id) {
                 if ($company_id)
                     return match ($current_company->getRawOriginal('type')) {
@@ -148,10 +148,10 @@ class OrderController extends Controller
                 elseif ($current_company->type == CompanyType::WuSun->value)
                     $query->where('creator_company_type', CompanyType::BaoXian->value);
             })
-            ->orderBy('id', 'desc')
+            ->orderBy('orders.id', 'desc')
             ->paginate(getPerPage());
 
-        return success($userList);
+        return success($orders);
     }
 
     /**
