@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Models\Enumerations\MessageType;
-use App\Models\Enumerations\WuSunStatus;
 use App\Models\Message;
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
