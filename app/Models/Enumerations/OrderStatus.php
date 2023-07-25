@@ -4,7 +4,6 @@ namespace App\Models\Enumerations;
 
 use App\Models\Enumerations\Traits\EnumArray;
 use App\Models\Order;
-use App\Models\OrderQuotation;
 use Illuminate\Database\Eloquent\Builder;
 
 enum OrderStatus: int
