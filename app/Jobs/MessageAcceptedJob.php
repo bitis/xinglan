@@ -38,7 +38,6 @@ class MessageAcceptedJob implements ShouldQueue
                 $order->save();
                 break;
             case MessageType::NewCheckTask->value: // 查勘接受查勘任务
-                $order->wusun_status = WuSunStatus::AcceptCheck->value;
                 $order->wusun_check_accept_at = $this->message->accept_at;
                 $order->save();
                 break;
