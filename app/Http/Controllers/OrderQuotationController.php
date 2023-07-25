@@ -117,12 +117,12 @@ class OrderQuotationController extends Controller
         try {
             DB::beginTransaction();
 
-            if ($quotation->submit) {
-                $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalQuotation->value);
-            }
-
             $quotation->company_id = $user->company_id;
             $quotation->company_name = $user->company->name;
+
+            if ($quotation->submit) {
+                $quotation->check_status = CheckStatus::Wait->value;
+            }
 
             $quotation->save();
 
@@ -131,6 +131,7 @@ class OrderQuotationController extends Controller
             $quotation->items()->createMany($request->input('items', []));
 
             if ($quotation->submit) {
+                $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalQuotation->value);
 
                 ApprovalOrder::where('order_id', $order->id)->where('company_id', $quotation->company_id)->delete();
                 ApprovalOrderProcess::where('order_id', $order->id)->where('company_id', $quotation->company_id)->delete();
