@@ -357,7 +357,7 @@ class ApprovalController extends Controller
     {
         $order = $approvalOrder->order;
 
-        $order->close_status = $accept ? OrderCloseStatus::Closed->value : OrderCloseStatus::Pursuance->value;
+        $order->close_status = $accept ? OrderCloseStatus::Closed->value : OrderCloseStatus::Wait->value;
         $order->save();
 
         // Message

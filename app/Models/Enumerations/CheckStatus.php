@@ -4,6 +4,9 @@ namespace App\Models\Enumerations;
 
 use App\Models\Enumerations\Traits\EnumArray;
 
+/**
+ * 审批状态
+ */
 enum CheckStatus : int
 {
 

@@ -9,17 +9,17 @@ enum OrderCloseStatus : int
 
     use EnumArray;
 
-    case Pursuance = 0;
+    case Wait = 0;
 
-    case CloseCheck = 1;
+    case Check = 1;
 
     case Closed = 2;
 
     public function name(): string
     {
         return match ($this) {
-            OrderCloseStatus::Pursuance => '未结案',
-            OrderCloseStatus::CloseCheck => '结案审核中',
+            OrderCloseStatus::Wait => '未结案',
+            OrderCloseStatus::Check => '结案审核中',
             OrderCloseStatus::Closed => '已结案',
         };
     }

@@ -16,11 +16,13 @@ use App\Models\Enumerations\CheckStatus;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\MessageType;
 use App\Models\Enumerations\OrderCloseStatus;
+use App\Models\Enumerations\OrderStatus;
 use App\Models\Enumerations\Status;
 use App\Models\Message;
 use App\Models\Order;
 use App\Models\OrderLog;
 use App\Models\OrderQuotation;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -91,8 +93,8 @@ class OrderController extends Controller
                         ->OrWhereIn('check_wusun_company_id', $groupId),
                     CompanyType::WeiXiu->value => $query->where('repair_company_id', $current_company->id),
                 };
-            })->when($role, function ($query, $role) use ($user) {
-
+            })
+            ->when($role, function ($query, $role) use ($user) {
                 switch ($role) {
                     case '查勘人员':
                         $query->where(function ($query) use ($user) {
@@ -116,29 +118,37 @@ class OrderController extends Controller
                     default:
                         $query->where('id', null);
                 }
-            })->when($request->input('post_time_start'), function ($query, $post_time_start) {
+            })
+            ->when($request->input('post_time_start'), function ($query, $post_time_start) {
                 $query->where('post_time', '>', $post_time_start);
-            })->when($request->input('post_time_end'), function ($query, $post_time_end) {
+            })
+            ->when($request->input('post_time_end'), function ($query, $post_time_end) {
                 $query->where('post_time', '<=', $post_time_end);
-            })->when($request->input('insurance_type'), function ($query, $insurance_type) {
+            })
+            ->when($request->input('insurance_type'), function ($query, $insurance_type) {
                 $query->where('insurance_type', $insurance_type);
-            })->when(strlen($order_status = $request->input('order_status')), function ($query) use ($order_status) {
-                $query->where('order_status', $order_status);
-            })->when(strlen($close_status = $request->input('close_status')), function ($query) use ($close_status) {
+            })
+            ->when(strlen($order_status = $request->input('order_status')), function (Builder $query) use ($order_status) {
+               return OrderStatus::from($order_status)->filter($query);
+            })
+            ->when(strlen($close_status = $request->input('close_status')), function ($query) use ($close_status) {
                 $query->where('close_status', $close_status);
-            })->when($request->input('name'), function ($query, $name) {
+            })
+            ->when($request->input('name'), function ($query, $name) {
                 $query->where(function ($query) use ($name) {
                     $query->where('order_number', 'like', "%$name%")
                         ->orWhere('case_number', 'like', "%$name%")
                         ->orWhere('license_plate', 'like', "%$name%")
                         ->orWhere('vin', 'like', "%$name%");
                 });
-            })->when($request->input('create_type'), function ($query, $create_type) use ($current_company) {
+            })
+            ->when($request->input('create_type'), function ($query, $create_type) use ($current_company) {
                 if ($create_type == 1) // 自己创建
                     $query->where('creator_company_id', $current_company->id);
                 elseif ($current_company->type == CompanyType::WuSun->value)
                     $query->where('creator_company_type', CompanyType::BaoXian->value);
-            })->orderBy('id', 'desc')
+            })
+            ->orderBy('id', 'desc')
             ->paginate(getPerPage());
 
         return success($userList);
@@ -232,8 +242,7 @@ class OrderController extends Controller
                     'status' => 0,
                 ]);
                 $message->save();
-            }
-            elseif($order->bid_type == Order::BID_TYPE_JINGJIA) {
+            } elseif ($order->bid_type == Order::BID_TYPE_JINGJIA) {
                 $order->fill([
                     'wusun_check_status' => 2,
                 ]);
@@ -404,7 +413,7 @@ class OrderController extends Controller
             DB::beginTransaction();
             $order->guarantee_period = $request->input('guarantee_period');
             $order->close_remark = $request->input('close_remark');
-            $order->close_status = OrderCloseStatus::CloseCheck->value;
+            $order->close_status = OrderCloseStatus::Check->value;
             $order->close_at = now()->toDateTimeString();
             $order->save();
 

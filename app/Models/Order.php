@@ -123,6 +123,10 @@ class Order extends Model
     const CONFIRM_PRICE_STATUS_APPROVAL = 1; // 审核中
     const CONFIRM_PRICE_STATUS_FINISHED = 2; // 已核价
 
+    const PLAN_TYPE_REPAIR = 1; // 施工修复
+    const PLAN_TYPE_MEDIATE = 2; // 协调处理
+
+
 
     public function company(): BelongsTo
     {
