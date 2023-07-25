@@ -22,7 +22,7 @@ enum OrderStatus: int
     case Repairing = 8;
     case Repaired = 9;
     case Closed = 10;
-    case mediate = 99;
+    case Mediate = 99;
 
 
     public function name(): string
@@ -38,7 +38,7 @@ enum OrderStatus: int
             OrderStatus::Repairing => '施工中',
             OrderStatus::Repaired => '已修复未结案',
             OrderStatus::Closed => '已结案',
-            OrderStatus::mediate => '协调处理',
+            OrderStatus::Mediate => '协调处理',
         };
     }
 
@@ -62,7 +62,7 @@ enum OrderStatus: int
             OrderStatus::Repaired => $query->where('repair_status', Order::REPAIR_STATUS_FINISHED)
                 ->where('close_status', OrderCloseStatus::Wait->value),
             OrderStatus::Closed => $query->where('close_status', OrderCloseStatus::Closed->value),
-            OrderStatus::mediate => $query->where('plan_type', Order::PLAN_TYPE_MEDIATE),
+            OrderStatus::Mediate => $query->where('plan_type', Order::PLAN_TYPE_MEDIATE),
         };
     }
 }
