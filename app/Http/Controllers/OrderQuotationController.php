@@ -122,6 +122,7 @@ class OrderQuotationController extends Controller
 
             if ($quotation->submit) {
                 $quotation->check_status = CheckStatus::Wait->value;
+                $quotation->pdf = '';
             }
 
             $quotation->save();
