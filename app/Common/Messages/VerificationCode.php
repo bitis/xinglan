@@ -7,7 +7,7 @@ use Overtrue\EasySms\Message;
 
 class VerificationCode extends Message
 {
-    protected $template = 'SMS_180357551';
+    protected $template = '1876077';
 
     public function __construct(protected $code)
     {
@@ -16,8 +16,6 @@ class VerificationCode extends Message
 
     public function getData(GatewayInterface $gateway = null): array
     {
-        return [
-            'code' => $this->code,
-        ];
+        return [$this->code, config('sms.expiration')];
     }
 }

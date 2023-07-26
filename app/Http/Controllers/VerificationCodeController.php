@@ -22,17 +22,17 @@ class VerificationCodeController extends Controller
         if (!$phone) return fail('账号/手机号不能为空');
 
         try {
-            $easySms->send($request->input('phone_number'), new VerificationCode($code));
+            $result = $easySms->send($request->input('phone_number'), new VerificationCode($code));
 
             VerificationCodeModel::create([
                 'phone_number' => $request->input('phone_number'),
                 'code' => $code,
-                'getaway' => $request->input('getaway'),
-                'expiration_date' => now()->addMinutes(5)
+                'getaway' => last($result)['gateway'],
+                'expiration_date' => now()->addMinutes(config('sms.expiration'))
             ]);
         } catch (NoGatewayAvailableException  $e) {
             Log::error('SMS_ERROR', $e->results);
-            return fail('短信发送失败：' . $e->results['aliyun']['exception']->getMessage());
+            return fail('短信发送失败：' . $e->results['qcloud']['exception']->getMessage());
         }
 
         return success();
