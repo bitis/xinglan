@@ -26,7 +26,7 @@ class IndexController extends Controller
             $result[$item['id']->name] = OrderService::list($request->user(), $collect)->count();
         }
 
-        $result['all'] = OrderService::list($request->user(), collect([]))->count();
+        $result['all'] = OrderService::list($request->user(), $params)->count();
         return success($result);
     }
 }
