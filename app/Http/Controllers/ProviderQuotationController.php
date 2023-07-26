@@ -37,8 +37,8 @@ class ProviderQuotationController extends Controller
         elseif (empty($current_company)) return fail('所属公司不存在');
 
         $orders = Order::with('company:id,name')
-            ->where('bid_type', '>', 0)
-            ->where(strlen($status = $request->input('bid_status')), function ($query) use ($status) {
+            ->where('bid_type', '=', 1)
+            ->when(strlen($status = $request->input('bid_status')), function ($query) use ($status) {
                 $query->where('bid_status', $status);
             })
             ->where(function ($query) use ($current_company, $company_id) {
