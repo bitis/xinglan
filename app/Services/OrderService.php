@@ -72,7 +72,7 @@ class OrderService
                 $query->where('post_time', '>', $post_time_start);
             })
             ->when($params->get('post_time_end'), function ($query, $post_time_end) {
-                $query->where('post_time', '<=', $post_time_end);
+                $query->where('post_time', '<=', $post_time_end . ' 23:59:59');
             })
             ->when($params->get('insurance_type'), function ($query, $insurance_type) {
                 $query->where('insurance_type', $insurance_type);
