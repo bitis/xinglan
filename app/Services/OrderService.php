@@ -30,7 +30,8 @@ class OrderService
                 if ($company_id)
                     return match ($current_company->getRawOriginal('type')) {
                         CompanyType::BaoXian->value => $query->where('insurance_company_id', $company_id),
-                        CompanyType::WuSun->value => $query->where('wusun_company_id', $company_id),
+                        CompanyType::WuSun->value => $query->where('wusun_company_id', $company_id)
+                            ->OrWhere('check_wusun_company_id', $company_id),
                     };
 
                 $groupId = Company::getGroupId($current_company->id);
