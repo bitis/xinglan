@@ -136,8 +136,26 @@ class OrderController extends Controller
 
         $order->fill(Arr::whereNotNull($orderParams));
 
+        $order->save();
+
+        if ($insurers = $request->input('insurers')) {
+            $order->insurers()->delete();
+            $order->insurers()->createMany($insurers);
+        }
 
         if ($is_create) {
+            OrderLog::create([
+                'order_id' => $order->id,
+                'type' => OrderLog::TYPE_NEW_ORDER,
+                'creator_id' => $user->id,
+                'creator_name' => $user->name,
+                'creator_company_id' => $company->id,
+                'creator_company_name' => $company->name,
+                'remark' => $order->remark,
+                'content' => '新建工单',
+                'platform' => $request->header('platform'),
+            ]);
+
             /**
              * 物损公司自建工单直接派发给自己
              */
@@ -149,7 +167,17 @@ class OrderController extends Controller
                     'dispatched' => true,
                 ]);
 
-                $order->save();
+                OrderLog::create([
+                    'order_id' => $order->id,
+                    'type' => OrderLog::TYPE_DISPATCH_CHECK,
+                    'creator_id' => $user->id,
+                    'creator_name' => $user->name,
+                    'creator_company_id' => $company->id,
+                    'creator_company_name' => $company->name,
+                    'remark' => $order->remark,
+                    'content' => '派遣查勘服务商：' . $company->name,
+                    'platform' => $request->header('platform'),
+                ]);
 
                 // Message
                 $message = new Message([
@@ -168,18 +196,24 @@ class OrderController extends Controller
                 $order->fill([
                     'wusun_check_status' => 2,
                 ]);
+            }
 
+            $order->save();
+
+        } else {
+            if ($order->isDirty('check_wusun_company_id')) {
+                OrderLog::create([
+                    'order_id' => $order->id,
+                    'type' => OrderLog::TYPE_DISPATCH_CHECK,
+                    'creator_id' => $user->id,
+                    'creator_name' => $user->name,
+                    'creator_company_id' => $company->id,
+                    'creator_company_name' => $company->name,
+                    'content' => '派遣查勘服务商修改为：' . $company->name,
+                    'platform' => $request->header('platform'),
+                ]);
             }
         }
-
-
-        if ($insurers = $request->input('insurers')) {
-
-            $order->insurers()->delete();
-            $order->insurers()->createMany($insurers);
-        }
-
-        $order->save();
 
         return success($order->load(['company:id,name', 'insurers']));
     }
@@ -405,6 +439,15 @@ class OrderController extends Controller
      */
     public function logs(Request $request): JsonResponse
     {
+        $user = $request->user();
+
+        $company = $user->company;
+
+        $types = match ($company->getRawOriginal('type')) {
+            CompanyType::WuSun->value => [],
+            CompanyType::BaoXian->value => [],
+        };
+
         $logs = OrderLog::where('order_id', $request->input('order_id'))
             ->orderBy('id', 'desc')
             ->get();

@@ -5,14 +5,12 @@ namespace App\Jobs;
 use App\Models\BidOption;
 use App\Models\Company;
 use App\Models\CompanyProvider;
-use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\MessageType;
-use App\Models\Enumerations\OrderCheckStatus;
 use App\Models\Enumerations\OrderDispatchRole;
-use App\Models\Enumerations\OrderStatus;
 use App\Models\Enumerations\Status;
 use App\Models\Message;
 use App\Models\Order;
+use App\Models\OrderLog;
 use App\Models\ProviderOption;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -84,6 +82,18 @@ class OrderDispatch implements ShouldQueue
                 'check_wusun_company_name' => $provider->provider_name,
                 'dispatch_check_wusun_at' => now()->toDateTimeString(),
                 'dispatched' => true
+            ]);
+
+            OrderLog::create([
+                'order_id' => $this->order->id,
+                'type' => OrderLog::TYPE_DISPATCH_CHECK,
+                'creator_id' => 0,
+                'creator_name' => '系统',
+                'creator_company_id' => $company->id,
+                'creator_company_name' => $company->name,
+                'remark' => '根据系统配置规则派遣查勘服务商',
+                'content' => '根据系统配置规则，派遣查勘服务商：' . $company->name,
+                'platform' => 'system',
             ]);
 
             // Message

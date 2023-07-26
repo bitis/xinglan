@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('creator_company_name');
             $table->string('remark');
             $table->string('content');
+            $table->string('platform')->nullable();
             $table->timestamps();
         });
     }
