@@ -138,7 +138,7 @@ class AccountController extends Controller
      */
     public function resetPassword(Request $request): JsonResponse
     {
-        $mobile = $request->input('phone_number');
+        $mobile = $request->input('account');
 
         $user = User::where('mobile', $mobile)->first();
 
