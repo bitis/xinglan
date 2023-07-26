@@ -47,6 +47,9 @@ class OrderService
                     CompanyType::WuSun->value => $query->where('insurance_company_id', $customer_id),
                 };
             })
+            ->when($params->get('wusun_check_id'), function ($query, $wusun_check_id) {
+                return $query->where('wusun_check_id', $wusun_check_id);
+            })
             ->when($role, function ($query, $role) use ($user) {
                 switch ($role) {
                     case '查勘人员':
