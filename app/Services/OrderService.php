@@ -29,9 +29,8 @@ class OrderService
             ->where(function ($query) use ($current_company, $company_id) {
                 if ($company_id)
                     return match ($current_company->getRawOriginal('type')) {
-                        CompanyType::BaoXian->value,
-                        CompanyType::WuSun->value => $query->where('insurance_company_id', $company_id),
-                        CompanyType::WeiXiu->value => $query->where('wusun_company_id', $company_id),
+                        CompanyType::BaoXian->value => $query->where('insurance_company_id', $company_id),
+                        CompanyType::WuSun->value => $query->where('wusun_company_id', $company_id),
                     };
 
                 $groupId = Company::getGroupId($current_company->id);
@@ -40,7 +39,12 @@ class OrderService
                     CompanyType::BaoXian->value => $query->whereIn('insurance_company_id', $groupId),
                     CompanyType::WuSun->value => $query->whereIn('wusun_company_id', $groupId)
                         ->OrWhereIn('check_wusun_company_id', $groupId),
-                    CompanyType::WeiXiu->value => $query->where('repair_company_id', $current_company->id),
+                };
+            })
+            ->when($params->get('customer_id'), function ($query, $customer_id) use ($current_company) {
+                return match ($current_company->getRawOriginal('type')) {
+                    CompanyType::BaoXian->value,
+                    CompanyType::WuSun->value => $query->where('insurance_company_id', $customer_id),
                 };
             })
             ->when($role, function ($query, $role) use ($user) {
