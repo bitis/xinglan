@@ -27,5 +27,6 @@ class OrderLog extends Model
     const TYPE_QUOTATION = 3; // 报价
     const TYPE_SUBMIT_QUOTATION = 4; // 提交报价审核
     const TYPE_APPROVAL = 5; // 审核
+    const TYPE_BID_OPEN = 6; // 自动开标
 
 }

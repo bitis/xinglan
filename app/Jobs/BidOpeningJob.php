@@ -7,6 +7,7 @@ use App\Models\Enumerations\CheckStatus;
 use App\Models\Enumerations\MessageType;
 use App\Models\Message;
 use App\Models\Order;
+use App\Models\OrderLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -47,9 +48,22 @@ class BidOpeningJob implements ShouldQueue
             if ($index == 0) {
                 $quotation->win = 1;
 
+                $company = Company::find($quotation->company_id);
+
                 $order->wusun_company_id = $quotation->company_id;
-                $order->wusun_company_name = Company::find($quotation->company_id)->name;
+                $order->wusun_company_name = $company?->name;
                 $order->confim_wusun_at = $order->bid_end_time;
+
+                OrderLog::create([
+                    'order_id' => $order->id,
+                    'type' => OrderLog::TYPE_BID_OPEN,
+                    'creator_id' => 0,
+                    'creator_name' => '系统',
+                    'creator_company_id' => $order->insurance_company_id,
+                    'creator_company_name' => Company::find($order->insurance_company_id)?->name,
+                    'content' => '自动开标：中标单位：' . $company?->name,
+                    'platform' => '',
+                ]);
 
                 // Message
                 $message = new Message([
