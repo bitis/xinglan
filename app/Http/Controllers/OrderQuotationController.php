@@ -42,7 +42,8 @@ class OrderQuotationController extends Controller
         $orders = Order::with('company:id,name')
             ->leftJoin('order_quotations as quotation', 'orders.id', '=', 'quotation.order_id')
             ->where(function ($query) use ($company_id) {
-                $query->where('bid_type', 1)->orWhere('check_wusun_company_id', $company_id);
+                $query->where('bid_type', 1);
+//                ->orWhere('check_wusun_company_id', $company_id);
             })
             ->when($request->input('status'), function ($query, $status) {
                 // 1 待报价 2 报价超时 3 未中标 4 已中标
