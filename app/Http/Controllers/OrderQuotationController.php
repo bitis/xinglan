@@ -12,6 +12,7 @@ use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\ApprovalType;
 use App\Models\Enumerations\CheckStatus;
 use App\Models\Order;
+use App\Models\OrderLog;
 use App\Models\OrderQuotation;
 use Exception;
 use Illuminate\Contracts\View\View;
@@ -119,6 +120,8 @@ class OrderQuotationController extends Controller
 
             $quotation->company_id = $user->company_id;
             $quotation->company_name = $user->company->name;
+            $quotation->creator_id = $user->id;
+            $quotation->creator_name = $user->name;
 
             if ($quotation->submit) {
                 $quotation->check_status = CheckStatus::Wait->value;
@@ -145,6 +148,8 @@ class OrderQuotationController extends Controller
 
                 list($checkers, $reviewers, $receivers) = ApprovalOption::groupByType($option->approver);
 
+                $checker_text = $reviewer_text = '';
+
                 $insert = [];
                 foreach ($checkers as $index => $checker) {
                     $insert[] = [
@@ -160,7 +165,10 @@ class OrderQuotationController extends Controller
                         'approval_type' => $option->type,
                         'hidden' => $index > 0 && $option->approve_mode == ApprovalMode::QUEUE->value,
                     ];
+                    $checker_text .= $checker['name'] . ', ';
                 }
+
+                $checker_text = '审核人：（' . trim($checker_text, ',') . '）' . ['', '或签', '依次审批'][$option->approve_mode];
 
                 if ($quotation->profit_margin_ratio < $option->review_conditions) {
                     foreach ($reviewers as $reviewer) {
@@ -177,7 +185,9 @@ class OrderQuotationController extends Controller
                             'approval_type' => $option->type,
                             'hidden' => true,
                         ];
+                        $reviewer_text .= $reviewer['name'] . ', ';
                     }
+                    $checker_text .= ('复审人：(' . trim($reviewer_text, ',') . '）' . ['', '或签', '依次审批'][$option->review_mode]);
                 }
 
                 foreach ($receivers as $receiver) {
@@ -198,6 +208,18 @@ class OrderQuotationController extends Controller
 
                 $approvalOrder->process()->delete();
                 if ($insert) $approvalOrder->process()->createMany($insert);
+
+                OrderLog::create([
+                    'order_id' => $order->id,
+                    'type' => OrderLog::TYPE_SUBMIT_QUOTATION,
+                    'creator_id' => $quotation->creator_id,
+                    'creator_name' => $quotation->creator_name,
+                    'creator_company_id' => $quotation->company_id,
+                    'creator_company_name' => $quotation->company_name,
+                    'content' => $quotation->creator_name . '提交报价审核，报价金额为' . $quotation->total_price . '预计施工工期：'
+                        . $quotation->repair_days . '天；备注：' . $quotation->quotation_remark . '；' . $checker_text,
+                    'platform' => \request()->header('platform'),
+                ]);
             }
             DB::commit();
         } catch (Exception $exception) {
