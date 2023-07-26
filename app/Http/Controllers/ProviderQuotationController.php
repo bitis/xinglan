@@ -38,6 +38,9 @@ class ProviderQuotationController extends Controller
 
         $orders = Order::with('company:id,name')
             ->where('bid_type', '>', 0)
+            ->where(strlen($status = $request->input('bid_status')), function ($query) use ($status) {
+                $query->where('bid_status', $status);
+            })
             ->where(function ($query) use ($current_company, $company_id) {
                 if ($company_id)
                     return match ($current_company->getRawOriginal('type')) {
