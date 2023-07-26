@@ -35,7 +35,9 @@ class OrderQuotation extends Model
         'win',
         'bid_end_time',
         'quotation_remark',
-        'modify_quotation_remark'
+        'modify_quotation_remark',
+        'creator_id',
+        'creator_name'
     ];
 
     protected $casts = [

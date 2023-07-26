@@ -8,6 +8,7 @@ use App\Models\ApprovalOrder;
 use App\Models\ApprovalOrderProcess;
 use App\Models\Approver;
 use App\Models\BidOption;
+use App\Models\Company;
 use App\Models\Enumerations\ApprovalMode;
 use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\ApprovalType;
@@ -17,6 +18,7 @@ use App\Models\Enumerations\OrderCloseStatus;
 use App\Models\Enumerations\Status;
 use App\Models\Message;
 use App\Models\Order;
+use App\Models\OrderLog;
 use App\Models\OrderQuotation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -98,6 +100,8 @@ class ApprovalController extends Controller
 
         if ($process->approval_status != ApprovalStatus::Pending->value) return fail('当前状态不可审核');
 
+        $user = $request->user();
+
         $approvalOrder = $process->approvalOrder;
 
         try {
@@ -121,7 +125,24 @@ class ApprovalController extends Controller
                 ->where('approval_status', ApprovalStatus::Pending->value)
                 ->get();
 
-            if (!$surplus) $this->complete($approvalOrder, $accept);
+            $typeText = match ($approvalOrder->approval_type) {
+                ApprovalType::ApprovalQuotation->value => '对外报价审核',
+                ApprovalType::ApprovalAssessment->value => '核价（定损）审核',
+                ApprovalType::ApprovalClose->value => '关闭工单审核',
+            };
+
+            OrderLog::create([
+                'order_id' => $approvalOrder->order_id,
+                'type' => OrderLog::TYPE_APPROVAL,
+                'creator_id' => $user->id,
+                'creator_name' => $user->name,
+                'creator_company_id' => $user->company_id,
+                'creator_company_name' => Company::find($user->company_id)?->name,
+                'content' => $user->name . ($accept ? '通过' : '拒绝') . $typeText,
+                'platform' => \request()->header('platform'),
+            ]);
+
+            $this->complete($approvalOrder, $accept);
 
             if (!$accept) {
                 foreach ($surplus as $cancel) {
@@ -271,6 +292,19 @@ class ApprovalController extends Controller
         $quotation->checked_at = now()->toDateTimeString();
         $quotation->submit = $accept ? 1 : 0;
         $quotation->save();
+
+        // 对外报价
+        OrderLog::create([
+            'order_id' => $order->id,
+            'type' => OrderLog::TYPE_QUOTATION,
+            'creator_id' => $quotation->creator_id,
+            'creator_name' => $quotation->creator_name,
+            'creator_company_id' => $quotation->company_id,
+            'creator_company_name' => $quotation->company_name,
+            'content' => $quotation->creator_name . '对外报价，报价金额为' . $quotation->total_price . '预计施工工期：'
+                . $quotation->repair_days . '天；备注：' . $quotation->quotation_remark,
+            'platform' => \request()->header('platform'),
+        ]);
 
         if (!$accept) return;
 
