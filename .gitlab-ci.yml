@@ -21,6 +21,8 @@ cache:
 # services such as redis or postgres
 before_script:
   - sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list.d/debian.sources
+
+  - php -m
   # Update packages
   - apt-get update -yqq
   # Prep for Node
