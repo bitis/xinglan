@@ -34,7 +34,9 @@ before_script:
   - php -m
   # Install Composer and project dependencies.
   - curl -sS https://install.phpcomposer.com/installer | php
-  - php composer.phar install
+  - mv composer.phar  /usr/local/bin/composer
+  - composer config -g repos.packagist composer https://mirrors.tencent.com/composer/
+  - composer install
 
   ##
   ## Install ssh-agent if not already installed, it is required by Docker.
