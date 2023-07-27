@@ -53,7 +53,6 @@ before_script:
   ## Give the right permissions, otherwise ssh-add will refuse to add files
   ## Add the SSH key stored in SSH_PRIVATE_KEY file type CI/CD variable to the agent store
   ##
-  - chmod 400 "$SSH_PRIVATE_KEY"
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
 
   ##
@@ -73,8 +72,11 @@ before_script:
   ## Assuming you created the SSH_KNOWN_HOSTS variable, uncomment the
   ## following two lines.
   ##
-  - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
+  - touch ~/.ssh/config
+  - touch ~/.ssh/known_hosts
+  - chmod -R 400 ~/.ssh
   - chmod 644 ~/.ssh/known_hosts
+  - ssh-keyscan 47.92.114.102 >> ~/.ssh/known_hosts
 
 deploy:
   stage: deploy
