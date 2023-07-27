@@ -76,7 +76,7 @@ before_script:
   - touch ~/.ssh/known_hosts
   - chmod -R 400 ~/.ssh
   - chmod 644 ~/.ssh/known_hosts
-  - ssh-keyscan 47.92.114.102 >> ~/.ssh/known_hosts
+  - ssh-keyscan "$DEPLOY_IP" >> ~/.ssh/known_hosts
 
 deploy:
   stage: deploy
