@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
+use League\Flysystem\Filesystem;
 use Overtrue\EasySms\EasySms;
+use Overtrue\Flysystem\Cos\CosAdapter;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -49,6 +51,12 @@ class AppServiceProvider extends ServiceProvider
                 $adapter,
                 $config
             );
+        });
+
+        Storage::extend('qcloud', function (Application $app, array $config) {
+            $adapter = new CosAdapter($config);
+            $flysystem = new Filesystem($adapter);
+            return new FilesystemAdapter($flysystem, $adapter, $config);
         });
 
     }

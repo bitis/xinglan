@@ -16,7 +16,7 @@ class UploadController extends Controller
 
         $fileName = '/uploads/' . date('Ymd') . '/' . $file->hashName();
 
-        if (Storage::disk('oss')->put($fileName, $file->getContent()))
+        if (Storage::disk('qcloud')->put($fileName, $file->getContent()))
             return success($fileName);
 
         return fail('上传失败');

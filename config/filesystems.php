@@ -63,6 +63,28 @@ return [
             "url" => env('OSS_URL'),
             "access_key_id" => env('OSS_ACCESS_KEY_ID'),
             "access_key_secret" => env('OSS_ACCESS_KEY_SECRET'),
+        ],
+
+        'qcloud' => [
+            'driver' => 'qcloud',
+            'app_id' => env('QCLOUD_COS_APP_ID'),
+            'secret_id' => env('QCLOUD_SECRET_ID'),
+            'secret_key' => env('QCLOUD_SECRET_KEY'),
+
+            'region' => 'ap-shanghai',
+            'bucket' => 'xinglan',
+
+            // 可选，如果 bucket 为私有访问请打开此项
+            'signed_url' => false,
+
+            // 可选，是否使用 https，默认 false
+            'use_https' => true,
+
+            // 可选，自定义域名
+//            'domain' => 'emample-12340000.cos.test.com',
+
+            // 可选，使用 CDN 域名时指定生成的 URL host
+//            'cdn' => 'https://youcdn.domain.com/',
         ]
     ],
 

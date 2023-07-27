@@ -23,7 +23,7 @@ return [
             'sign_name' => env('ALIYUN_SIGN_NAME'),
         ],
         'qcloud' => [
-            'sdk_app_id' => env('QCLOUD_APP_ID'), // 短信应用的 SDK APP ID
+            'sdk_app_id' => env('QCLOUD_SMS_APP_ID'), // 短信应用的 SDK APP ID
             'secret_id' => env('QCLOUD_SECRET_ID'), // SECRET ID
             'secret_key' => env('QCLOUD_SECRET_KEY'), // SECRET KEY
             'sign_name' => env('QCLOUD_SIGN_NAME'), // 短信签名
