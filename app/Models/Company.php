@@ -36,7 +36,8 @@ class Company extends Model
         'logo',
         'remark',
         'service_rate',
-        'admin_id'
+        'admin_id',
+        'top_id'
     ];
 
     public function users(): HasMany
