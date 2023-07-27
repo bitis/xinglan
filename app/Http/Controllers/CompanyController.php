@@ -104,7 +104,7 @@ class CompanyController extends Controller
 
             if (!$request->input('id')) {
 
-                if ($company->level == CompanyLevel::One->value) {
+                if ($company->getRawOriginal('level') == CompanyLevel::One->value) {
                     $company->top_id = $company->id;
                 }
 
