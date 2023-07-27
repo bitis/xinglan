@@ -34,7 +34,7 @@ before_script:
   - docker-php-ext-enable openssl
 
   # Install Composer and project dependencies.
-  - curl -sS https://getcomposer.org/installer | php
+  - curl -sS https://install.phpcomposer.com/installer | php
   - php composer.phar install
 
   ##
