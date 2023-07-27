@@ -13,9 +13,6 @@ image: php:latest
 
 # This folder is cached between builds
 # https://docs.gitlab.com/ee/ci/yaml/index.html#cache
-cache:
-  paths:
-    - vendor/
 
 # This is a basic example for a gem or script which doesn't use
 # services such as redis or postgres
@@ -79,6 +76,9 @@ before_script:
   - ssh-keyscan 47.92.114.102 >> ~/.ssh/known_hosts
 
 deploy:
+  cache:
+    paths:
+    - vendor/
   stage: deploy
   script: echo "Define your deployment script!"
   environment: production
