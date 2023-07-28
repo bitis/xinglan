@@ -69,6 +69,7 @@ class Order extends Model
         'dispatched',
         'bid_type',
         'bid_status',
+        'bid_end_time',
         'confirmed_price',
         'confirmed_repair_days',
         'confirmed_remark',

@@ -118,7 +118,8 @@ class OrderController extends Controller
             'review_images',
             'review_remark',
             'review_at',
-            'bid_type'
+            'bid_type',
+            'bid_end_time',
         ]);
 
         $user = $request->user();
