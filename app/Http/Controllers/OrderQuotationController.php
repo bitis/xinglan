@@ -139,7 +139,7 @@ class OrderQuotationController extends Controller
             }
 
             if ($quotation->isDirty('bid_total_price')) {
-                $quotation->bid_created_at = now()->toDateString();
+                $quotation->bid_created_at = now()->toDateTimeString();
 
                 // 对外报价
                 OrderLog::create([
