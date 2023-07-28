@@ -83,6 +83,7 @@ deploy:
   script: echo "Define your deployment script!"
   environment: production
   artifacts:
+    expose_as: 'artifact 1'
     paths:
       - .
 
