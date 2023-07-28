@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\BidOpeningJob;
 use App\Models\ApprovalOption;
 use App\Models\ApprovalOrder;
 use App\Models\ApprovalOrderProcess;
 use App\Models\Approver;
+use App\Models\BidOption;
 use App\Models\CompanyProvider;
 use App\Models\Enumerations\ApprovalMode;
 use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\ApprovalType;
 use App\Models\Enumerations\CheckStatus;
+use App\Models\Enumerations\Status;
 use App\Models\Order;
 use App\Models\OrderLog;
 use App\Models\OrderQuotation;
@@ -99,7 +102,13 @@ class OrderQuotationController extends Controller
 
         $quotation = OrderQuotation::where('order_id', $request->input('order_id'))
             ->where('company_id', $user->company_id)
-            ->firstOr(fn() => new OrderQuotation(['security_code' => Str::random()]));
+            ->firstOr(fn() => new OrderQuotation([
+                'security_code' => Str::random(),
+                'company_id' => $user->company_id,
+                'company_name' => $user->company->name,
+                'creator_id' => $user->id,
+                'creator_name' => $user->name
+            ]));
 
         $quotation->fill($request->only([
             'order_id',
@@ -112,6 +121,9 @@ class OrderQuotationController extends Controller
             'profit_margin_ratio',
             'repair_remark',
             'total_price',
+            'bid_repair_days',
+            'bid_total_price',
+            'bid_created_at',
             'images',
             'submit',
             'quotation_remark',
@@ -121,10 +133,68 @@ class OrderQuotationController extends Controller
         try {
             DB::beginTransaction();
 
-            $quotation->company_id = $user->company_id;
-            $quotation->company_name = $user->company->name;
-            $quotation->creator_id = $user->id;
-            $quotation->creator_name = $user->name;
+            if ($quotation->win == 1) {
+                $quotation->bid_total_price = $quotation->getOriginal('bid_total_price');
+                $quotation->bid_repair_days = $quotation->getOriginal('bid_repair_days');
+            }
+
+            if ($quotation->isDirty('bid_total_price')) {
+                $quotation->bid_created_at = now()->toDateString();
+
+                // 对外报价
+                OrderLog::create([
+                    'order_id' => $order->id,
+                    'type' => OrderLog::TYPE_QUOTATION,
+                    'creator_id' => $quotation->creator_id,
+                    'creator_name' => $quotation->creator_name,
+                    'creator_company_id' => $quotation->company_id,
+                    'creator_company_name' => $quotation->company_name,
+                    'content' => $quotation->creator_name . '对外报价，报价金额为' . $quotation->bid_total_price . '预计施工工期：'
+                        . $quotation->bid_repair_days . '天；备注：' . $quotation->quotation_remark,
+                    'platform' => \request()->header('platform'),
+                ]);
+
+                /**
+                 * 检查是否首次报价
+                 */
+                if ($order->bid_type == 0 && $quotation->company_id == $order->check_wusun_company_id) {
+
+                    $bidOption = BidOption::where('company_id', $quotation->company_id)->where('status', Status::Normal->value)->first();
+
+                    // 首次报价低于竞价金额，或者是当前公司创建的工单，直接分配工单
+                    if (!$bidOption
+                        or $quotation->total_price < $bidOption->bid_first_price
+                        or $order->creator_company_id = $quotation->company_id
+                    ) {
+                        $order->bid_type = Order::BID_TYPE_FENPAI;
+                        $order->bid_status = Order::BID_STATUS_FINISHED;
+                        $order->wusun_company_id = $quotation->company_id;
+                        $order->wusun_company_name = $quotation->company->name;
+                        $order->confim_wusun_at = now()->toDateTimeString();
+                        $order->wusun_company_id = $quotation->company_id;
+                    } else {
+                        $now = date('His');
+
+                        if ($quotation->total_price < $bidOption->min_goods_price) {
+                            if ($now > '083000' && $now < '180000') $duration = $bidOption->working_time_deadline_min;
+                            else $duration = $bidOption->resting_time_deadline_min;
+                        } elseif ($quotation->total_price < $bidOption->mid_goods_price) {
+                            if ($now > '083000' && $now < '180000') $duration = $bidOption->working_time_deadline_mid;
+                            else $duration = $bidOption->resting_time_deadline_mid;
+                        } else {
+                            if ($now > '083000' && $now < '180000') $duration = $bidOption->working_time_deadline_max;
+                            else $duration = $bidOption->resting_time_deadline_max;
+                        }
+
+                        $order->bid_type = 1;
+                        $order->bid_status = Order::BID_STATUS_PROGRESSING;
+                        $order->bid_end_time = now()->addHours($duration)->toDateTimeString();
+                        BidOpeningJob::dispatch($order->id)->delay(now()->addHours($duration));
+                    }
+                    $order->save();
+                }
+
+            }
 
             if ($quotation->submit) {
                 $quotation->check_status = CheckStatus::Wait->value;
@@ -137,7 +207,7 @@ class OrderQuotationController extends Controller
 
             $quotation->items()->createMany($request->input('items', []));
 
-            if ($quotation->submit) {
+            if ($quotation->win && $quotation->submit) {
                 $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalQuotation->value);
 
                 ApprovalOrder::where('order_id', $order->id)->where('company_id', $quotation->company_id)->delete();

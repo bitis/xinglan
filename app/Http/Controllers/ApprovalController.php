@@ -308,43 +308,6 @@ class ApprovalController extends Controller
 
         if (!$accept) return;
 
-        /**
-         * 检查是否首次报价
-         */
-        if ($order->bid_type == 0 && $approvalOrder->company_id == $order->check_wusun_company_id) {
-
-            $bidOption = BidOption::where('company_id', $approvalOrder->company_id)->where('status', Status::Normal->value)->first();
-
-            // 首次报价低于竞价金额，或者是当前公司创建的工单，直接分配工单
-            if (!$bidOption or $quotation->total_price < $bidOption->bid_first_price or $order->creator_company_id = $approvalOrder->company_id) {
-                $order->bid_type = Order::BID_TYPE_FENPAI;
-                $order->bid_status = Order::BID_STATUS_FINISHED;
-                $order->wusun_company_id = $approvalOrder->company_id;
-                $order->wusun_company_name = $quotation->company->name;
-                $order->confim_wusun_at = now()->toDateTimeString();
-                $order->wusun_company_id = $approvalOrder->company_id;
-            } else {
-                $now = date('His');
-
-                if ($quotation->total_price < $bidOption->min_goods_price) {
-                    if ($now > '083000' && $now < '180000') $duration = $bidOption->working_time_deadline_min;
-                    else $duration = $bidOption->resting_time_deadline_min;
-                } elseif ($quotation->total_price < $bidOption->mid_goods_price) {
-                    if ($now > '083000' && $now < '180000') $duration = $bidOption->working_time_deadline_mid;
-                    else $duration = $bidOption->resting_time_deadline_mid;
-                } else {
-                    if ($now > '083000' && $now < '180000') $duration = $bidOption->working_time_deadline_max;
-                    else $duration = $bidOption->resting_time_deadline_max;
-                }
-
-                $order->bid_type = 1;
-                $order->bid_status = Order::BID_STATUS_PROGRESSING;
-                $order->bid_end_time = now()->addHours($duration)->toDateTimeString();
-                BidOpeningJob::dispatch($order->id)->delay(now()->addHours($duration));
-            }
-            $order->save();
-        }
-
         // 生成报价单
         QuotaBillPdfJob::dispatch($quotation);
     }

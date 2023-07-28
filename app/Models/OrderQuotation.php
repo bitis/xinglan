@@ -37,7 +37,10 @@ class OrderQuotation extends Model
         'quotation_remark',
         'modify_quotation_remark',
         'creator_id',
-        'creator_name'
+        'creator_name',
+        'bid_repair_days',
+        'bid_total_price',
+        'bid_created_at',
     ];
 
     protected $casts = [
