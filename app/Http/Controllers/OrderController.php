@@ -240,7 +240,7 @@ class OrderController extends Controller
         $order->quotation = $quotation;
         $order->quote_status = 0; // 报价状态 0 未报 1 审核中 2 已报
 
-        if ($quotation) {
+        if ($quotation->win) {
             if ($quotation->submit) {
                 $order->quote_status++;
                 if ($quotation->check_status) {
