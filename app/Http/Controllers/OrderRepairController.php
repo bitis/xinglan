@@ -57,6 +57,8 @@ class OrderRepairController extends Controller
         $order = Order::find($order_id);
         $plan = OrderRepairPlan::with('tasks')->where('order_id', $order_id)->first();
 
+        if (!$plan) return success();
+
         if ($plan->repair_status > OrderRepairPlan::REPAIR_STATUS_WAIT) {
             $plan->repair_status -= 1;
             $plan->save();
