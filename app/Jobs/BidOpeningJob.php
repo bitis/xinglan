@@ -35,10 +35,7 @@ class BidOpeningJob implements ShouldQueue
 
         if (!$order or $order->bid_status != 0) return;
 
-        $quotations = $order->quotations()->where([
-            'check_status' => CheckStatus::Accept->value,
-            'submit' => 1
-        ])->orderBy('total_price', 'asc')->get();
+        $quotations = $order->quotations()->where('bid_total_price', '>', 0)->orderBy('bid_total_price', 'asc')->get();
 
         if (!$quotations->count()) return;
 
