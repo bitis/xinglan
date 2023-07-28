@@ -72,8 +72,6 @@ class OrderService
                     case 'admin':
                     case '公司管理员':
                         break;
-                    default:
-                        $query->where('id', null);
                 }
             })
             ->when($params->get('post_time_start'), function ($query, $post_time_start) {
