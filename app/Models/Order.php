@@ -155,8 +155,7 @@ class Order extends Model
 
     public function quotations(): HasMany
     {
-        return $this->hasMany(OrderQuotation::class)
-            ->where('order_quotations.check_status', '=', CheckStatus::Accept->value);
+        return $this->hasMany(OrderQuotation::class);
     }
 
     public function quotation(): HasOne
