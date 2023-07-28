@@ -68,7 +68,7 @@ class OrderController extends Controller
     {
         if ($request->user()->hasRole('admin')) return success('超级管理员无法查看');
 
-        $orders = OrderService::list($request->user(), $request->collect())
+        $orders = OrderService::list($request->user(), $request->collect(), ['company:id,name'])
             ->selectRaw('orders.*')
             ->orderBy('orders.id', 'desc')
             ->paginate(getPerPage());

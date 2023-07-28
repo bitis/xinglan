@@ -17,7 +17,7 @@ class OrderService
      * @param Collection $params
      * @return Builder
      */
-    public static function list(User $user, Collection $params): Builder
+    public static function list(User $user, Collection $params, $with = []): Builder
     {
         $current_company = $user->company;
 
@@ -25,7 +25,7 @@ class OrderService
 
         $role = str_replace($user->company_id . '_', '', $user->getRoleNames()->toArray()[0]);
 
-        return Order::with('company:id,name')
+        return Order::with($with)
             ->where(function ($query) use ($current_company, $company_id) {
                 if ($company_id)
                     return match ($current_company->getRawOriginal('type')) {
