@@ -120,7 +120,7 @@ class ProviderQuotationController extends Controller
             'bid_end_time' => now()->toDateTimeString()
         ]);
 
-        $order->quotations()->where('company_id', $request->input('wusun_company_id'))->update([
+        $order->quotations()->where('company_id', '<>', $request->input('wusun_company_id'))->update([
             'win' => 2,
             'bid_end_time' => now()->toDateTimeString()
         ]);
