@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MenuRequest;
+use App\Models\Company;
 use App\Models\Menu;
 use App\Models\Permission;
 use Illuminate\Http\JsonResponse;
@@ -14,7 +15,10 @@ class MenuController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $menus = Menu::all();
+        $user = $request->user();
+        $company_type = Company::find($user->company_id)?->getRawOriginal('type');
+
+        $menus = Menu::whereIn('show_if_type', [0, $company_type])->get();
 
         $isAdmin = $request->user()->hasRole('admin');
         $permissions = $request->user()->getAllPermissions();

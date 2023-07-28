@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RoleRequest;
+use App\Models\Company;
 use App\Models\Menu;
 use App\Models\Role;
 use Illuminate\Http\JsonResponse;
@@ -68,7 +69,10 @@ class RoleController extends Controller
      */
     public function menus(Request $request): JsonResponse
     {
-        $menus = Menu::all();
+        $user = $request->user();
+        $company_type = Company::find($user->company_id)?->getRawOriginal('type');
+
+        $menus = Menu::whereIn('show_if_type', [0, $company_type])->get();
         $permissions = Role::findById($request->input('role_id'))->getAllPermissions();
 
         foreach ($menus as $menu) {
