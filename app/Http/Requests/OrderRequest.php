@@ -31,7 +31,6 @@ class OrderRequest extends FormRequest
             'post_time' => 'date_format:Y-m-d H:i:s',
             'insurance_type' => [Rule::enum(InsuranceType::class)],
             'license_plate' => [Rule::requiredIf($this->input('insurance_type') == InsuranceType::Car->value)],
-            'vin' => [Rule::requiredIf($this->input('insurance_type') == InsuranceType::Car->value)],
             'province' => 'required_without:id',
             'city' => 'required_without:id',
             'area' => 'required_without:id',
