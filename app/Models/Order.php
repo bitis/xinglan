@@ -144,7 +144,7 @@ class Order extends Model
     {
         static::created(function ($order) {
             if ($order->bid_type != Order::BID_TYPE_JINGJIA) OrderDispatch::dispatch($order);
-            if ($order->bid_type == Order::BID_TYPE_JINGJIA) BidOpeningJob::dispatch($order)->delay($order->bid_end_time);
+            if ($order->bid_type == Order::BID_TYPE_JINGJIA) BidOpeningJob::dispatch($order->id)->delay($order->bid_end_time);
         });
     }
 
