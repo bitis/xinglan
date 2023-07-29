@@ -40,11 +40,8 @@ class ApprovalOptionController extends Controller
      */
     public function form(Request $request): JsonResponse
     {
-        $option = ApprovalOption::findOr($request->input('id'), fn() => new ApprovalOption());
-
-        if (!$option && ApprovalOption::where('type', $request->input('type'))
-                ->where('company_id', $request->input('company_id'))->first())
-            return fail('数据异常');
+        $option = ApprovalOption::where('type', $request->input('type'))
+                ->where('company_id', $request->input('company_id'))->firstOr(fn() => new ApprovalOption());
 
         if (!in_array($request->input('company_id'), Company::getGroupId($request->user()->company_id)))
             return fail('非法操作');
