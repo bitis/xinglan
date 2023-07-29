@@ -66,7 +66,7 @@ class OrderQuotationController extends Controller
             })
             ->whereIn('insurance_company_id', $customersId)
             ->selectRaw('orders.*, quotation.company_id, quotation.plan_type, quotation.repair_days,
-             quotation.repair_cost, quotation.other_cost, quotation.total_cost, quotation.profit_margin,
+             quotation.repair_cost, quotation.other_cost, quotation.total_cost, quotation.profit_margin,bid_created_at,
              quotation.profit_margin_ratio, quotation.repair_remark, quotation.total_price, quotation.images,
              quotation.check_status, quotation.checked_at, quotation.win, quotation.bid_end_time, quotation.submit')
             ->paginate(getPerPage());
