@@ -9,11 +9,11 @@ enum MessageType : int
 
     use EnumArray;
 
-    case NewOrder = 0;
-    case NewCheckTask = 1;
-    case ConfirmedPrice = 2;
-    case OrderClosed = 3;
-    case OrderDispatch = 4;
+    case NewOrder = 1;
+    case NewCheckTask = 2;
+    case ConfirmedPrice = 3;
+    case OrderClosed = 4;
+    case OrderDispatch = 5;
 
     public function name(): string
     {

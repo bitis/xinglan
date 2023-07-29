@@ -32,6 +32,7 @@ class MessageController extends Controller
 
         switch ($absRole) {
             case 'admin':
+            case '公司管理员':
                 $messageType = [
                     MessageType::NewOrder->value,
                     MessageType::NewCheckTask->value,
@@ -39,18 +40,21 @@ class MessageController extends Controller
                     MessageType::OrderClosed->value,
                 ];
                 break;
-            case '公司管理员':
-                $messageType = [MessageType::NewOrder->value];
-                break;
             case '施工经理':
                 break;
             case '施工人员':
                 break;
             case '查勘经理':
-                $messageType = [MessageType::NewOrder->value];
+                $messageType = [
+                    MessageType::NewOrder->value,
+                    MessageType::NewCheckTask->value,
+                ];
                 break;
             case '查勘人员':
-                $messageType = [MessageType::NewCheckTask->value];
+                $messageType = [
+                    MessageType::NewCheckTask->value,
+                    MessageType::NewCheckTask->value,
+                ];
                 break;
             case '财务经理':
                 break;
@@ -74,7 +78,7 @@ class MessageController extends Controller
             ->when($request->input('order_number'), function ($query, $order_number) {
                 $query->where('order_number', 'like', '%' . $order_number . '%');
             })
-            ->where(function ($query) use ($inputType, $messageType) {
+            ->when($inputType, function ($query, $inputType) use ($messageType) {
                 if ($inputType && in_array($inputType, $messageType))
                     return $query->where('type', $inputType);
 
