@@ -188,10 +188,13 @@ class OrderQuotationController extends Controller
                             else $duration = $bidOption->resting_time_deadline_max;
                         }
 
+                        $hours = ceil($duration);
+                        $minutes = $duration * 60 % 60;
+
                         $order->bid_type = 1;
                         $order->bid_status = Order::BID_STATUS_PROGRESSING;
-                        $order->bid_end_time = now()->addHours($duration)->toDateTimeString();
-                        BidOpeningJob::dispatch($order->id)->delay(now()->addHours($duration));
+                        $order->bid_end_time = now()->addHours($hours)->addMinutes($minutes)->toDateTimeString();
+                        BidOpeningJob::dispatch($order->id)->delay($order->bid_end_time);
                     }
                     $order->save();
                 }
