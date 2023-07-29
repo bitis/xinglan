@@ -278,6 +278,8 @@ class OrderController extends Controller
 
             throw_if($company->getRawOriginal('type') != CompanyType::WuSun->value, '只有物损公司可以派遣查勘');
 
+            DB::beginTransaction();
+
             $order->fill($params);
             $order->wusun_check_status = Order::WUSUN_CHECK_STATUS_CHECKING;
             $order->save();
@@ -296,7 +298,9 @@ class OrderController extends Controller
                 'status' => 0,
             ]);
             $message->save();
+            DB::commit();
         } catch (\Throwable $exception) {
+            DB::rollBack();
             return fail($exception->getMessage());
         }
 
