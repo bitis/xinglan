@@ -370,6 +370,10 @@ class OrderController extends Controller
     {
         $order = Order::find($request->input('order_id'));
 
+        if ($order->close_status == OrderCloseStatus::Closed->value) return fail('该工单已经结案');
+
+        if ($order->close_status == OrderCloseStatus::Closed->value) return fail('该工单已经结案');
+
         $user = $request->user();
         try {
             DB::beginTransaction();

@@ -84,6 +84,8 @@ class OrderDispatch implements ShouldQueue
                 'dispatched' => true
             ]);
 
+            $providerCompany = Company::find($provider->provider_id);
+
             OrderLog::create([
                 'order_id' => $this->order->id,
                 'type' => OrderLog::TYPE_DISPATCH_CHECK,
@@ -92,7 +94,7 @@ class OrderDispatch implements ShouldQueue
                 'creator_company_id' => $company->id,
                 'creator_company_name' => $company->name,
                 'remark' => '根据系统配置规则派遣查勘服务商',
-                'content' => '根据系统配置规则，派遣查勘服务商：' . $company->name,
+                'content' => '根据系统配置规则，派遣查勘服务商：' . $providerCompany->name,
                 'platform' => 'system',
             ]);
 
