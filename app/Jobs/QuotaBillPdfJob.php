@@ -41,7 +41,7 @@ class QuotaBillPdfJob implements ShouldQueue
 
         $ossFile = '/quota_bill/' . date('Ymd') . '/' . md5($fileContent) . '.pdf';
 
-        Storage::disk('oss')->put($ossFile, $fileContent);
+        Storage::disk('qcloud')->put($ossFile, $fileContent);
 
         $quotation->company_name = Company::find($quotation->company_id)->name;
 

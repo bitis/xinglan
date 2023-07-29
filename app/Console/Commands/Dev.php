@@ -3,8 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Models\Company;
-use App\Models\Enumerations\CheckStatus;
-use App\Models\Order;
 use App\Models\OrderQuotation;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\App;
@@ -33,7 +31,7 @@ class Dev extends Command
      */
     public function handle(): void
     {
-                $quotation = OrderQuotation::find(22);
+        $quotation = OrderQuotation::find(34);
 
         $tempFile = sys_get_temp_dir() . '/' . Str::random() . '.pdf';
 
@@ -41,9 +39,11 @@ class Dev extends Command
 
         $fileContent = file_get_contents($tempFile);
 
-        $ossFile = 'quota_bill/' . date('Ymd') . '/' . md5($fileContent) . '.pdf';
+        $ossFile = '/quota_bill/' . date('Ymd') . '/' . md5($fileContent) . '.pdf';
 
-        Storage::disk('oss')->put($ossFile, $fileContent);
+        Storage::disk('qcloud')->put($ossFile, $fileContent);
+
+        $quotation->company_name = Company::find($quotation->company_id)->name;
 
         $quotation->pdf = $ossFile;
 
