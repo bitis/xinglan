@@ -284,8 +284,8 @@ class OrderController extends Controller
 
             // Message
             $message = new Message([
-                'send_company_id' => $order->insurance_company_id,
-                'to_company_id' => $order->check_wusun_company_id,
+                'send_company_id' => $user->company_id,
+                'to_company_id' => $user->company_id,
                 'user_id' => $params['wusun_check_id'],
                 'type' => MessageType::NewCheckTask->value,
                 'order_id' => $order->id,
