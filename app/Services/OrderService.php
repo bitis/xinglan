@@ -55,7 +55,7 @@ class OrderService
                 switch ($role) {
                     case '查勘人员':
                         $query->where(function ($query) use ($user) {
-                            $query->where('creator_id', '=', $user->id)
+                            $query->where('orders.creator_id', '=', $user->id)
                                 ->orWhere('wusun_check_id', '=', $user->id)
                                 ->orWhere('wusun_repair_user_id', '=', $user->id);
                         });
