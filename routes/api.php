@@ -157,7 +157,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('approval')->group(function () {
         Route::prefix('option')->group(function () {
             Route::get('list', 'ApprovalOptionController@index');
-            Route::post('form', 'ApprovalOptionController@form');
+            Route::post('form', 'ApprovalOptionController@form')->middleware('throttle:1,0.03');
         });
         Route::get('list', 'ApprovalController@index');
         Route::get('detail', 'ApprovalController@detail');

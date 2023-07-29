@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -33,7 +34,7 @@ class Handler extends ExceptionHandler
         });
     }
 
-        /**
+    /**
      * Convert an authentication exception into a response.
      *
      * @param Request $request
@@ -57,4 +58,11 @@ class Handler extends ExceptionHandler
         return fail(current($e->errors())[0]);
     }
 
+    public function render($request, Throwable $e)
+    {
+        if ($e instanceof ThrottleRequestsException) {
+            return fail($e->getMessage());
+        }
+        return parent::render($request, $e);
+    }
 }
