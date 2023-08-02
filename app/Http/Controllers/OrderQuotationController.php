@@ -378,7 +378,7 @@ class OrderQuotationController extends Controller
     {
         $quotation = OrderQuotation::with(['company', 'order', 'order.company'])->where('security_code', $code)->first();
 
-        return view('quota.table')
+        return view('quota.security')
             ->with(compact('quotation'));
     }
 
