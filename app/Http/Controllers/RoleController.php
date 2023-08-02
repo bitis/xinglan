@@ -72,7 +72,8 @@ class RoleController extends Controller
         $user = $request->user();
         $company_type = Company::find($user->company_id)?->getRawOriginal('type');
 
-        $menus = Menu::whereIn('show_if_type', [0, $company_type])->get();
+        $isAdmin = $request->user()->hasRole('admin');
+        $menus = $isAdmin ? Menu::all() : Menu::whereIn('show_if_type', [0, $company_type])->get();
         $permissions = Role::findById($request->input('role_id'))->getAllPermissions();
 
         foreach ($menus as $menu) {
