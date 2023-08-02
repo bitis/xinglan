@@ -70,7 +70,7 @@ return [
             'app_id' => env('QCLOUD_COS_APP_ID'),
             'secret_id' => env('QCLOUD_SECRET_ID'),
             'secret_key' => env('QCLOUD_SECRET_KEY'),
-
+            'url' => env('QCLOUND_URL'),
             'region' => 'ap-shanghai',
             'bucket' => 'xinglan',
 

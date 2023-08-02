@@ -47,7 +47,7 @@
               padding-top:40px;
             ">
             <img crossorigin="anonymous"
-                 src="@if($quotation->company->logo) config('filesystems.disks.oss.url') . '/' . $quotation->company->logo @endif"
+                 src="@if($quotation->company->logo) {{ config('filesystems.disks.qcloud.url') . '/' . $quotation->company->logo }} @endif"
                  alt="水印" style="width: 80px; height: 80px;margin-right: 20px;"/>
             <div style="width: 60%;position: absolute;
                 left:120px;
@@ -136,7 +136,7 @@
             bottom: 20px;
             right: 20px;
           "><img crossorigin="anonymous"
-                 src="@if($quotation->company->official_seal) config('filesystems.disks.oss.url') . '/' . $quotation->company->official_seal @endif"
+                 src="@if($quotation->company->official_seal) {{ config('filesystems.disks.qcloud.url') . '/' . $quotation->company->official_seal }} @endif"
                  alt="印章" style="width: 120px; height: 120px"/></div>
 </div>
 </body>

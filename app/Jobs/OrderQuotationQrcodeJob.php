@@ -48,7 +48,7 @@ class OrderQuotationQrcodeJob implements ShouldQueue
 
         $file_name = 'security_code/' . md5($tempFile) . '.png';
 
-        Storage::disk('oss')->put($file_name, $tempFile);
+        Storage::disk('qcloud')->put($file_name, $tempFile);
 
         $quotation->qrcode = $file_name;
         $quotation->save();
