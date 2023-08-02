@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>show_pdf</title>
+  <title>防伪码校验</title>
   <script src="{{ config('filesystems.disks.qcloud.url') }}/js/cdnjs.cloudflare.com_ajax_libs_pdf.js_2.6.347_pdf.min.js"></script>
 <script src="{{ config('filesystems.disks.qcloud.url') }}/js/cdnjs.cloudflare.com_ajax_libs_pdf.js_2.6.347_pdf.worker.min.js"></script>
 </head>
