@@ -86,4 +86,6 @@ deploy:
     expose_as: 'artifact 1'
     paths:
       - .
+    exclude:
+    - .git
 
