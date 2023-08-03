@@ -80,7 +80,7 @@ before_script:
 
 deploy:
   stage: deploy
-  script: echo "Define your deployment script!"
+  script: php vendor/bin/envoy run deploy
   environment: production
   artifacts:
     expose_as: 'artifact 1'
