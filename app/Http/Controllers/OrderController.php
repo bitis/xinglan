@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Common\Messages\QuotaNotify;
 use App\Http\Requests\OrderRequest;
+use App\Jobs\CheckMessageJob;
+use App\Jobs\QuotaMessageJob;
 use App\Models\ApprovalOption;
 use App\Models\ApprovalOrder;
 use App\Models\ApprovalOrderProcess;
@@ -164,9 +167,13 @@ class OrderController extends Controller
                 $order->fill([
                     'check_wusun_company_id' => $company->id,
                     'check_wusun_company_name' => $company->name,
+                    'wusun_company_id' => $company->id,
+                    'wusun_company_name' => $company->name,
                     'dispatch_check_wusun_at' => now()->toDateTimeString(),
                     'dispatched' => true,
                 ]);
+
+                CheckMessageJob::dispatch($order);
 
                 OrderLog::create([
                     'order_id' => $order->id,

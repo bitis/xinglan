@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\BidOpeningJob;
+use App\Jobs\QuotaMessageJob;
 use App\Models\ApprovalOption;
 use App\Models\ApprovalOrder;
 use App\Models\ApprovalOrderProcess;
@@ -195,6 +196,7 @@ class OrderQuotationController extends Controller
                         $order->bid_status = Order::BID_STATUS_PROGRESSING;
                         $order->bid_end_time = now()->addHours($hours)->addMinutes($minutes)->toDateTimeString();
                         BidOpeningJob::dispatch($order->id)->delay($order->bid_end_time);
+                        QuotaMessageJob::dispatch($order);
                     }
                     $order->save();
                 }
