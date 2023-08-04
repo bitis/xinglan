@@ -27,7 +27,7 @@
     cd {{ $new_release_dir }}
     export COMPOSER_ALLOW_SUPERUSER=1
     composer install --prefer-dist --no-scripts -q -o
-    chown -r www:www {{ $new_release_dir }}
+    chown -R www:www {{ $new_release_dir }}
 @endtask
 
 @task('update_symlinks')
