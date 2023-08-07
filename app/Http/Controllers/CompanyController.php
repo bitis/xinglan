@@ -65,9 +65,9 @@ class CompanyController extends Controller
 
                 $parent = Company::find($parent_id);
 
-                if ($parent && $parent->level == CompanyLevel::Three->value) throw new \Exception('三级公司不允许创建下级公司');
+                if ($parent && $parent->getRawOriginal('level') == CompanyLevel::Three->value) throw new \Exception('三级公司不允许创建下级公司');
 
-                $level = $parent ? min($parent->levle + 1, CompanyLevel::Three->value) : CompanyLevel::One->value;
+                $level = $parent ? min($parent->getRawOriginal('level') + 1, CompanyLevel::Three->value) : CompanyLevel::One->value;
 
                 return new Company([
                     'level' => $level,
