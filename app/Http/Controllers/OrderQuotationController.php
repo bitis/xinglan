@@ -113,6 +113,8 @@ class OrderQuotationController extends Controller
                 'creator_name' => $user->name
             ]));
 
+        if ($quotation->company_id == $order->wusun_company_id) $quotation->win = 1;
+
         $quotation->fill($request->only([
             'order_id',
             'plan_type',
@@ -160,7 +162,7 @@ class OrderQuotationController extends Controller
                 /**
                  * 检查是否首次报价
                  */
-                if ($order->bid_type == 0 && $quotation->company_id == $order->check_wusun_company_id) {
+                if ($order->bid_type == 0 && $order->wusun_company_id = 0 && $quotation->company_id == $order->check_wusun_company_id) {
 
                     $bidOption = BidOption::where('company_id', $quotation->company_id)->where('status', Status::Normal->value)->first();
 
