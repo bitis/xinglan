@@ -97,7 +97,6 @@ return new class extends Migration {
          */
         Schema::create('hjb_sub_claim_infos', function (Blueprint $table) {
             $table->id();
-            $table->integer('claim_info_id');
             $table->string('SubClaim')->comment('子赔案');
             $table->string('RiskName', 600)->comment('被保标的');
             $table->string('SubClaimType', 8)->comment('子赔案类型 《公用代码》-子赔案类型');

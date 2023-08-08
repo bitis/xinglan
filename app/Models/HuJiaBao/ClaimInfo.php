@@ -16,10 +16,6 @@ class ClaimInfo extends Model
 
     protected $table = 'hjb_claim_infos';
 
-    public function benefit(): BelongsTo
-    {
-        return $this->belongsTo(Benefit::class, 'benefit_id', 'id');
-    }
 
     public function subClaimInfo(): HasOne
     {
