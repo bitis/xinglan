@@ -3,11 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\Company;
-use App\Models\OrderQuotation;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 
 class Dev extends Command
@@ -31,22 +29,24 @@ class Dev extends Command
      */
     public function handle(): void
     {
-        $quotation = OrderQuotation::find(34);
+        $company = Company::find(1);
 
-        $tempFile = sys_get_temp_dir() . '/' . Str::random() . '.pdf';
+        $defaultRoles = ['公司管理员', '施工经理', '施工人员', '查勘经理', '查勘人员', '财务经理', '财务人员', '调度内勤', '出纳人员', '造价员', '复勘人员'];
 
-        App::make('snappy.pdf.wrapper')->loadHTML(view('quota.table', ['quotation' => $quotation])->render())->save($tempFile);
+        foreach ($defaultRoles as $defaultRole) {
+            $role = $company->roles()->create([
+                'name' => $company->id . '_' . $defaultRole,
+                'guard_name' => 'api',
+                'show_name' => $defaultRole
+            ]);
 
-        $fileContent = file_get_contents($tempFile);
+            $role->givePermissionTo(Role::where('company_id', 0)->where('show_name', $defaultRole)->first()?->permissions?->pluck('name')->toArray());
+        }
 
-        $ossFile = '/quota_bill/' . date('Ymd') . '/' . md5($fileContent) . '.pdf';
+        $user = User::find($company->admin_id);
 
-        Storage::disk('qcloud')->put($ossFile, $fileContent);
+        $user->assignRole($company->id . '_公司管理员');
 
-        $quotation->company_name = Company::find($quotation->company_id)->name;
-
-        $quotation->pdf = $ossFile;
-
-        $quotation->save();
+        $user->save();
     }
 }

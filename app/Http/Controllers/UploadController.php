@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Storage;
 
 class UploadController extends Controller
 {
-    public function form(Request $request): JsonResponse
+    public function form(Request $request)
     {
-        $file = $request->file('file');
+        $file = $request->file('Files');
 
         if (!$file) return fail('必须上传一个文件');
 

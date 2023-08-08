@@ -165,3 +165,10 @@ Route::middleware('auth')->group(function () {
         Route::post('form', 'ApprovalController@form');
     });
 });
+
+Route::post('upload_', 'UploadController@form');
+
+Route::prefix('hjb')->group(function () {
+    Route::post('upload', 'HuJiaBao\ServeController@upload');
+    Route::post('investigation', 'HuJiaBao\ServeController@investigation');
+});
