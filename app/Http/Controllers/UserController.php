@@ -72,7 +72,7 @@ class UserController extends Controller
         $user->save();
 
         if (!empty($role)) {
-            $user->syncRoles($role);
+            $user->syncRoles($user->company_id . '_' . Str::after($role, '_'));
         }
 
         return success($user);
