@@ -46,7 +46,7 @@ class OrderQuotationQrcodeJob implements ShouldQueue
 
         $tempFile = (new QRCode($opt))->render($security_url);
 
-        $file_name = 'security_code/' . md5($tempFile) . '.png';
+        $file_name = '/security_code/' . md5($tempFile) . '.png';
 
         Storage::disk('qcloud')->put($file_name, $tempFile);
 
