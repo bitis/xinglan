@@ -10,7 +10,7 @@ class UploadController extends Controller
 {
     public function form(Request $request)
     {
-        $file = $request->file('Files');
+        $file = $request->file('file');
 
         if (!$file) return fail('必须上传一个文件');
 
