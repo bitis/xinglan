@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class UploadController extends Controller
 {
@@ -14,7 +14,9 @@ class UploadController extends Controller
 
         if (!$file) return fail('必须上传一个文件');
 
-        $fileName = '/uploads/' . date('Ymd') . '/' . $file->hashName();
+        $ext = $file->getClientOriginalExtension();
+
+        $fileName = '/uploads/' . date('Ymd') . '/' . Str::random(40) . ($ext ? '.' . $ext : '');
 
         if (Storage::disk('qcloud')->put($fileName, $file->getContent()))
             return success($fileName);
