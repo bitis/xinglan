@@ -415,11 +415,15 @@ class OrderQuotationController extends Controller
             ]));
 
             $order->confirm_user_id = $user->id;
+            $order->confirm_price_status = Order::CONFIRM_PRICE_STATUS_APPROVAL;
 
             $order->save();
 
-            ApprovalOrder::where('order_id', $order->id)->where('company_id', $order->wusun_company_id)->delete();
-            ApprovalOrderProcess::where('order_id', $order->id)->where('company_id', $order->wusun_company_id)->delete();
+            $approvalOrder = ApprovalOrder::where('order_id', $order->id)
+                ->where('approval_type', $option->type)
+                ->where('company_id', $order->wusun_company_id)
+                ->first();
+            ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
 
             $approvalOrder = ApprovalOrder::create([
                 'order_id' => $order->id,
