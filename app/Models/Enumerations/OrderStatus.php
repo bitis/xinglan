@@ -44,13 +44,20 @@ enum OrderStatus: int
     public function filter(Builder $query)
     {
         return match ($this) {
-            OrderStatus::WaitCheck => $query->where('wusun_check_status', Order::WUSUN_CHECK_STATUS_WAITING),
-            OrderStatus::Checking => $query->where('wusun_check_status', Order::WUSUN_CHECK_STATUS_CHECKING),
-            OrderStatus::WaitPlan => $query->where('wusun_check_status', Order::WUSUN_CHECK_STATUS_FINISHED)
+            OrderStatus::WaitCheck => $query
+                ->where('close_status', '<>', OrderCloseStatus::Closed->value)
+                ->where('wusun_check_status', Order::WUSUN_CHECK_STATUS_WAITING),
+            OrderStatus::Checking => $query
+                ->where('wusun_check_status', Order::WUSUN_CHECK_STATUS_CHECKING)
+                ->where('close_status', '<>', OrderCloseStatus::Closed->value),
+            OrderStatus::WaitPlan => $query
+                ->where('close_status', '<>', OrderCloseStatus::Closed->value)
+                ->where('wusun_check_status', Order::WUSUN_CHECK_STATUS_FINISHED)
                 ->whereNull('plan_confirm_at'),
             OrderStatus::WaitCost,
             OrderStatus::WaitQuote => $query
                 ->leftJoin('order_quotations', 'order_quotations.order_id', '=', 'orders.id')
+                ->where('close_status', '<>', OrderCloseStatus::Closed->value)
                 ->where(function ($query) {
                     $query->whereNotNull('plan_confirm_at')->where(function ($query) {
                         $query->where('order_quotations.check_status', '<>', CheckStatus::Accept->value)
@@ -59,15 +66,20 @@ enum OrderStatus: int
                 }),
             OrderStatus::WaitConfirmPrice => $query
                 ->leftJoin('order_quotations', 'order_quotations.order_id', '=', 'orders.id')
+                ->where('close_status', '<>', OrderCloseStatus::Closed->value)
                 ->where('order_quotations.check_status', CheckStatus::Accept->value)
                 ->where('confirm_price_status','<>', Order::CONFIRM_PRICE_STATUS_FINISHED),
             OrderStatus::WaitRepair => $query
+                ->where('close_status', '<>', OrderCloseStatus::Closed->value)
                 ->where('confirm_price_status', Order::CONFIRM_PRICE_STATUS_FINISHED)
                 ->where('repair_status', Order::REPAIR_STATUS_WAIT)
                 ->where('plan_type', Order::PLAN_TYPE_REPAIR),
-            OrderStatus::Repairing => $query->where('repair_status', Order::REPAIR_STATUS_REPAIRING),
-            OrderStatus::Repaired => $query->where('repair_status', Order::REPAIR_STATUS_FINISHED)
-                ->where('close_status', '<>', OrderCloseStatus::Closed->value),
+            OrderStatus::Repairing => $query
+                ->where('close_status', '<>', OrderCloseStatus::Closed->value)
+                ->where('repair_status', Order::REPAIR_STATUS_REPAIRING),
+            OrderStatus::Repaired => $query
+                ->where('close_status', '<>', OrderCloseStatus::Closed->value)
+                ->where('repair_status', Order::REPAIR_STATUS_FINISHED),
             OrderStatus::Closed => $query->where('close_status', OrderCloseStatus::Closed->value),
             OrderStatus::Mediate => $query->where('close_status', '<>', OrderCloseStatus::Closed->value)
                 ->where('plan_type', Order::PLAN_TYPE_MEDIATE),
