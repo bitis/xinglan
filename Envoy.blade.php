@@ -40,6 +40,7 @@
 
     echo 'Linking current release'
     ln -nfs {{ $new_release_dir }} {{ $app_dir }}/current
+    service php-fpm-81 restart
 @endtask
 
 @task('restart-queues', ['on' => 'prod'])
