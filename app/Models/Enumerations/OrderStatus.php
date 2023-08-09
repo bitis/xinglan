@@ -48,11 +48,11 @@ enum OrderStatus: int
             OrderStatus::Checking => $query->where('wusun_check_status', Order::WUSUN_CHECK_STATUS_CHECKING),
             OrderStatus::WaitPlan => $query->where('wusun_check_status', Order::WUSUN_CHECK_STATUS_FINISHED)
                 ->whereNull('plan_confirm_at'),
-            OrderStatus::WaitCost => $query->leftJoin('order_quotations', 'order_quotations.order_id', '=', 'orders.id')
+            OrderStatus::WaitCost,
+            OrderStatus::WaitQuote => $query->leftJoin('order_quotations', 'order_quotations.order_id', '=', 'orders.id')
                 ->where(function ($query) {
                     $query->where('order_quotations.check_status', '!=', CheckStatus::Accept->value)->orWhereNull('order_quotations.id');
                 }),
-            OrderStatus::WaitQuote,
             OrderStatus::WaitConfirmPrice => $query->where('confirm_price_status', Order::CONFIRM_PRICE_STATUS_WAIT)
                 ->where('plan_type', Order::PLAN_TYPE_MEDIATE),
             OrderStatus::WaitRepair => $query->where('repair_status', Order::REPAIR_STATUS_WAIT)
