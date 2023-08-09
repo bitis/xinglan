@@ -67,7 +67,7 @@ enum OrderStatus: int
                 ->where('plan_type', Order::PLAN_TYPE_REPAIR),
             OrderStatus::Repairing => $query->where('repair_status', Order::REPAIR_STATUS_REPAIRING),
             OrderStatus::Repaired => $query->where('repair_status', Order::REPAIR_STATUS_FINISHED)
-                ->where('close_status', OrderCloseStatus::Wait->value),
+                ->where('close_status', '<>', OrderCloseStatus::Closed->value),
             OrderStatus::Closed => $query->where('close_status', OrderCloseStatus::Closed->value),
             OrderStatus::Mediate => $query->where('close_status', '<>', OrderCloseStatus::Closed->value)
                 ->where('plan_type', Order::PLAN_TYPE_MEDIATE),
