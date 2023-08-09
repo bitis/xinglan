@@ -423,7 +423,7 @@ class OrderQuotationController extends Controller
                 ->where('approval_type', $option->type)
                 ->where('company_id', $order->wusun_company_id)
                 ->first();
-            ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
+            if ($approvalOrder) ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
 
             $approvalOrder = ApprovalOrder::create([
                 'order_id' => $order->id,
