@@ -60,7 +60,7 @@
             top: 10px;
             right: 10px;">
             <img crossorigin="anonymous"
-                 src="{{ config('filesystems.disks.oss.url') . '/' . $quotation->qrcode }}"
+                 src="{{ config('filesystems.disks.qcloud.url') . '/' . $quotation->qrcode }}"
                  alt="防伪码" style="width: 100px; height: 100px"/>
             <div style="font-size: 20px;color: #333333;margin-top: 10px;">防伪码，微信扫一扫</div>
         </div>
