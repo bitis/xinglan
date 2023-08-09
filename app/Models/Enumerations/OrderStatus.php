@@ -49,14 +49,22 @@ enum OrderStatus: int
             OrderStatus::WaitPlan => $query->where('wusun_check_status', Order::WUSUN_CHECK_STATUS_FINISHED)
                 ->whereNull('plan_confirm_at'),
             OrderStatus::WaitCost,
-            OrderStatus::WaitQuote => $query->leftJoin('order_quotations', 'order_quotations.order_id', '=', 'orders.id')
+            OrderStatus::WaitQuote => $query
+                ->leftJoin('order_quotations', 'order_quotations.order_id', '=', 'orders.id')
                 ->where(function ($query) {
-                    $query->where('order_quotations.check_status', '!=', CheckStatus::Accept->value)->orWhereNull('order_quotations.id');
+                    $query->whereNotNull('plan_confirm_at')->where(function ($query) {
+                        $query->where('order_quotations.check_status', '<>', CheckStatus::Accept->value)
+                            ->orWhereNull('order_quotations.id');
+                    });
                 }),
-            OrderStatus::WaitConfirmPrice => $query->where('confirm_price_status', Order::CONFIRM_PRICE_STATUS_WAIT)
-                ->where('plan_type', Order::PLAN_TYPE_MEDIATE),
-            OrderStatus::WaitRepair => $query->where('repair_status', Order::REPAIR_STATUS_WAIT)
-                ->where('plan_type', Order::PLAN_TYPE_MEDIATE),
+            OrderStatus::WaitConfirmPrice => $query
+                ->leftJoin('order_quotations', 'order_quotations.order_id', '=', 'orders.id')
+                ->where('order_quotations.check_status', CheckStatus::Accept->value)
+                ->where('confirm_price_status','<>', Order::CONFIRM_PRICE_STATUS_FINISHED),
+            OrderStatus::WaitRepair => $query
+                ->where('confirm_price_status', CheckStatus::Accept->value)
+                ->where('repair_status', Order::REPAIR_STATUS_WAIT)
+                ->where('plan_type', Order::PLAN_TYPE_REPAIR),
             OrderStatus::Repairing => $query->where('repair_status', Order::REPAIR_STATUS_REPAIRING),
             OrderStatus::Repaired => $query->where('repair_status', Order::REPAIR_STATUS_FINISHED)
                 ->where('close_status', OrderCloseStatus::Wait->value),
