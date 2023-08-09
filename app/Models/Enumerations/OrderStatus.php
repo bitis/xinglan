@@ -50,7 +50,7 @@ enum OrderStatus: int
                 ->whereNull('plan_confirm_at'),
             OrderStatus::WaitCost => $query->leftJoin('order_quotations', 'order_quotations.order_id', '=', 'orders.id')
                 ->where(function ($query) {
-                    $query->where('order_quotations.check_status', CheckStatus::Accept->value)->orWhereNull('order_quotations.id');
+                    $query->where('order_quotations.check_status', '!=', CheckStatus::Accept->value)->orWhereNull('order_quotations.id');
                 }),
             OrderStatus::WaitQuote,
             OrderStatus::WaitConfirmPrice => $query->where('confirm_price_status', Order::CONFIRM_PRICE_STATUS_WAIT)
