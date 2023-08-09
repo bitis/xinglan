@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Common\Messages\CheckNotify;
 use App\Common\Messages\QuotaNotify;
 use App\Models\Company;
 use App\Models\Order;
@@ -36,7 +37,7 @@ class CheckMessageJob implements ShouldQueue
 
         $easySms->send(
             $wusunCompany->contract_phone,
-            new QuotaNotify($wusunCompany->name, $insuranceCompany->name, $order->case_number)
+            new CheckNotify($wusunCompany->name, $insuranceCompany->name, $order->case_number)
         );
     }
 }
