@@ -304,6 +304,8 @@ class OrderController extends Controller
             ]);
             $message->save();
             DB::commit();
+
+            CheckMessageJob::dispatch($order);
         } catch (\Throwable $exception) {
             DB::rollBack();
             return fail($exception->getMessage());
