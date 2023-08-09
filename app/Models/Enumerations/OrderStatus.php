@@ -62,7 +62,7 @@ enum OrderStatus: int
                 ->where('order_quotations.check_status', CheckStatus::Accept->value)
                 ->where('confirm_price_status','<>', Order::CONFIRM_PRICE_STATUS_FINISHED),
             OrderStatus::WaitRepair => $query
-                ->where('confirm_price_status', CheckStatus::Accept->value)
+                ->where('confirm_price_status', Order::CONFIRM_PRICE_STATUS_FINISHED)
                 ->where('repair_status', Order::REPAIR_STATUS_WAIT)
                 ->where('plan_type', Order::PLAN_TYPE_REPAIR),
             OrderStatus::Repairing => $query->where('repair_status', Order::REPAIR_STATUS_REPAIRING),
