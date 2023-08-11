@@ -138,6 +138,10 @@ class OrderController extends Controller
 
         $order->fill(Arr::whereNotNull($orderParams));
 
+        if ($order->isDirty('review_images') or $order->isDirty('review_remark')) {
+            $order->review_at = now()->toDateTimeString();
+        }
+
         $order->save();
 
         if ($insurers = $request->input('insurers')) {
@@ -218,10 +222,6 @@ class OrderController extends Controller
                     'content' => '派遣查勘服务商修改为：' . $company->name,
                     'platform' => $request->header('platform'),
                 ]);
-            }
-
-            if($order->isDirty('review_images') or $order->isDirty('review_remark')){
-                $order->review_at = now()->toDateTimeString();
             }
         }
 
