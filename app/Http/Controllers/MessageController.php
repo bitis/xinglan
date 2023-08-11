@@ -70,7 +70,7 @@ class MessageController extends Controller
                 $messageType = [];
         }
 
-        $messages = Message::with(['sendCompany:id,name', 'order'])
+        $messages = Message::with(['sendCompany:id,name', 'order', 'order.company:id,name'])
             ->where('to_company_id', $company?->id)
             ->when(strlen($status = $request->input('status')), function ($query) use ($status) {
                 $query->where('status', $status);
