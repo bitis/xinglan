@@ -219,6 +219,10 @@ class OrderController extends Controller
                     'platform' => $request->header('platform'),
                 ]);
             }
+
+            if($order->isDirty('review_images') or $order->isDirty('review_remark')){
+                $order->review_at = now()->toDateTimeString();
+            }
         }
 
         return success($order->load(['company:id,name', 'insurers']));
