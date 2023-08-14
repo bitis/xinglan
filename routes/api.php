@@ -106,6 +106,11 @@ Route::middleware('auth')->group(function () {
         Route::get('getRepeatRegion', 'ProviderOptionController@getRepeatRegion');
     });
 
+    Route::prefix('customer')->group(function () {
+        Route::get('list', 'CustomerController@index');
+        Route::post('form', 'CustomerController@form');
+    });
+
     Route::prefix('order')->group(function () {
         Route::get('customer', 'OrderController@customer');
         Route::get('list', 'OrderController@index');
@@ -170,5 +175,6 @@ Route::post('upload_', 'UploadController@form');
 
 Route::prefix('hjb')->group(function () {
     Route::post('upload', 'HuJiaBao\ServeController@upload');
+    Route::post('receiveInvestigationTask', 'HuJiaBao\ServeController@receiveInvestigationTask');
     Route::post('investigation', 'HuJiaBao\ServeController@investigation');
 });
