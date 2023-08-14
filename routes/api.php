@@ -148,6 +148,7 @@ Route::middleware('auth')->group(function () {
         Route::post('form', 'GoodsPriceController@form');
         Route::get('cats', 'GoodsPriceController@cats');
         Route::get('catsTree', 'GoodsPriceController@catsTree');
+        Route::post('import', 'GoodsPriceController@import');
     });
 
     Route::prefix('bidOption')->group(function () {
