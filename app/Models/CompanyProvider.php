@@ -29,6 +29,10 @@ class CompanyProvider extends Pivot
         'introduce',
         'remark',
         'status',
+        'province',
+        'city',
+        'area',
+        'address'
     ];
 
     protected $casts = [
