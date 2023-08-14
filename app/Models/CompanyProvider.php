@@ -29,14 +29,23 @@ class CompanyProvider extends Pivot
         'introduce',
         'remark',
         'status',
-        'province',
-        'city',
-        'area',
-        'address'
+        'customer_tax_name',
+        'customer_number',
+        'customer_remark',
+        'customer_address',
+        'customer_license_no',
+        'customer_phone',
+        'customer_bank_name',
+        'customer_bank_account_number',
+        'customer_mailing_address',
+        'contract_files',
+        'contract_expiration_date',
+        'customer_tex_remark',
     ];
 
     protected $casts = [
-        'license_image' => 'array'
+        'license_image' => 'array',
+        'contract_files' => 'array'
     ];
 
     public function company(): BelongsTo
