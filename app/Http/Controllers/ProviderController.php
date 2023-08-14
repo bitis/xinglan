@@ -131,12 +131,15 @@ class ProviderController extends Controller
 
                     return new CompanyProvider([
                         'company_id' => $currentCompany->id,
+                        'company_name' => $currentCompany->name,
                         'provider_id' => $providerCompany->id,
                         'provider_name' => $providerCompany->name,
                     ]);
                 });
 
             $provider->fill($providerParams);
+
+            if (!$provider->id) $provider->company_name = $currentCompany->name;
             $provider->save();
             DB::commit();
         } catch (\Exception $exception) {

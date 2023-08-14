@@ -12,6 +12,24 @@ class CompanyProvider extends Pivot
 
     protected $table = 'company_providers';
 
+    protected $fillable = [
+        'company_id',
+        'company_name',
+        'provider_id',
+        'provider_name',
+        'bank_name',
+        'bank_account_name',
+        'bank_account_number',
+        'license_no',
+        'license_image',
+        'expiration_date',
+        'car_insurance',
+        'other_insurance',
+        'introduce',
+        'remark',
+        'status',
+    ];
+
     protected $casts = [
         'license_image' => 'array'
     ];
