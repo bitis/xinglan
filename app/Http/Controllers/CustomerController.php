@@ -44,7 +44,7 @@ class CustomerController extends Controller
 
         if (empty($customer)) return fail('客户不存在');
 
-        if (!in_array($customer->id, Company::getGroupId($request->user()->company_id))) return fail('没有修改权限');
+        if (!in_array($customer->provider_id, Company::getGroupId($request->user()->company_id))) return fail('没有修改权限');
 
         $customer->fill($request->only([
             'company_name',
