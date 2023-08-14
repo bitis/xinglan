@@ -50,7 +50,7 @@ class CustomerController extends Controller
             'company_name',
             'status',
             'customer_remark',
-            'company_tax_name',
+            'customer_tax_name',
             'customer_number',
             'customer_remark',
             'customer_address',
