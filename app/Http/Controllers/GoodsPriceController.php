@@ -53,7 +53,7 @@ class GoodsPriceController extends Controller
             'status',
         ]));
 
-        if (!$goodsCat = GoodsPriceCat::where('name', $goods->name)->first()) return fail('分类不存在');
+        if (!$goodsCat = GoodsPriceCat::where('name', $goods->cat_name)->first()) return fail('分类不存在');
 
         $goods->cat_id = $goodsCat->id;
         $goods->cat_parent_id = $goodsCat->parent_id;
