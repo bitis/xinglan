@@ -62,6 +62,8 @@ class OrderRepairController extends Controller
         if ($plan->repair_status > OrderRepairPlan::REPAIR_STATUS_WAIT) {
             $plan->repair_status -= 1;
             $plan->save();
+            $order->repair_status = $plan->repair_status;
+            $order->save();
         } else {
             $plan->delete();
             $order->repair_status = Order::REPAIR_STATUS_WAIT;
