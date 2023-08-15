@@ -13,7 +13,7 @@ class StoryController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        History::when($request->input('name'), function ($query, $name) {
+        $story = History::when($request->input('name'), function ($query, $name) {
             $query->where('name', 'like', '%' . $name . '%');
         })->when($request->input('province'), function ($query, $province) {
             $query->where('province', $province);
@@ -23,6 +23,6 @@ class StoryController extends Controller
             $query->where('area', $area);
         })->orderBy('id', 'desc')->paginate(getPerPage());
 
-        return success();
+        return success($story);
     }
 }
