@@ -151,6 +151,10 @@ Route::middleware('auth')->group(function () {
         Route::post('import', 'GoodsPriceController@import');
     });
 
+    Route::prefix('history')->group(function () {
+        Route::get('list', 'StoryController@index');
+    });
+
     Route::prefix('bidOption')->group(function () {
         Route::get('list', 'BidOptionController@index');
         Route::post('form', 'BidOptionController@form');
