@@ -40,7 +40,9 @@ class GoodsPriceController extends Controller
      */
     public function form(Request $request): JsonResponse
     {
-        $goods = GoodsPrice::findOr($request->input('id'), fn() => new GoodsPrice($request->only([
+        $goods = GoodsPrice::findOr($request->input('id'), fn() => new GoodsPrice());
+
+        $goods->fill($request->only([
             'province',
             'cat_name',
             'product_name',
@@ -51,7 +53,7 @@ class GoodsPriceController extends Controller
             'describe_image',
             'remark',
             'status',
-        ])));
+        ]));
 
         if (!$goodsCat = GoodsPriceCat::where('name', $goods->cat_name)->first()) return fail('分类不存在');
 

@@ -10,8 +10,6 @@ class GoodsPrice extends Model
 {
     use HasFactory, DefaultDatetimeFormat;
 
-    public $timestamps = false;
-
     protected $fillable = [
         'id',
         'company_id',
