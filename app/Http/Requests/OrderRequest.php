@@ -30,7 +30,6 @@ class OrderRequest extends FormRequest
             'case_number' => [Rule::unique('orders')->ignore($this->input('id'))],
             'post_time' => 'date_format:Y-m-d H:i:s',
             'insurance_type' => [Rule::enum(InsuranceType::class)],
-            'license_plate' => [Rule::requiredIf($this->input('insurance_type') == InsuranceType::Car->value)],
             'close_status' => [Rule::enum(OrderCloseStatus::class)],
             'goods_types' => '',
             'images',
