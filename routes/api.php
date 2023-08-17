@@ -20,7 +20,7 @@ Route::prefix('appVersion')->group(function () {
    Route::post('form', 'AppVersionController@form')->middleware('auth');
 });
 
-Route::prefix('auth:sanctum')->group(function () {
+Route::prefix('auth')->group(function () {
     Route::post('login', 'AccountController@login');
     Route::post('register', 'AccountController@register');
     Route::post('logout', 'AccountController@logout')->middleware('auth');
