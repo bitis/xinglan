@@ -17,13 +17,13 @@ Route::get('verify/code', 'VerificationCodeController@get');
 
 Route::prefix('appVersion')->group(function () {
    Route::get('latest', 'AppVersionController@latest');
-   Route::post('form', 'AppVersionController@form')->middleware('auth');
+   Route::post('form', 'AppVersionController@form')->middleware('auth:sanctum');
 });
 
 Route::prefix('auth')->group(function () {
     Route::post('login', 'AccountController@login');
     Route::post('register', 'AccountController@register');
-    Route::post('logout', 'AccountController@logout')->middleware('auth');
+    Route::post('logout', 'AccountController@logout')->middleware('auth:sanctum');
     Route::post('reset-password', 'AccountController@resetPassword');
 });
 
