@@ -65,7 +65,7 @@ class AccountController extends Controller
         if ($user->status == Status::Disable->value) {
             return fail('账号已被禁用');
         }
-        $token = $user->createToken($request->header('platform'));
+        $token = $user->createToken($request->header('platform', '未命名'));
 
         $user->api_token = $token->plainTextToken;
 
