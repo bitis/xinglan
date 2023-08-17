@@ -48,8 +48,8 @@ class OrderQuotationController extends Controller
                 $join->on('orders.id', '=', 'quotation.order_id')->where('quotation.company_id', $company_id);
             })
             ->where(function ($query) use ($company_id) {
-                $query->where('bid_type', 1);
-//                ->orWhere('check_wusun_company_id', $company_id);
+                $query->where('bid_type', 1)
+                ->orWhere('check_wusun_company_id', $company_id);
             })
             ->when($request->input('status'), function ($query, $status) {
                 // 1 待报价 2 报价超时 3 未中标 4 已中标
