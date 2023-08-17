@@ -16,12 +16,19 @@ class Property extends Model
 
     protected $table = 'hjb_properties';
 
+    protected $fillable = [
+        "PropertyProvince",
+        "PropertyCity",
+        "PropertyDistrict",
+        "PropertyDetailAddress",
+    ];
+
     public function policyInfo(): BelongsTo
     {
         return $this->belongsTo(PolicyInfo::class, 'policy_info_id', 'id');
     }
 
-    public function CoverageList(): HasMany
+    public function coverageList(): HasMany
     {
         return $this->hasMany(Coverage::class, 'property_id', 'id');
     }

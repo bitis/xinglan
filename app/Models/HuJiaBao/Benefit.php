@@ -16,13 +16,15 @@ class Benefit extends Model
 
     protected $table = 'hjb_benefits';
 
+    protected $fillable = [
+        'IsFinalLevelCt',
+        'BenefitCode',
+        'SumInsured',
+        'SumPaymentAmt',
+    ];
+
     public function coverage(): BelongsTo
     {
         return $this->belongsTo(Coverage::class, 'coverage_id', 'id');
-    }
-
-    public function claimInfo(): HasOne
-    {
-        return $this->hasOne(ClaimInfo::class, 'benefit_id', 'id');
     }
 }

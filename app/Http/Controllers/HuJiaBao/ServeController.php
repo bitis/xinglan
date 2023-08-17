@@ -5,10 +5,13 @@ namespace App\Http\Controllers\HuJiaBao;
 use App\Common\HuJiaBao\ApiClient;
 use App\Common\HuJiaBao\Response;
 use App\Http\Controllers\Controller;
+use App\Models\HuJiaBao\ClaimInfo;
+use App\Models\HuJiaBao\PolicyInfo;
 use App\Models\HuJiaBao\TaskInfo;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class ServeController extends Controller
@@ -21,7 +24,98 @@ class ServeController extends Controller
      */
     public function receiveInvestigationTask(Request $request): JsonResponse
     {
-        $body = $request->input('data');
+        $PolicyInfoParams = $request->collect('PolicyInfo');
+
+        $policyInfo = PolicyInfo::create($PolicyInfoParams->only([
+            "PolicyNo",
+            "ProductType",
+            "EffectiveDate",
+            "ExpireDate",
+            "PolicyStatus",
+            "StandardPremium",
+        ])->toArray());
+
+        $PropertyParams = collect($PolicyInfoParams->get('Property'));
+
+        $propertyInfo = $policyInfo->property()->create($PropertyParams->only([
+            "PropertyProvince",
+            "PropertyCity",
+            "PropertyDistrict",
+            "PropertyDetailAddress",
+        ])->toArray());
+
+        foreach ($PropertyParams->get('CoverageList') as $item) {
+            $coverageInfo = $propertyInfo->coverageList()->create(Arr::only($item, [
+                "IsFinalLevelCt",
+                "CoverageCode",
+                "SumInsured",
+                "SumPaymentAmt",
+            ]));
+
+            $coverageInfo->benefitList()->createMany($item['BenefitList']);
+        }
+
+        $ClaimInfoParams = collect($request->collect('ClaimInfo'));
+
+        if ($ClaimInfoParams) {
+            $claimInfo = ClaimInfo::create($ClaimInfoParams->only([
+                'ClaimNo',
+                'AccidentTime',
+                'ReportTime',
+                'ReportDelayCause',
+                'AccidentCause',
+                'AccidentCauseDesc',
+                'IsCatastrophe',
+                'CatastropheCode',
+                'PropertyLossAmt',
+                'InjuryLossAmt',
+                'ReportType',
+                'ReportName',
+                'ReportTel',
+                'InsuredRelation',
+                'AccidentProvince',
+                'AccidentCity',
+                'AccidentDistrict',
+                'AccidentDetailAddress',
+                'AccidentDesc',
+            ])->toArray());
+
+            $SubClaimInfoParams = $ClaimInfoParams->get('SubClaimInfo');
+
+            if ($SubClaimInfoParams) {
+                $subClaimInfo = $claimInfo->subClaimInfo()->create(Arr::only($SubClaimInfoParams, [
+                    'SubClaim',
+                    'RiskName',
+                    'SubClaimType',
+                    'DamageObject',
+                    'DamageDesc',
+                    'Owner',
+                    'TotalLoss',
+                    'CertiType',
+                    'CertiNo',
+                    'Sex',
+                    'DateOfBirth',
+                    'Mobile',
+                    'InjuryName',
+                    'InjuryType',
+                    'InjuryLevel',
+                    'DisabilityGrade',
+                    'Treatment',
+                    'HospitalName',
+                    'DateOfAdmission',
+                    'DateOfDischarge',
+                    'DaysInHospital',
+                    'CareName',
+                    'CareDays',
+                    'ContactProvince',
+                    'ContactCity',
+                    'ContactDistrict',
+                    'ContactDetailAddress',
+                ]));
+
+                $subClaimInfo->taskInfo()->create($SubClaimInfoParams['TaskInfo']);
+            }
+        }
 
         return Response::success();
     }
@@ -51,7 +145,6 @@ class ServeController extends Controller
      */
     public function tasks(Request $request): JsonResponse
     {
-
         return success();
     }
 

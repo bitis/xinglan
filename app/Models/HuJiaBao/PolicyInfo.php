@@ -15,6 +15,14 @@ class PolicyInfo extends Model
 
     protected $table = 'hjb_policy_infos';
 
+    protected $fillable = [
+        "PolicyNo",
+        "ProductType",
+        "EffectiveDate",
+        "ExpireDate",
+        "PolicyStatus",
+        "StandardPremium"
+    ];
 
     public function property(): HasOne
     {

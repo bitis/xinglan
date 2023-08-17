@@ -16,6 +16,32 @@ class ClaimInfo extends Model
 
     protected $table = 'hjb_claim_infos';
 
+    protected $fillable = [
+        'ClaimNo',
+        'AccidentTime',
+        'ReportTime',
+        'ReportDelayCause',
+        'AccidentCause',
+        'AccidentCauseDesc',
+        'IsCatastrophe',
+        'CatastropheCode',
+        'PropertyLossAmt',
+        'InjuryLossAmt',
+        'ReportType',
+        'ReportName',
+        'ReportTel',
+        'InsuredRelation',
+        'AccidentProvince',
+        'AccidentCity',
+        'AccidentDistrict',
+        'AccidentDetailAddress',
+        'AccidentDesc',
+    ];
+
+    public function policyInfo(): BelongsTo
+    {
+        return $this->belongsTo(PolicyInfo::class, 'policy_info_id', 'id');
+    }
 
     public function subClaimInfo(): HasOne
     {

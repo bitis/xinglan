@@ -16,6 +16,18 @@ class TaskInfo extends Model
 
     protected $table = 'hjb_task_infos';
 
+    protected $fillable = [
+        'sub_claim_info_id',
+        'TaskType',
+        'TaskID',
+        'DueDate',
+        'InvestigationProvince',
+        'InvestigationCity',
+        'InvestigationDistrict',
+        'InvestigationDetailAddress',
+        'Remark',
+    ];
+
     public function subClaimInfo(): BelongsTo
     {
         return $this->belongsTo(SubClaimInfo::class, 'sub_claim_info_id', 'id');

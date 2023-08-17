@@ -71,6 +71,7 @@ class OrderService
                     case '查勘经理':
                     case 'admin':
                     case '公司管理员':
+                    case '造价员':
                         break;
                 }
             })

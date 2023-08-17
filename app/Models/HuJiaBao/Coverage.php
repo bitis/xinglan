@@ -16,6 +16,13 @@ class Coverage extends Model
 
     protected $table = 'hjb_coverages';
 
+    protected $fillable = [
+        'IsFinalLevelCt',
+        'CoverageCode',
+        'SumInsured',
+        'SumPaymentAmt'
+    ];
+
     public function property(): BelongsTo
     {
         return $this->belongsTo(Property::class, 'property_id', 'id');
