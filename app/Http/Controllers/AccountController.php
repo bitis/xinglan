@@ -29,7 +29,7 @@ class AccountController extends Controller
             'name', 'mobile'
         ]), [
             'account' => $request->input('mobile'),
-            'api_token' => Str::random(32),
+//            'api_token' => Str::random(32),
             'password' => bcrypt($request->input('password', config('default.password'))),
             'company_id' => $company_id
         ]));
@@ -37,6 +37,10 @@ class AccountController extends Controller
         $user->assignRole($company_id . '_查勘人员');
 
         $user->save();
+
+        $token = $user->createToken($request->header('platform'));
+
+        $user->api_token = $token->plainTextToken;
 
         return success($user);
     }
@@ -61,9 +65,9 @@ class AccountController extends Controller
         if ($user->status == Status::Disable->value) {
             return fail('账号已被禁用');
         }
+        $token = $user->createToken($request->header('platform'));
 
-        $user->api_token = Str::random(32);
-        $user->save();
+        $user->api_token = $token->plainTextToken;
 
         return success($user);
     }
@@ -77,10 +81,7 @@ class AccountController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
-        $user = $request->user();
-
-        $user->api_token = Str::random(32);
-        $user->save();
+        $request->user()->currentAccessToken()->delete();
 
         return success();
     }
