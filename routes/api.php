@@ -27,7 +27,7 @@ Route::prefix('auth:sanctum')->group(function () {
     Route::post('reset-password', 'AccountController@resetPassword');
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth')->group(function () {
 
     Route::post('upload', 'UploadController@form');
 
