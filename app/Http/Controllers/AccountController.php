@@ -38,7 +38,7 @@ class AccountController extends Controller
 
         $user->save();
 
-        $token = $user->createToken($request->header('platform'));
+        $token = $user->createToken($request->header('platform', '未命名'));
 
         $user->api_token = $token->plainTextToken;
 
