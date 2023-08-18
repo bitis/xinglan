@@ -207,8 +207,10 @@ class OrderController extends Controller
                     'check_wusun_company_name' => $company->name,
                     'wusun_company_id' => $company->id,
                     'wusun_company_name' => $company->name,
+                    'confim_wusun_at' => now()->toDateTimeString(),
                     'dispatch_check_wusun_at' => now()->toDateTimeString(),
                     'dispatched' => true,
+                    'bid_type' => Order::BID_TYPE_FENPAI,
                     'bid_end_time' => now()->toDateTimeString(),
                     'bid_status' => Order::BID_STATUS_FINISHED
                 ]);
