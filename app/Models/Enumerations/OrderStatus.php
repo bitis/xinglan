@@ -58,6 +58,7 @@ enum OrderStatus: int
             OrderStatus::WaitQuote => $query
                 ->leftJoin('order_quotations', 'order_quotations.order_id', '=', 'orders.id')
                 ->where('close_status', '<>', OrderCloseStatus::Closed->value)
+                ->where('orders.plan_type', Order::PLAN_TYPE_REPAIR)
                 ->where(function ($query) {
                     $query->whereNotNull('plan_confirm_at')->where(function ($query) {
                         $query->where('order_quotations.check_status', '<>', CheckStatus::Accept->value)
@@ -68,12 +69,13 @@ enum OrderStatus: int
                 ->leftJoin('order_quotations', 'order_quotations.order_id', '=', 'orders.id')
                 ->where('close_status', '<>', OrderCloseStatus::Closed->value)
                 ->where('order_quotations.check_status', CheckStatus::Accept->value)
+                ->where('orders.plan_type', Order::PLAN_TYPE_REPAIR)
                 ->where('confirm_price_status','<>', Order::CONFIRM_PRICE_STATUS_FINISHED),
             OrderStatus::WaitRepair => $query
                 ->where('close_status', '<>', OrderCloseStatus::Closed->value)
                 ->where('confirm_price_status', Order::CONFIRM_PRICE_STATUS_FINISHED)
                 ->where('repair_status', Order::REPAIR_STATUS_WAIT)
-                ->where('plan_type', Order::PLAN_TYPE_REPAIR),
+                ->where('orders.plan_type', Order::PLAN_TYPE_REPAIR),
             OrderStatus::Repairing => $query
                 ->where('close_status', '<>', OrderCloseStatus::Closed->value)
                 ->where('repair_status', Order::REPAIR_STATUS_REPAIRING),
@@ -82,7 +84,7 @@ enum OrderStatus: int
                 ->where('repair_status', Order::REPAIR_STATUS_FINISHED),
             OrderStatus::Closed => $query->where('close_status', OrderCloseStatus::Closed->value),
             OrderStatus::Mediate => $query->where('close_status', '<>', OrderCloseStatus::Closed->value)
-                ->where('plan_type', Order::PLAN_TYPE_MEDIATE),
+                ->where('orders.plan_type', Order::PLAN_TYPE_MEDIATE),
         };
     }
 }
