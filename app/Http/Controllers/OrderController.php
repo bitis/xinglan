@@ -27,6 +27,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Vtiful\Kernel\Excel;
 
 class OrderController extends Controller
 {
@@ -75,6 +77,40 @@ class OrderController extends Controller
             ->paginate(getPerPage());
 
         return success($orders);
+    }
+
+
+    /**
+     * 导出 Excel
+     *
+     * @param Request $request
+     * @return BinaryFileResponse|JsonResponse
+     */
+    public function export(Request $request): BinaryFileResponse|JsonResponse
+    {
+        if ($request->user()->hasRole('admin')) return success('超级管理员无法查看');
+
+        $orders = OrderService::list($request->user(), $request->collect(), ['company:id,name'])
+            ->selectRaw('orders.*')
+            ->orderBy('orders.id', 'desc')
+            ->get();
+
+        $excel = new Excel(['path' => sys_get_temp_dir()]);
+
+        $excel->fileName('工单导出_' . date('YmdHi') . '.xlsx', 'sheet1')
+            ->header([
+                '订单来源', '工单号', '所属公司', '出险日期', '报案号', '车牌号', '客户名称', '保险查勘员', '保险查勘员电话',
+                '物损地点', '省', '市', '区', '工单状态', '结案状态', '车险险种', '结案时间', '物损查勘员', '物损查勘员电话',
+                '物损项目', '物损任务名称', '谈判经过', '物损备注', '受损方姓名', '受损方电话', '修复单位', '修复单位编码',
+                '施工人员', '施工开始时间', '施工结束时间', '施工备注', '施工成本', '已付成本金额', '成本审核人', '成本审核时间',
+                '物损方要价合计', '对外报价金额', '核价（定损）金额', '减损金额', '已收款金额', '已收款明细', '其他成本', '预估成本合计',
+                '报销金额合计', '报销金额明细', '已付款金额合计（含报销金额）', '已开票金额', '税金合计', '毛利率', '实际毛利额',
+                '对账内勤', '险种', '保单号', '车架号', '被保险人', '被保险电话', '驾驶人', '驾驶人电话', '服务评分', '服务评价'
+            ])
+            ->data($orders)
+            ->output();
+
+        return response()->file('', ['Content-Type' => 'application/vnd.ms-excel']);
     }
 
     /**

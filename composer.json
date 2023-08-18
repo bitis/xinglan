@@ -21,7 +21,8 @@
     "overtrue/easy-sms": "^2.4",
     "overtrue/flysystem-cos": "^5.1",
     "phpoffice/phpspreadsheet": "^1.29",
-    "wilon/php-number2chinese": "^1.0"
+    "wilon/php-number2chinese": "^1.0",
+    "ext-xlswriter": "*"
   },
   "require-dev": {
     "fakerphp/faker": "^1.9.1",

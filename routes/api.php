@@ -122,6 +122,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('confirmPlan', 'OrderController@confirmPlan'); // 物损确认方案
         Route::post('close', 'OrderController@close'); // 关闭
         Route::get('logs', 'OrderController@logs'); // 变更日志
+        Route::get('export', 'OrderController@export'); // 导出 Excel
+
 
         Route::prefix('repair')->group(function () {
             Route::post('form', 'OrderRepairController@form');
