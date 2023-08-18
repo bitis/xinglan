@@ -206,6 +206,17 @@ class OrderQuotationController extends Controller
                     $order->save();
                 }
 
+                /**
+                 * 物损创建的工单
+                 */
+                if ($quotation->company_id == $order->creator_company_id) {
+                    $order->bid_type = Order::BID_TYPE_FENPAI;
+                    $order->bid_status = Order::BID_STATUS_FINISHED;
+                    $order->bid_end_time = now()->toDateTimeString();
+                    $order->confim_wusun_at = now()->toDateTimeString();
+                    $quotation->win = 1;
+                    $quotation->bid_end_time = now()->toDateTimeString();
+                }
             }
 
             if ($quotation->submit) {
