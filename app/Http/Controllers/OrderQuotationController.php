@@ -173,6 +173,7 @@ class OrderQuotationController extends Controller
                     ) {
                         $order->bid_type = Order::BID_TYPE_FENPAI;
                         $order->bid_status = Order::BID_STATUS_FINISHED;
+                        $order->bid_end_time = now()->toDateTimeString();
                         $order->wusun_company_id = $quotation->company_id;
                         $order->wusun_company_name = $quotation->company->name;
                         $order->confim_wusun_at = now()->toDateTimeString();
