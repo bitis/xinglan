@@ -75,5 +75,5 @@ class User extends Authenticatable
         });
     }
 
-    protected function getDefaultGuardName(): string { return 'sanctum'; }
+    protected function getDefaultGuardName(): string { return 'api'; }
 }
