@@ -177,6 +177,8 @@ class OrderQuotationController extends Controller
                         $order->wusun_company_name = $quotation->company->name;
                         $order->confim_wusun_at = now()->toDateTimeString();
                         $order->wusun_company_id = $quotation->company_id;
+                        $quotation->win = 1;
+                        $quotation->bid_end_time = now()->toDateTimeString();
                     } else {
                         $now = date('His');
 
