@@ -210,6 +210,9 @@ class OrderController extends Controller
                     'confim_wusun_at' => now()->toDateTimeString(),
                     'dispatch_check_wusun_at' => now()->toDateTimeString(),
                     'dispatched' => true,
+                    'bid_type' => Order::BID_TYPE_FENPAI,
+                    'bid_status' => Order::BID_STATUS_FINISHED,
+                    'bid_end_time' => now()->toDateTimeString(),
                 ]);
 
                 CheckMessageJob::dispatch($order);
