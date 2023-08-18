@@ -214,6 +214,7 @@ class OrderQuotationController extends Controller
                     $order->bid_status = Order::BID_STATUS_FINISHED;
                     $order->bid_end_time = now()->toDateTimeString();
                     $order->confim_wusun_at = now()->toDateTimeString();
+                    $order->save();
                     $quotation->win = 1;
                     $quotation->bid_end_time = now()->toDateTimeString();
                 }
