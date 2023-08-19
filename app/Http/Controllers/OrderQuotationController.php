@@ -49,7 +49,7 @@ class OrderQuotationController extends Controller
             })
             ->where(function ($query) use ($company_id) {
                 $query->where('bid_type', 1)
-                ->orWhere('check_wusun_company_id', $company_id);
+                    ->orWhere('check_wusun_company_id', $company_id);
             })
             ->when($request->input('status'), function ($query, $status) {
                 // 1 待报价 2 报价超时 3 未中标 4 已中标
@@ -221,8 +221,9 @@ class OrderQuotationController extends Controller
             if ($quotation->win && $quotation->submit) {
                 $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalQuotation->value);
 
-                ApprovalOrder::where('order_id', $order->id)->where('company_id', $quotation->company_id)->delete();
-                ApprovalOrderProcess::where('order_id', $order->id)->where('company_id', $quotation->company_id)->delete();
+                $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
+                ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
+                $approvalOrder->delete();
 
                 $approvalOrder = ApprovalOrder::create([
                     'order_id' => $order->id,

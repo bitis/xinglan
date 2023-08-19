@@ -182,8 +182,9 @@ class ProviderQuotationController extends Controller
 
             $approvers = $option->approver;
 
-            ApprovalOrder::where('order_id', $order->id)->where('company_id', $order->insurance_company_id)->delete();
-            ApprovalOrderProcess::where('order_id', $order->id)->where('company_id', $order->insurance_company_id)->delete();
+            $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
+            ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
+            $approvalOrder->delete();
 
             $approvalOrder = ApprovalOrder::create([
                 'order_id' => $order->id,
