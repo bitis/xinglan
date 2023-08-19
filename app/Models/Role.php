@@ -12,4 +12,5 @@ class Role extends \Spatie\Permission\Models\Role
 
     protected $fillable = ['name', 'guard_name', 'company_id', 'show_name', 'remark', 'status'];
 
+    protected $guard_name = 'api';
 }
