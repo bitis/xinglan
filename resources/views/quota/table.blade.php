@@ -96,7 +96,7 @@
                 class="table_value">{{$quotation->order->province.$quotation->order->city.$quotation->order->area.$quotation->order->address }}</td>
             <td colspan="1" class="table_label">联系人及电话</td>
             <td colspan="3"
-                class="table_value">{{ $quotation->order->owner_name }} {{ $quotation->order->owner_phone }}</td>
+                class="table_value">{{ $creator->name }} {{ $creator->mobile }}</td>
         </tr>
     </table>
     <table class="table_box" style="width: 100%; text-align: center">

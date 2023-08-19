@@ -4,8 +4,8 @@ namespace App\Jobs;
 
 use App\Models\Company;
 use App\Models\OrderQuotation;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -35,7 +35,11 @@ class QuotaBillPdfJob implements ShouldQueue
 
         $tempFile = sys_get_temp_dir() . '/' . Str::random() . '.pdf';
 
-        App::make('snappy.pdf.wrapper')->loadHTML(view('quota.table', ['quotation' => $quotation])->render())->save($tempFile);
+        App::make('snappy.pdf.wrapper')
+            ->loadHTML(view('quota.table', [
+                'creator' => User::find($quotation->creator_id),
+                'quotation' => $quotation,
+            ])->render())->save($tempFile);
 
         $fileContent = file_get_contents($tempFile);
 
