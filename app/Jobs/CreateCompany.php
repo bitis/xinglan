@@ -37,7 +37,7 @@ class CreateCompany implements ShouldQueue
         foreach ($defaultRoles as $defaultRole) {
             $role = $company->roles()->create([
                 'name' => $company->id . '_' . $defaultRole,
-                'guard_name' => 'sanctum',
+                'guard_name' => 'api',
                 'show_name' => $defaultRole
             ]);
 
