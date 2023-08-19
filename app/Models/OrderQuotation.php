@@ -30,6 +30,7 @@ class OrderQuotation extends Model
         'total_price',
         'images',
         'submit',
+        'submit_at',
         'security_code',
         'pdf',
         'win',

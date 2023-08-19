@@ -208,6 +208,7 @@ class OrderQuotationController extends Controller
             }
 
             if ($quotation->submit) {
+                $quotation->submit_at = now()->toDateTimeString();
                 $quotation->check_status = CheckStatus::Wait->value;
                 $quotation->pdf = '';
             }
@@ -219,6 +220,10 @@ class OrderQuotationController extends Controller
             $quotation->items()->createMany($request->input('items', []));
 
             if ($quotation->win && $quotation->submit) {
+
+                if ($quotation->submit_at && $quotation->check_status == CheckStatus::Wait->value)
+                    throw new Exception('审核中，请耐心等待审核');
+
                 $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalQuotation->value);
 
                 $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
