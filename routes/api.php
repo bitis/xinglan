@@ -16,8 +16,8 @@ Route::get('area', 'AreaController@index');
 Route::get('verify/code', 'VerificationCodeController@get');
 
 Route::prefix('appVersion')->group(function () {
-   Route::get('latest', 'AppVersionController@latest');
-   Route::post('form', 'AppVersionController@form')->middleware('auth:sanctum');
+    Route::get('latest', 'AppVersionController@latest');
+    Route::post('form', 'AppVersionController@form')->middleware('auth:sanctum');
 });
 
 Route::prefix('auth')->group(function () {
@@ -175,6 +175,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('list', 'ApprovalController@index');
         Route::get('detail', 'ApprovalController@detail');
         Route::post('form', 'ApprovalController@form');
+    });
+
+    Route::prefix('bankAccount')->group(function () {
+        Route::get('list', 'BankAccountController@index');
+        Route::post('form', 'BankAccountController@form');
     });
 });
 
