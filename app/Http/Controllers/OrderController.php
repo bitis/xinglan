@@ -435,8 +435,10 @@ class OrderController extends Controller
             $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalClose->value);
 
             $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
-            ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
-            $approvalOrder->delete();
+            if ($approvalOrder) {
+                ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
+                $approvalOrder->delete();
+            }
 
             $approvalOrder = ApprovalOrder::create([
                 'order_id' => $order->id,
