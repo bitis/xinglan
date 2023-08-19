@@ -421,7 +421,7 @@ class OrderController extends Controller
 
         if ($order->close_status == OrderCloseStatus::Closed->value) return fail('该工单已经结案');
 
-        if ($order->close_status == OrderCloseStatus::Closed->value) return fail('该工单已经结案');
+        if ($order->close_status == OrderCloseStatus::Check->value) return fail('该工单已提交结案，审批中');
 
         $user = $request->user();
         try {
