@@ -29,7 +29,7 @@ enum ApprovalType : int
             ApprovalType::ApprovalRepaired => '已修复资料审核',
             ApprovalType::ApprovalPayment => '付款审核',
             ApprovalType::ApprovalExpense => '业务报销审核',
-            ApprovalType::ApprovalClose => '接案审核',
+            ApprovalType::ApprovalClose => '结案审核',
         };
     }
 }
