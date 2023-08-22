@@ -135,6 +135,11 @@ class OrderQuotationController extends Controller
             'modify_quotation_remark'
         ]));
 
+        if (
+            $quotation->bid_created_at and
+            ($quotation->isDirty('bid_repair_days') or $quotation->isDirty('bid_total_price'))
+        ) return success('报价信息不允许修改');
+
         try {
             DB::beginTransaction();
 
@@ -143,7 +148,7 @@ class OrderQuotationController extends Controller
                 $quotation->bid_repair_days = $quotation->getOriginal('bid_repair_days');
             }
 
-            if ($quotation->isDirty('bid_total_price')) {
+            if ($quotation->isDirty('bid_total_price') or $quotation->isDirty('bid_repair_days')) {
                 $quotation->bid_created_at = now()->toDateTimeString();
 
                 // 对外报价
