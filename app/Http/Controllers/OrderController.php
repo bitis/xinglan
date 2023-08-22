@@ -403,8 +403,7 @@ class OrderController extends Controller
      */
     public function quotations(Request $request): JsonResponse
     {
-        $quotations = OrderQuotation::where('order_id', $request->input('order_id'))
-            ->where('check_status', CheckStatus::Accept->value)->get();
+        $quotations = OrderQuotation::where('order_id', $request->input('order_id'))->get();
 
         return success($quotations);
     }
