@@ -13,7 +13,6 @@ use App\Models\CompanyProvider;
 use App\Models\Enumerations\ApprovalMode;
 use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\ApprovalType;
-use App\Models\Enumerations\CheckStatus;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\MessageType;
 use App\Models\Enumerations\OrderCloseStatus;
@@ -22,6 +21,7 @@ use App\Models\Message;
 use App\Models\Order;
 use App\Models\OrderLog;
 use App\Models\OrderQuotation;
+use App\Models\User;
 use App\Services\OrderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -347,6 +347,18 @@ class OrderController extends Controller
                 'status' => 0,
             ]);
             $message->save();
+
+            OrderLog::create([
+                'order_id' => $order->id,
+                'type' => OrderLog::TYPE_DISPATCH_CHECK_USER,
+                'creator_id' => $user->id,
+                'creator_name' => $user->name,
+                'creator_company_id' => $company->id,
+                'creator_company_name' => $company->name,
+                'remark' => $order->remark,
+                'content' => '派遣查勘人员：' . User::find($params['wusun_check_id'])?->name,
+                'platform' => $request->header('platform'),
+            ]);
             DB::commit();
         } catch (\Throwable $exception) {
             DB::rollBack();
@@ -363,6 +375,9 @@ class OrderController extends Controller
      */
     public function check(Request $request): JsonResponse
     {
+
+        $user = $request->user();
+        $company = $user->company;
         $order = Order::find($request->input('order_id'));
 
         if (empty($order) or $order->wusun_check_id != $request->user()->id) return fail('工单不存在或不属于当前账号');
@@ -372,6 +387,18 @@ class OrderController extends Controller
         $order->wusun_check_status = Order::WUSUN_CHECK_STATUS_FINISHED;
         $order->wusun_checked_at = now()->toDateTimeString();
         $order->save();
+
+        OrderLog::create([
+            'order_id' => $order->id,
+            'type' => OrderLog::TYPE_DISPATCHED,
+            'creator_id' => $user->id,
+            'creator_name' => $user->name,
+            'creator_company_id' => $company->id,
+            'creator_company_name' => $company->name,
+            'remark' => $order->remark,
+            'content' => $user->name . '完成查勘',
+            'platform' => $request->header('platform'),
+        ]);
 
         return success();
     }
@@ -384,6 +411,9 @@ class OrderController extends Controller
      */
     public function confirmPlan(Request $request): JsonResponse
     {
+        $user = $request->user();
+        $company = $user->company;
+
         $order = Order::find($request->input('order_id'));
         if (empty($order) or $order->wusun_check_id != $request->user()->id) return fail('工单不存在或不属于当前账号');
 
@@ -391,6 +421,18 @@ class OrderController extends Controller
         $order->plan_confirm_at = now()->toDateTimeString();
 
         $order->save();
+
+        OrderLog::create([
+            'order_id' => $order->id,
+            'type' => OrderLog::TYPE_DISPATCHED,
+            'creator_id' => $user->id,
+            'creator_name' => $user->name,
+            'creator_company_id' => $company->id,
+            'creator_company_name' => $company->name,
+            'remark' => $order->remark,
+            'content' => $user->name . '确认维修方案',
+            'platform' => $request->header('platform'),
+        ]);
 
         return success($order);
     }
@@ -416,13 +458,14 @@ class OrderController extends Controller
      */
     public function close(Request $request): JsonResponse
     {
+        $user = $request->user();
+        $company = $user->company;
         $order = Order::find($request->input('order_id'));
 
         if ($order->close_status == OrderCloseStatus::Closed->value) return fail('该工单已经结案');
 
         if ($order->close_status == OrderCloseStatus::Check->value) return fail('该工单已提交结案，审批中');
 
-        $user = $request->user();
         try {
             DB::beginTransaction();
             $order->guarantee_period = $request->input('guarantee_period');
@@ -482,6 +525,18 @@ class OrderController extends Controller
 
             $approvalOrder->process()->delete();
             if ($insert) $approvalOrder->process()->createMany($insert);
+
+            OrderLog::create([
+                'order_id' => $order->id,
+                'type' => OrderLog::TYPE_DISPATCHED,
+                'creator_id' => $user->id,
+                'creator_name' => $user->name,
+                'creator_company_id' => $company->id,
+                'creator_company_name' => $company->name,
+                'remark' => $order->remark,
+                'content' => $user->name . '提交结案申请',
+                'platform' => $request->header('platform'),
+            ]);
 
             DB::commit();
         } catch (\Exception $exception) {

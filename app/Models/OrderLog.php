@@ -24,6 +24,8 @@ class OrderLog extends Model
 
     const TYPE_NEW_ORDER = 1; // 创建工单
     const TYPE_DISPATCH_CHECK = 2; // 分配查勘
+    const TYPE_DISPATCH_CHECK_USER = 2; // 分配查勘
+    const TYPE_DISPATCHED = 7; // 完成查勘
 
     const TYPE_QUOTATION = 3; // 报价
     const TYPE_SUBMIT_QUOTATION = 4; // 提交报价审核
