@@ -293,19 +293,6 @@ class ApprovalController extends Controller
         $quotation->submit = $accept ? 1 : 0;
         $quotation->save();
 
-        // 对外报价
-        OrderLog::create([
-            'order_id' => $order->id,
-            'type' => OrderLog::TYPE_QUOTATION,
-            'creator_id' => $quotation->creator_id,
-            'creator_name' => $quotation->creator_name,
-            'creator_company_id' => $quotation->company_id,
-            'creator_company_name' => $quotation->company_name,
-            'content' => $quotation->creator_name . '对外报价，报价金额为' . $quotation->total_price . '预计施工工期：'
-                . $quotation->repair_days . '天；备注：' . $quotation->quotation_remark,
-            'platform' => \request()->header('platform'),
-        ]);
-
         if (!$accept) return;
 
         // 生成报价单
