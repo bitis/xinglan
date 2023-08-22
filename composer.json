@@ -10,10 +10,12 @@
   "require": {
     "php": "^8.1",
     "ext-fileinfo": "*",
+    "ext-xlswriter": "*",
     "alphasnow/aliyun-oss-flysystem": "^3.3",
     "barryvdh/laravel-snappy": "^1.0",
     "chillerlan/php-qrcode": "dev-main",
     "guzzlehttp/guzzle": "^7.2",
+    "jpush/jpush": "^3.6",
     "laravel/framework": "^10.10",
     "laravel/sanctum": "^3.2",
     "laravel/telescope": "^4.15",
@@ -21,8 +23,7 @@
     "overtrue/easy-sms": "^2.4",
     "overtrue/flysystem-cos": "^5.1",
     "phpoffice/phpspreadsheet": "^1.29",
-    "wilon/php-number2chinese": "^1.0",
-    "ext-xlswriter": "*"
+    "wilon/php-number2chinese": "^1.0"
   },
   "require-dev": {
     "fakerphp/faker": "^1.9.1",

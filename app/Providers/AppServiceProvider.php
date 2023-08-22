@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
+use JPush\Client as JPushClient;
 use League\Flysystem\Filesystem;
 use Overtrue\EasySms\EasySms;
 use Overtrue\Flysystem\Cos\CosAdapter;
@@ -57,6 +58,16 @@ class AppServiceProvider extends ServiceProvider
             $adapter = new CosAdapter($config);
             $flysystem = new Filesystem($adapter);
             return new FilesystemAdapter($flysystem, $adapter, $config);
+        });
+
+        $this->app->singleton(JPushClient::class, function ($app) {
+            $options = [
+                $app->config->get('jipush.key'),
+                $app->config->get('jipush.secret'),
+                $app->config->get('jipush.log'),
+            ];
+
+            return new JPushClient(...$options);
         });
 
     }

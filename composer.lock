@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "934c04878a754c6791762d9b53dae4aa",
+    "content-hash": "f9ad23b070037712869439c565f4ab3c",
     "packages": [
         {
             "name": "aliyuncs/oss-sdk-php",
@@ -1372,6 +1372,53 @@
                 }
             ],
             "time": "2021-10-07T12:57:01+00:00"
+        },
+        {
+            "name": "jpush/jpush",
+            "version": "v3.6.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jpush/jpush-api-php-client.git",
+                "reference": "ebb191e8854a35c3fb7a6626028b3a23132cbe2c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jpush/jpush-api-php-client/zipball/ebb191e8854a35c3fb7a6626028b3a23132cbe2c",
+                "reference": "ebb191e8854a35c3fb7a6626028b3a23132cbe2c",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "JPush\\": "src/JPush/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "JPush",
+                    "email": "support@jpush.cn",
+                    "homepage": "https://www.jpush.cn/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "JPush API PHP Client",
+            "homepage": "https://github.com/jpush/jpush-api-php-client",
+            "support": {
+                "issues": "https://github.com/jpush/jpush-api-php-client/issues",
+                "source": "https://github.com/jpush/jpush-api-php-client/tree/v3.6.8"
+            },
+            "time": "2021-08-12T07:43:39+00:00"
         },
         {
             "name": "knplabs/knp-snappy",
@@ -9226,7 +9273,8 @@
     "prefer-lowest": false,
     "platform": {
         "php": "^8.1",
-        "ext-fileinfo": "*"
+        "ext-fileinfo": "*",
+        "ext-xlswriter": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "2.3.0"
