@@ -207,12 +207,6 @@ class OrderQuotationController extends Controller
                 }
             }
 
-            if ($quotation->submit) {
-                $quotation->submit_at = now()->toDateTimeString();
-                $quotation->check_status = CheckStatus::Wait->value;
-                $quotation->pdf = '';
-            }
-
             $quotation->save();
 
             $quotation->items()->delete();
@@ -221,8 +215,12 @@ class OrderQuotationController extends Controller
 
             if ($quotation->win && $quotation->submit) {
 
-                // if ($quotation->submit_at && $quotation->check_status == CheckStatus::Wait->value)
-                //     throw new Exception('审核中，请耐心等待审核');
+                if ($quotation->submit_at && $quotation->check_status == CheckStatus::Wait->value)
+                    throw new Exception('报价单审核中，请耐心等待审核');
+
+                $quotation->submit_at = now()->toDateTimeString();
+                $quotation->check_status = CheckStatus::Wait->value;
+                $quotation->pdf = '';
 
                 $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalQuotation->value);
 
