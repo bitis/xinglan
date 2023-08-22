@@ -7,7 +7,6 @@ use App\Jobs\CreateCompany;
 use App\Models\Company;
 use App\Models\Enumerations\CompanyLevel;
 use App\Models\Enumerations\Status;
-use App\Models\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -42,17 +41,26 @@ class CompanyController extends Controller
 
     public function tree(Request $request): JsonResponse
     {
-        $company = $request->user()->company;
+        $user = $request->user();
 
-        $top_id = $company->top_id ?: $company->id;
 
-        $company = Company::with(['children:id,name,parent_id', 'children.children:id,name,parent_id'])
-            ->where('top_id', $top_id)
-            ->where('parent_id', 0)
-            ->select(['id', 'name', 'parent_id'])
-            ->get();
+        if ($user->hasRole('admin')) {
+            $companies = Company::with(['children:id,name,parent_id', 'children.children:id,name,parent_id'])
+                ->select(['id', 'name', 'parent_id'])
+                ->get();
+        } else {
+            $company = $user->company;
 
-        return success($company);
+            $top_id = $company->top_id ?: $company->id;
+
+            $companies = Company::with(['children:id,name,parent_id', 'children.children:id,name,parent_id'])
+                ->where('top_id', $top_id)
+                ->where('parent_id', 0)
+                ->select(['id', 'name', 'parent_id'])
+                ->get();
+        }
+
+        return success($companies);
     }
 
     public function form(CompanyRequest $request): JsonResponse
@@ -162,8 +170,8 @@ class CompanyController extends Controller
     public function items(Request $request): JsonResponse
     {
         $companies = Company::when($request->input('name'), function ($query, $name) {
-                $query->where('name', 'like', "%$name%");
-            })
+            $query->where('name', 'like', "%$name%");
+        })
             ->when($request->input('type'), function ($query, $type) {
                 $query->where('type', $type);
             })
