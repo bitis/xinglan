@@ -170,6 +170,8 @@ class OrderController extends Controller
             'order_number' => Order::genOrderNumber()
         ]));
 
+        if ($order->close_status == OrderCloseStatus::Closed->value) return fail('工单已关闭');
+
         $is_create = empty($order->id);
 
         $order->fill(Arr::whereNotNull($orderParams));
