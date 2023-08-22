@@ -199,6 +199,8 @@ class ApprovalController extends Controller
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
+
+            if (!app()->environment('prod')) throw $exception;
             return fail($exception->getMessage());
         }
 
@@ -357,7 +359,7 @@ class ApprovalController extends Controller
         $order = $approvalOrder->order;
 
         $order->close_status = $accept ? OrderCloseStatus::Closed->value : OrderCloseStatus::Wait->value;
-        $order->submit_at = $accept ? $order->submit_at : null;
+        $order->close_at = $accept ? now()->toDateTimeString() : null;
         $order->save();
 
         // Message

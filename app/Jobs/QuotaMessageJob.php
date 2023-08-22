@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Log;
 use Overtrue\EasySms\EasySms;
 use Overtrue\EasySms\Exceptions\NoGatewayAvailableException;
 
+/**
+ * 报价通知短信
+ */
 class QuotaMessageJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
