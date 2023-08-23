@@ -68,6 +68,8 @@ class OrderService
                                 ->orWhere('wusun_repair_user_id', '=', $user->id);
                         });
                         break;
+                    case '财务经理':
+                    case '财务人员':
                     case '查勘经理':
                     case 'admin':
                     case '公司管理员':
