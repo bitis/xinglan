@@ -41,6 +41,9 @@ class OrderRepairPlan extends Model
     const REPAIR_STATUS_START = 1;
     const REPAIR_STATUS_DONE = 2;
 
+    const TYPE_SELF_REPAIR = 1;
+    const TYPE_THIRD_REPAIR = 2;
+
     protected $casts = [
         'cost_tables' => 'array',
         'before_repair_images' => 'array',

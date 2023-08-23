@@ -14,10 +14,12 @@ use App\Models\Enumerations\ApprovalType;
 use App\Models\Enumerations\CheckStatus;
 use App\Models\Enumerations\MessageType;
 use App\Models\Enumerations\OrderCloseStatus;
+use App\Models\FinancialOrder;
 use App\Models\Message;
 use App\Models\Order;
 use App\Models\OrderLog;
 use App\Models\OrderQuotation;
+use App\Models\OrderRepairPlan;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -140,13 +142,12 @@ class ApprovalController extends Controller
                 'platform' => \request()->header('platform'),
             ]);
 
-            $this->complete($approvalOrder, $accept);
-
             if (!$accept) {
                 foreach ($surplus as $cancel) {
                     $cancel->approval_status = ApprovalStatus::Canceled;
                     $cancel->save();
                 }
+                $this->complete($approvalOrder, false);
                 DB::commit();
                 return success();
             }
@@ -180,7 +181,6 @@ class ApprovalController extends Controller
             }
 
             if ($process->step == Approver::STEP_REVIEWER) {
-
                 if ($reviewers) {
                     if ($process->mode == ApprovalMode::QUEUE->value) {
                         $reviewers[0]->hidden = false;
@@ -311,6 +311,68 @@ class ApprovalController extends Controller
     protected function approvalAssessment(ApprovalOrder $approvalOrder, $accept): void
     {
         $order = $approvalOrder->order;
+
+        /**
+         * 应收
+         */
+        $order->receivable_count = $order->confirmed_price;
+
+        FinancialOrder::create([
+            'type' => FinancialOrder::TYPE_RECEIPT,
+            'company_id' => $order->wusun_company_id,
+            'company_name' => $order->wusun_company_name,
+            'insurance_company_id' => $order->insurance_company_id,
+            'insurance_company_name' => $order->insurance_company_name,
+            'case_number' => $order->case_number,
+            'province' => $order->province,
+            'city' => $order->city,
+            'area' => $order->area,
+            'address' => $order->address,
+            'post_time' => $order->post_time,
+            'license_plate' => $order->license_plate,
+            'vin' => $order->vin,
+            'insurance_check_phone' => $order->insurance_check_phone,
+            'insurance_check_name' => $order->insurance_check_name,
+            'wusun_check_id' => $order->wusun_check_id,
+            'wusun_check_name' => $order->wusun_check_name,
+            'order_number' => $order->order_number,
+            'order_id' => $order->id,
+            'opposite_company_id' => $order->insurance_company_id,
+            'opposite_company_name' => Company::find($order->insurance_company_id)?->name,
+            'total_amount' => $order->confirmed_price,
+        ]);
+
+        /**
+         * 应付（外协修付）
+         */
+        $repair_plan = $order->repair_plan;
+        if ($repair_plan) {
+            if ($repair_plan->repair_type = OrderRepairPlan::TYPE_THIRD_REPAIR) {
+                FinancialOrder::create([
+                    'type' => FinancialOrder::TYPE_PAYMENT,
+                    'company_id' => $order->wusun_company_id,
+                    'order_id' => $order->id,
+                    'opposite_company_id' => $repair_plan->repair_company_id,
+                    'opposite_company_name' => $repair_plan->repair_company_name,
+                    'total_amount' => $repair_plan->repair_cost,
+                ]);
+            }
+
+            foreach ($repair_plan->tasks as $task) {
+                FinancialOrder::create([
+                    'type' => FinancialOrder::TYPE_PAYMENT,
+                    'company_id' => $order->wusun_company_id,
+                    'order_id' => $order->id,
+                    'opposite_company_id' => $task->repair_company_id,
+                    'opposite_company_name' => $task->repair_company_name,
+                    'total_amount' => $task->repair_cost,
+                ]);
+            }
+        }
+
+        /**
+         * 报销 TODO
+         */
 
         $order->confirm_price_status = $accept ? Order::CONFIRM_PRICE_STATUS_FINISHED : Order::CONFIRM_PRICE_STATUS_WAIT;
         $order->confirmed_at = now()->toDateTimeString();

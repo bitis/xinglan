@@ -64,7 +64,7 @@ class OrderRepairDispatchController extends Controller
             $plan->tasks()->createMany($request->input('tasks'));
         }
 
-        if ($plan->repair_type == 1) {
+        if ($plan->repair_type == OrderRepairPlan::TYPE_SELF_REPAIR) {
             $plan->repair_company_id = $plan->company_id;
             $plan->repair_company_name = Company::find($plan->company_id)->name;
             $plan->save();

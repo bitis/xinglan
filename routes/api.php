@@ -181,6 +181,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('list', 'BankAccountController@index');
         Route::post('form', 'BankAccountController@form');
     });
+
+    Route::prefix('financial')->group(function () {
+        Route::get('list', 'FinancialController@index');
+        Route::post('form', 'FinancialController@form');
+    });
 });
 
 Route::post('upload_', 'UploadController@form');

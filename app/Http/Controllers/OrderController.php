@@ -74,7 +74,7 @@ class OrderController extends Controller
         $orders = OrderService::list($request->user(), $request->collect(), ['company:id,name'])
             ->selectRaw('orders.*')
             ->orderBy('orders.id', 'desc')
-            ->paginate(getPerPage());
+            ->paginate(getPerPage()); 
 
         return success($orders);
     }
