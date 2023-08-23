@@ -32,7 +32,7 @@ before_script:
   - pecl install xlswriter
   # Install php extensions
   - docker-php-ext-install pdo_mysql bcmath gd zip
-  - docker-php-ext-enable bcmath
+  - docker-php-ext-enable bcmath xlswriter
   - php -m
   # Install Composer and project dependencies.
   - curl -sS https://install.phpcomposer.com/installer | php
