@@ -59,6 +59,9 @@ class InvoiceController extends Controller
             ->when($request->get('financial_order_id'), function ($query, $value) {
                 $query->where('financial_order_id', $value);
             })
+            ->when($request->get('financial_type'), function ($query, $value) {
+                $query->where('financial_type', $value);
+            })
             ->orderBy('id', 'desc')
             ->paginate(getPerPage());
 
@@ -91,6 +94,7 @@ class InvoiceController extends Controller
             'invoice_remark',
         ]));
 
+        $invoiceRecord->financial_type = $order->type;
         $invoiceRecord->invoice_operator_id = $user->id;
         $invoiceRecord->invoice_operator_name = $user->name;
         $invoiceRecord->invoice_status = FinancialOrder::STATUS_DONE;

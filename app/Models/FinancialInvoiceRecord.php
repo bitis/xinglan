@@ -12,6 +12,7 @@ class FinancialInvoiceRecord extends Model
 
     protected $fillable = [
         'financial_order_id',
+        'financial_type',
         'invoice_company_name',
         'company_id',
         'company_name',
