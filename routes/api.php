@@ -188,6 +188,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('list', 'InvoiceController@index');
             Route::post('invoice', 'InvoiceController@invoice');
             Route::post('payment', 'InvoiceController@payment');
+            Route::post('express', 'InvoiceController@express');
         });
     });
 });
