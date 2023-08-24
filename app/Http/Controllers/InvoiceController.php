@@ -98,8 +98,10 @@ class InvoiceController extends Controller
         $invoiceRecord->invoice_operator_id = $user->id;
         $invoiceRecord->invoice_operator_name = $user->name;
         $invoiceRecord->invoice_status = FinancialOrder::STATUS_DONE;
-        $invoiceRecord->payment_status = ($invoiceRecord->paid_amount >= $invoiceRecord->total_amount)
-            ? FinancialOrder::STATUS_DONE : FinancialOrder::STATUS_PART;
+
+        if ($invoiceRecord->paid_amount == 0) $invoiceRecord->payment_status = FinancialOrder::STATUS_WAIT;
+        else $invoiceRecord->payment_status = ($invoiceRecord->paid_amount >= $invoiceRecord->total_amount
+            ? FinancialOrder::STATUS_DONE : FinancialOrder::STATUS_PART);
 
         $order->invoiced_amount += $invoiceRecord->invoice_amount;
         $order->invoice_status = ($order->invoiced_amount >= $order->total_amount
