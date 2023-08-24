@@ -139,7 +139,7 @@ class InvoiceController extends Controller
 
         $invoiceRecord->payment_operator_id = $user->id;
         $invoiceRecord->payment_operator_name = $user->name;
-        $invoiceRecord->payment_time = now()->toDateTimeString();
+        $invoiceRecord->payment_time = $request->input('payment_time');
         $invoiceRecord->paid_amount += $payment_amount;
         $invoiceRecord->payment_status = ($invoiceRecord->paid_amount >= $invoiceRecord->total_amount
             ? FinancialOrder::STATUS_DONE : FinancialOrder::STATUS_PART);
@@ -174,6 +174,7 @@ class InvoiceController extends Controller
             'operator_id' => $user->id,
             'operator_name' => $user->name,
             'remark' => $invoiceRecord->payment_remark,
+            'payment_time' => $invoiceRecord->payment_time,
         ]);
 
         return success();
