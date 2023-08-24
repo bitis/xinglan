@@ -80,7 +80,8 @@ class OrderRepairDispatchController extends Controller
             $plan->save();
 
             $plan->order->wusun_repair_user_id = $plan->repair_user_id;
-            $plan->order->repair_company_id = count($repair_company_id) ? implode(',', array_unique($repair_company_id)) : null;
+            $plan->order->repair_company_id = count($repair_company_id)
+                ? trim(implode(',', array_unique($repair_company_id)), ',') : null;
             $plan->order->save();
         }
 
