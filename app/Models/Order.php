@@ -86,6 +86,7 @@ class Order extends Model
         'close_remark',
         'close_at',
         'close_status',
+        'repair_company_ids'
     ];
 
     protected $casts = [
