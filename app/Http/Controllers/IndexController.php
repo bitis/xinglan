@@ -34,10 +34,14 @@ class IndexController extends Controller
                 OrderStatus::WaitRepair->value,
                 OrderStatus::Repairing->value,
                 OrderStatus::Repaired->value,
-                OrderStatus::Paid->value,
             ]);
-        }
 
+            $order_status[] = [
+                'id' => OrderStatus::Paid,
+                'name' => OrderStatus::Paid->name()
+            ];
+        }
+        dd($order_status);
         foreach ($order_status as $item) {
             $collect = $params->merge(['order_status' => $item['id']->value]);
             $result[$item['id']->name] = OrderService::list($request->user(), $collect)->count();

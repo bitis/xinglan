@@ -20,6 +20,7 @@ class FinancialInvoiceRecord extends Model
         'order_number',
         'customer_id',
         'customer_name',
+        'total_amount',
         'paid_amount',
         'payment_time',
         'invoice_type',
