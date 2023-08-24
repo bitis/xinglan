@@ -45,4 +45,37 @@ class FinancialOrder extends Model
     {
         return Arr::only(static::find($id)->toArray(), $attrKeys);
     }
+
+    /**
+     * 根据工单创建记录
+     *
+     * @param Order $order
+     * @param $append
+     * @return void
+     */
+    public static function createByOrder(Order $order, $append = []): void
+    {
+        $financialOrder = static::create(array_merge([
+            'company_id' => $order->wusun_company_id,
+            'company_name' => $order->wusun_company_name,
+            'insurance_company_id' => $order->insurance_company_id,
+            'insurance_company_name' => $order->insurance_company_name,
+            'case_number' => $order->case_number,
+            'province' => $order->province,
+            'city' => $order->city,
+            'area' => $order->area,
+            'address' => $order->address,
+            'post_time' => $order->post_time,
+            'license_plate' => $order->license_plate,
+            'vin' => $order->vin,
+            'insurance_check_phone' => $order->insurance_check_phone,
+            'insurance_check_name' => $order->insurance_check_name,
+            'wusun_check_id' => $order->wusun_check_id,
+            'wusun_check_name' => $order->wusun_check_name,
+            'order_number' => $order->order_number,
+            'order_id' => $order->id,
+        ], $append));
+
+        $financialOrder->save();
+    }
 }

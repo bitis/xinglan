@@ -317,26 +317,8 @@ class ApprovalController extends Controller
          */
         $order->receivable_count = $order->confirmed_price;
 
-        FinancialOrder::create([
+        FinancialOrder::createByOrder($order, [
             'type' => FinancialOrder::TYPE_RECEIPT,
-            'company_id' => $order->wusun_company_id,
-            'company_name' => $order->wusun_company_name,
-            'insurance_company_id' => $order->insurance_company_id,
-            'insurance_company_name' => $order->insurance_company_name,
-            'case_number' => $order->case_number,
-            'province' => $order->province,
-            'city' => $order->city,
-            'area' => $order->area,
-            'address' => $order->address,
-            'post_time' => $order->post_time,
-            'license_plate' => $order->license_plate,
-            'vin' => $order->vin,
-            'insurance_check_phone' => $order->insurance_check_phone,
-            'insurance_check_name' => $order->insurance_check_name,
-            'wusun_check_id' => $order->wusun_check_id,
-            'wusun_check_name' => $order->wusun_check_name,
-            'order_number' => $order->order_number,
-            'order_id' => $order->id,
             'opposite_company_id' => $order->insurance_company_id,
             'opposite_company_name' => Company::find($order->insurance_company_id)?->name,
             'total_amount' => $order->confirmed_price,
@@ -348,10 +330,8 @@ class ApprovalController extends Controller
         $repair_plan = $order->repair_plan;
         if ($repair_plan) {
             if ($repair_plan->repair_type = OrderRepairPlan::TYPE_THIRD_REPAIR) {
-                FinancialOrder::create([
+                FinancialOrder::createByOrder($order, [
                     'type' => FinancialOrder::TYPE_PAYMENT,
-                    'company_id' => $order->wusun_company_id,
-                    'order_id' => $order->id,
                     'opposite_company_id' => $repair_plan->repair_company_id,
                     'opposite_company_name' => $repair_plan->repair_company_name,
                     'total_amount' => $repair_plan->repair_cost,
@@ -359,13 +339,11 @@ class ApprovalController extends Controller
             }
 
             foreach ($repair_plan->tasks as $task) {
-                FinancialOrder::create([
+                FinancialOrder::createByOrder($order, [
                     'type' => FinancialOrder::TYPE_PAYMENT,
-                    'company_id' => $order->wusun_company_id,
-                    'order_id' => $order->id,
-                    'opposite_company_id' => $task->repair_company_id,
-                    'opposite_company_name' => $task->repair_company_name,
-                    'total_amount' => $task->repair_cost,
+                    'opposite_company_id' => $order->insurance_company_id,
+                    'opposite_company_name' => Company::find($order->insurance_company_id)?->name,
+                    'total_amount' => $order->confirmed_price,
                 ]);
             }
         }
