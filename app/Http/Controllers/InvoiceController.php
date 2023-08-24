@@ -56,6 +56,9 @@ class InvoiceController extends Controller
             ->when($request->get('invoice_operator_id'), function ($query, $value) {
                 $query->where('invoice_operator_id', $value);
             })
+            ->when($request->get('financial_order_id'), function ($query, $value) {
+                $query->where('financial_order_id', $value);
+            })
             ->orderBy('id', 'desc')
             ->paginate(getPerPage());
 
