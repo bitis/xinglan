@@ -184,7 +184,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('financial')->group(function () {
         Route::get('list', 'FinancialController@index');
-        Route::post('form', 'FinancialController@form');
+        Route::prefix('invoice')->group(function () {
+            Route::get('list', 'InvoiceController@index');
+            Route::post('invoice', 'InvoiceController@invoice');
+            Route::post('payment', 'InvoiceController@payment');
+        });
     });
 });
 

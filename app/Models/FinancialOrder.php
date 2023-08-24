@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Traits\DefaultDatetimeFormat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 
 class FinancialOrder extends Model
 {
@@ -39,4 +40,9 @@ class FinancialOrder extends Model
     const STATUS_WAIT = 1; // 待..
     const STATUS_PART = 2; // 部分..
     const STATUS_DONE = 3; // 已..
+
+    public static function findAndGetAttrs(int $id, array $attrKeys = []): array
+    {
+        return Arr::only(static::find($id)->toArray(), $attrKeys);
+    }
 }
