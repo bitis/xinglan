@@ -40,6 +40,9 @@ class FinancialInvoiceRecord extends Model
         'payment_operator_name',
         'express_company_name',
         'express_order_number',
+        'express_operater_id',
+        'express_operater_name',
+        'express_time',
         'payment_remark',
         'invoice_remark',
     ];

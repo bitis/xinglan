@@ -191,11 +191,16 @@ class InvoiceController extends Controller
 
         if (!$invoiceRecord) return fail('发票记录不存在');
 
+        $user = $request->user();
+
         $invoiceRecord->fill($request->only([
             'express_company_name',
             'express_order_number',
         ]));
 
+        $invoiceRecord->express_operater_id = $user->id;
+        $invoiceRecord->express_operater_name = $user->name;
+        $invoiceRecord->express_time = now()->toDateTimeString();
         $invoiceRecord->save();
 
         return success();
