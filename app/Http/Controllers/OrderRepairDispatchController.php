@@ -70,7 +70,7 @@ class OrderRepairDispatchController extends Controller
             $plan->tasks()->delete();
             $plan->tasks()->createMany($tasks);
             foreach ($tasks as $task) {
-                $repair_company_id[] = $task['company_id'];
+                $repair_company_id[] = $task['repair_company_id'];
             }
         }
 
