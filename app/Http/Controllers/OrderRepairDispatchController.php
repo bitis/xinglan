@@ -6,6 +6,7 @@ use App\Models\Company;
 use App\Models\OrderRepairPlan;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class OrderRepairDispatchController extends Controller
 {
@@ -54,14 +55,23 @@ class OrderRepairDispatchController extends Controller
             'create_user_id' => $request->user()->id
         ]));
 
+
+        $repair_company_id = [];
+        if($plan->repair_type == OrderRepairPlan::TYPE_THIRD_REPAIR) {
+           $repair_company_id[] = $plan->repair_company_id;
+        }
+
         if ($request->input('costs')) {
             $plan->costs()->delete();
             $plan->costs()->createMany($request->input('costs'));
         }
 
-        if ($request->input('tasks')) {
+        if ($tasks = $request->input('tasks')) {
             $plan->tasks()->delete();
-            $plan->tasks()->createMany($request->input('tasks'));
+            $plan->tasks()->createMany($tasks);
+            foreach ($tasks as $task) {
+                $repair_company_id[] = $task->company_id;
+            }
         }
 
         if ($plan->repair_type == OrderRepairPlan::TYPE_SELF_REPAIR) {
@@ -70,6 +80,7 @@ class OrderRepairDispatchController extends Controller
             $plan->save();
 
             $plan->order->wusun_repair_user_id = $plan->repair_user_id;
+            $plan->order->repair_company_id = count($repair_company_id) ? implode(',', array_unique($repair_company_id)) : null;
             $plan->order->save();
         }
 
