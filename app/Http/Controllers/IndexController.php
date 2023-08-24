@@ -41,7 +41,6 @@ class IndexController extends Controller
                 'name' => OrderStatus::Paid->name()
             ];
         }
-        dd($order_status);
         foreach ($order_status as $item) {
             $collect = $params->merge(['order_status' => $item['id']->value]);
             $result[$item['id']->name] = OrderService::list($request->user(), $collect)->count();
