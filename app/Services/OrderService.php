@@ -32,7 +32,7 @@ class OrderService
                         CompanyType::BaoXian->value => $query->where('insurance_company_id', $company_id),
                         CompanyType::WuSun->value => $query->where('wusun_company_id', $company_id)
                             ->OrWhere('check_wusun_company_id', $company_id),
-                        CompanyType::WeiXiu->value => $query->whereRaw("find_in_set(repair_company_ids, $company_id)"),
+                        CompanyType::WeiXiu->value => $query->whereRaw("find_in_set($company_id, repair_company_ids)"),
                     };
 
                 $groupId = Company::getGroupId($current_company->id);

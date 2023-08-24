@@ -137,6 +137,7 @@ class InvoiceController extends Controller
 
         if (!$bank_account) return fail('请选择银行账户');
 
+        $invoiceRecord->financial_type = $order->type;
         $invoiceRecord->payment_operator_id = $user->id;
         $invoiceRecord->payment_operator_name = $user->name;
         $invoiceRecord->payment_time = $request->input('payment_time');
@@ -154,6 +155,7 @@ class InvoiceController extends Controller
         FinancialPaymentRecord::create([
             'invoice_record_id' => $invoiceRecord->id,
             'financial_order_id' => $invoiceRecord->financial_order_id,
+            'financial_type' => $invoiceRecord->financial_type,
             'company_id' => $invoiceRecord->company_id,
             'company_name' => $invoiceRecord->company_name,
             'customer_id' => $invoiceRecord->customer_id,
