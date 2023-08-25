@@ -188,6 +188,7 @@ class ApprovalController extends Controller
                             'type' => 'approval',
                             'order_id' => $checkers[0]->order_id,
                             'process_id' => $checkers[0]->id,
+                            'creator_name' => $checkers[0]->creator_name,
                         ]);
                     } else {
                         $this->completeStep($checkers);
@@ -207,6 +208,7 @@ class ApprovalController extends Controller
                             'type' => 'approval',
                             'order_id' => $reviewers[0]->order_id,
                             'process_id' => $reviewers[0]->id,
+                            'creator_name' => $reviewers[0]->creator_name,
                         ]);
                     } else {
                         $this->completeStep($reviewers);
@@ -246,6 +248,7 @@ class ApprovalController extends Controller
                     'type' => 'approval',
                     'order_id' => $reviewers[0]->order_id,
                     'process_id' => $reviewers[0]->id,
+                    'creator_name' => $reviewers[0]->creator_name,
                 ]);
             } else {
                 foreach ($reviewers as $reviewer) {
@@ -255,6 +258,7 @@ class ApprovalController extends Controller
                         'type' => 'approval',
                         'order_id' => $reviewer->order_id,
                         'process_id' => $reviewer->id,
+                        'creator_name' => $reviewer->creator_name,
                     ]);
                 }
             }
@@ -295,6 +299,7 @@ class ApprovalController extends Controller
                 'type' => 'approval',
                 'order_id' => $receiver->order_id,
                 'process_id' => $receiver->id,
+                'creator_name' => $receiver->creator_name,
             ]);
         }
 

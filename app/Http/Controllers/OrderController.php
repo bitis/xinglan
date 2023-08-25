@@ -540,6 +540,7 @@ class OrderController extends Controller
                         'type' => 'approval',
                         'order_id' => $order->id,
                         'process_id' => $process->id,
+                        'creator_name' => $process->creator_name,
                     ]);
                 }
             }
