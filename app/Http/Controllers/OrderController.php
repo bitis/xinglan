@@ -74,7 +74,7 @@ class OrderController extends Controller
         $orders = OrderService::list($request->user(), $request->collect(), ['company:id,name'])
             ->selectRaw('orders.*')
             ->orderBy('orders.id', 'desc')
-            ->paginate(getPerPage()); 
+            ->paginate(getPerPage());
 
         return success($orders);
     }
@@ -478,55 +478,62 @@ class OrderController extends Controller
 
             $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalClose->value);
 
-            $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
-            if ($approvalOrder) {
-                ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
-                $approvalOrder->delete();
-            }
+            if (!$option) {
+                $order->close_status = OrderCloseStatus::Closed->value;
+                $order->close_at = now()->toDateTimeString();
+                $order->save();
+            } else {
 
-            $approvalOrder = ApprovalOrder::create([
-                'order_id' => $order->id,
-                'company_id' => $user->company_id,
-                'approval_type' => $option->type,
-            ]);
+                $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
+                if ($approvalOrder) {
+                    ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
+                    $approvalOrder->delete();
+                }
 
-            list($checkers, $reviewers, $receivers) = ApprovalOption::groupByType($option->approver);
-
-            $insert = [];
-            foreach ($checkers as $index => $checker) {
-                $insert[] = [
-                    'user_id' => $checker['id'],
-                    'name' => $checker['name'],
-                    'creator_id' => $user->id,
-                    'creator_name' => $user->name,
+                $approvalOrder = ApprovalOrder::create([
                     'order_id' => $order->id,
                     'company_id' => $user->company_id,
-                    'step' => Approver::STEP_CHECKER,
-                    'approval_status' => ApprovalStatus::Pending->value,
-                    'mode' => $option->approve_mode,
                     'approval_type' => $option->type,
-                    'hidden' => $index > 0 && $option->approve_mode == ApprovalMode::QUEUE->value,
-                ];
-            }
+                ]);
 
-            foreach ($receivers as $receiver) {
-                $insert[] = [
-                    'user_id' => $receiver['id'],
-                    'name' => $receiver['name'],
-                    'creator_id' => $user->id,
-                    'creator_name' => $user->name,
-                    'order_id' => $order->id,
-                    'company_id' => $user->company_id,
-                    'step' => Approver::STEP_RECEIVER,
-                    'approval_status' => ApprovalStatus::Pending->value,
-                    'mode' => ApprovalMode::QUEUE->value,
-                    'approval_type' => $option->type,
-                    'hidden' => true,
-                ];
-            }
+                list($checkers, $reviewers, $receivers) = ApprovalOption::groupByType($option->approver);
 
-            $approvalOrder->process()->delete();
-            if ($insert) $approvalOrder->process()->createMany($insert);
+                $insert = [];
+                foreach ($checkers as $index => $checker) {
+                    $insert[] = [
+                        'user_id' => $checker['id'],
+                        'name' => $checker['name'],
+                        'creator_id' => $user->id,
+                        'creator_name' => $user->name,
+                        'order_id' => $order->id,
+                        'company_id' => $user->company_id,
+                        'step' => Approver::STEP_CHECKER,
+                        'approval_status' => ApprovalStatus::Pending->value,
+                        'mode' => $option->approve_mode,
+                        'approval_type' => $option->type,
+                        'hidden' => $index > 0 && $option->approve_mode == ApprovalMode::QUEUE->value,
+                    ];
+                }
+
+                foreach ($receivers as $receiver) {
+                    $insert[] = [
+                        'user_id' => $receiver['id'],
+                        'name' => $receiver['name'],
+                        'creator_id' => $user->id,
+                        'creator_name' => $user->name,
+                        'order_id' => $order->id,
+                        'company_id' => $user->company_id,
+                        'step' => Approver::STEP_RECEIVER,
+                        'approval_status' => ApprovalStatus::Pending->value,
+                        'mode' => ApprovalMode::QUEUE->value,
+                        'approval_type' => $option->type,
+                        'hidden' => true,
+                    ];
+                }
+
+                $approvalOrder->process()->delete();
+                if ($insert) $approvalOrder->process()->createMany($insert);
+            }
 
             OrderLog::create([
                 'order_id' => $order->id,

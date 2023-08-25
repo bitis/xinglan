@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\BidOpeningJob;
+use App\Jobs\QuotaBillPdfJob;
+use App\Jobs\QuotaHistory;
 use App\Jobs\QuotaMessageJob;
 use App\Models\ApprovalOption;
 use App\Models\ApprovalOrder;
@@ -229,80 +231,91 @@ class OrderQuotationController extends Controller
 
                 $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalQuotation->value);
 
-                $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
-                if ($approvalOrder) {
-                    ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
-                    $approvalOrder->delete();
-                }
+                if (!$option) {
+                    $quotation->check_status = CheckStatus::Accept->value;
+                    $quotation->checked_at = now()->toDateTimeString();
+                    $quotation->save();
 
-                $approvalOrder = ApprovalOrder::create([
-                    'order_id' => $order->id,
-                    'company_id' => $quotation->company_id,
-                    'approval_type' => $option->type,
-                ]);
+                    // 生成报价单
+                    QuotaBillPdfJob::dispatch($quotation);
+                    // 报价数据加入数据库
+                    QuotaHistory::dispatch($quotation);
+                } else {
+                    $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
+                    if ($approvalOrder) {
+                        ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
+                        $approvalOrder->delete();
+                    }
 
-                list($checkers, $reviewers, $receivers) = ApprovalOption::groupByType($option->approver);
-
-                $checker_text = $reviewer_text = '';
-
-                $insert = [];
-                foreach ($checkers as $index => $checker) {
-                    $insert[] = [
-                        'user_id' => $checker['id'],
-                        'name' => $checker['name'],
-                        'creator_id' => $user->id,
-                        'creator_name' => $user->name,
+                    $approvalOrder = ApprovalOrder::create([
                         'order_id' => $order->id,
                         'company_id' => $quotation->company_id,
-                        'step' => Approver::STEP_CHECKER,
-                        'approval_status' => ApprovalStatus::Pending->value,
-                        'mode' => $option->approve_mode,
                         'approval_type' => $option->type,
-                        'hidden' => $index > 0 && $option->approve_mode == ApprovalMode::QUEUE->value,
-                    ];
-                    $checker_text .= $checker['name'] . ', ';
-                }
+                    ]);
 
-                $checker_text = '审核人：（' . trim($checker_text, ',') . '）' . ['', '或签', '依次审批'][$option->approve_mode];
+                    list($checkers, $reviewers, $receivers) = ApprovalOption::groupByType($option->approver);
 
-                if ($quotation->profit_margin_ratio < $option->review_conditions) {
-                    foreach ($reviewers as $reviewer) {
+                    $checker_text = $reviewer_text = '';
+
+                    $insert = [];
+                    foreach ($checkers as $index => $checker) {
                         $insert[] = [
-                            'user_id' => $reviewer['id'],
-                            'name' => $reviewer['name'],
+                            'user_id' => $checker['id'],
+                            'name' => $checker['name'],
                             'creator_id' => $user->id,
                             'creator_name' => $user->name,
                             'order_id' => $order->id,
                             'company_id' => $quotation->company_id,
-                            'step' => Approver::STEP_REVIEWER,
+                            'step' => Approver::STEP_CHECKER,
                             'approval_status' => ApprovalStatus::Pending->value,
-                            'mode' => $option->review_mode,
+                            'mode' => $option->approve_mode,
+                            'approval_type' => $option->type,
+                            'hidden' => $index > 0 && $option->approve_mode == ApprovalMode::QUEUE->value,
+                        ];
+                        $checker_text .= $checker['name'] . ', ';
+                    }
+
+                    $checker_text = '审核人：（' . trim($checker_text, ',') . '）' . ['', '或签', '依次审批'][$option->approve_mode];
+
+                    if ($quotation->profit_margin_ratio < $option->review_conditions) {
+                        foreach ($reviewers as $reviewer) {
+                            $insert[] = [
+                                'user_id' => $reviewer['id'],
+                                'name' => $reviewer['name'],
+                                'creator_id' => $user->id,
+                                'creator_name' => $user->name,
+                                'order_id' => $order->id,
+                                'company_id' => $quotation->company_id,
+                                'step' => Approver::STEP_REVIEWER,
+                                'approval_status' => ApprovalStatus::Pending->value,
+                                'mode' => $option->review_mode,
+                                'approval_type' => $option->type,
+                                'hidden' => true,
+                            ];
+                            $reviewer_text .= $reviewer['name'] . ', ';
+                        }
+                        $checker_text .= ('复审人：(' . trim($reviewer_text, ',') . '）' . ['', '或签', '依次审批'][$option->review_mode]);
+                    }
+
+                    foreach ($receivers as $receiver) {
+                        $insert[] = [
+                            'user_id' => $receiver['id'],
+                            'name' => $receiver['name'],
+                            'creator_id' => $user->id,
+                            'creator_name' => $user->name,
+                            'order_id' => $order->id,
+                            'company_id' => $quotation->company_id,
+                            'step' => Approver::STEP_RECEIVER,
+                            'approval_status' => ApprovalStatus::Pending->value,
+                            'mode' => ApprovalMode::QUEUE->value,
                             'approval_type' => $option->type,
                             'hidden' => true,
                         ];
-                        $reviewer_text .= $reviewer['name'] . ', ';
                     }
-                    $checker_text .= ('复审人：(' . trim($reviewer_text, ',') . '）' . ['', '或签', '依次审批'][$option->review_mode]);
-                }
 
-                foreach ($receivers as $receiver) {
-                    $insert[] = [
-                        'user_id' => $receiver['id'],
-                        'name' => $receiver['name'],
-                        'creator_id' => $user->id,
-                        'creator_name' => $user->name,
-                        'order_id' => $order->id,
-                        'company_id' => $quotation->company_id,
-                        'step' => Approver::STEP_RECEIVER,
-                        'approval_status' => ApprovalStatus::Pending->value,
-                        'mode' => ApprovalMode::QUEUE->value,
-                        'approval_type' => $option->type,
-                        'hidden' => true,
-                    ];
+                    $approvalOrder->process()->delete();
+                    if ($insert) $approvalOrder->process()->createMany($insert);
                 }
-
-                $approvalOrder->process()->delete();
-                if ($insert) $approvalOrder->process()->createMany($insert);
 
                 OrderLog::create([
                     'order_id' => $order->id,
@@ -416,8 +429,6 @@ class OrderQuotationController extends Controller
         try {
             DB::beginTransaction();
 
-            $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalAssessment->value);
-
             if ($order->confirm_price_status == Order::CONFIRM_PRICE_STATUS_APPROVAL)
                 throw new Exception('当前状态审批中，不能进行编辑');
             if ($order->confirm_price_status == Order::CONFIRM_PRICE_STATUS_FINISHED)
@@ -432,55 +443,62 @@ class OrderQuotationController extends Controller
 
             $order->save();
 
-            $approvalOrder = ApprovalOrder::where('order_id', $order->id)
-                ->where('approval_type', $option->type)
-                ->where('company_id', $order->wusun_company_id)
-                ->first();
-            if ($approvalOrder) ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
+            $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalAssessment->value);
+            if (!$option) {
+                $order->confirm_price_status = Order::CONFIRM_PRICE_STATUS_FINISHED;
+                $order->confirmed_at = now()->toDateTimeString();
+                $order->save();
+            } else {
+                $approvalOrder = ApprovalOrder::where('order_id', $order->id)
+                    ->where('approval_type', $option->type)
+                    ->where('company_id', $order->wusun_company_id)
+                    ->first();
+                if ($approvalOrder) ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
 
-            $approvalOrder = ApprovalOrder::create([
-                'order_id' => $order->id,
-                'company_id' => $order->wusun_company_id,
-                'approval_type' => $option->type,
-            ]);
-
-            list($checkers, $reviewers, $receivers) = ApprovalOption::groupByType($option->approver);
-
-            $insert = [];
-            foreach ($checkers as $index => $checker) {
-                $insert[] = [
-                    'user_id' => $checker['id'],
-                    'name' => $checker['name'],
-                    'creator_id' => $user->id,
-                    'creator_name' => $user->name,
+                $approvalOrder = ApprovalOrder::create([
                     'order_id' => $order->id,
-                    'company_id' => $order->insurance_company_id,
-                    'step' => Approver::STEP_CHECKER,
-                    'approval_status' => ApprovalStatus::Pending->value,
-                    'mode' => $option->approve_mode,
+                    'company_id' => $order->wusun_company_id,
                     'approval_type' => $option->type,
-                    'hidden' => $index > 0 && $option->approve_mode == ApprovalMode::QUEUE->value,
-                ];
-            }
+                ]);
 
-            foreach ($receivers as $receiver) {
-                $insert[] = [
-                    'user_id' => $receiver['id'],
-                    'name' => $receiver['name'],
-                    'creator_id' => $user->id,
-                    'creator_name' => $user->name,
-                    'order_id' => $order->id,
-                    'company_id' => $order->insurance_company_id,
-                    'step' => Approver::STEP_RECEIVER,
-                    'approval_status' => ApprovalStatus::Pending->value,
-                    'mode' => ApprovalMode::QUEUE->value,
-                    'approval_type' => $option->type,
-                    'hidden' => true,
-                ];
-            }
+                list($checkers, $reviewers, $receivers) = ApprovalOption::groupByType($option->approver);
 
-            $approvalOrder->process()->delete();
-            if ($insert) $approvalOrder->process()->createMany($insert);
+                $insert = [];
+                foreach ($checkers as $index => $checker) {
+                    $insert[] = [
+                        'user_id' => $checker['id'],
+                        'name' => $checker['name'],
+                        'creator_id' => $user->id,
+                        'creator_name' => $user->name,
+                        'order_id' => $order->id,
+                        'company_id' => $order->insurance_company_id,
+                        'step' => Approver::STEP_CHECKER,
+                        'approval_status' => ApprovalStatus::Pending->value,
+                        'mode' => $option->approve_mode,
+                        'approval_type' => $option->type,
+                        'hidden' => $index > 0 && $option->approve_mode == ApprovalMode::QUEUE->value,
+                    ];
+                }
+
+                foreach ($receivers as $receiver) {
+                    $insert[] = [
+                        'user_id' => $receiver['id'],
+                        'name' => $receiver['name'],
+                        'creator_id' => $user->id,
+                        'creator_name' => $user->name,
+                        'order_id' => $order->id,
+                        'company_id' => $order->insurance_company_id,
+                        'step' => Approver::STEP_RECEIVER,
+                        'approval_status' => ApprovalStatus::Pending->value,
+                        'mode' => ApprovalMode::QUEUE->value,
+                        'approval_type' => $option->type,
+                        'hidden' => true,
+                    ];
+                }
+
+                $approvalOrder->process()->delete();
+                if ($insert) $approvalOrder->process()->createMany($insert);
+            }
             DB::commit();
         } catch (Exception $exception) {
             DB::rollBack();
