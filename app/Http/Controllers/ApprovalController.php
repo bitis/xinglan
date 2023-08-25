@@ -184,7 +184,11 @@ class ApprovalController extends Controller
                     if ($process->mode == ApprovalMode::QUEUE->value) {
                         $checkers[0]->hidden = false;
                         $checkers[0]->save();
-                        ApprovalNotifyJob::dispatch($checkers[0]->user_id);
+                        ApprovalNotifyJob::dispatch($checkers[0]->user_id, [
+                            'type' => 'approval',
+                            'order_id' => $checkers[0]->order_id,
+                            'process_id' => $checkers[0]->id,
+                        ]);
                     } else {
                         $this->completeStep($checkers);
                         $this->startReview($reviewers, $receivers, $approvalOrder);
@@ -199,7 +203,11 @@ class ApprovalController extends Controller
                     if ($process->mode == ApprovalMode::QUEUE->value) {
                         $reviewers[0]->hidden = false;
                         $reviewers[0]->save();
-                        ApprovalNotifyJob::dispatch($reviewers[0]->user_id);
+                        ApprovalNotifyJob::dispatch($reviewers[0]->user_id, [
+                            'type' => 'approval',
+                            'order_id' => $reviewers[0]->order_id,
+                            'process_id' => $reviewers[0]->id,
+                        ]);
                     } else {
                         $this->completeStep($reviewers);
                         $this->notifyReceiver($receivers, $approvalOrder);
@@ -234,12 +242,20 @@ class ApprovalController extends Controller
             if ($reviewers[0]->mode == ApprovalMode::QUEUE->value) {
                 $reviewers[0]->hidden = false;
                 $reviewers[0]->save();
-                ApprovalNotifyJob::dispatch($reviewers[0]->user_id);
+                ApprovalNotifyJob::dispatch($reviewers[0]->user_id, [
+                    'type' => 'approval',
+                    'order_id' => $reviewers[0]->order_id,
+                    'process_id' => $reviewers[0]->id,
+                ]);
             } else {
                 foreach ($reviewers as $reviewer) {
                     $reviewer->hidden = false;
                     $reviewer->save();
-                    ApprovalNotifyJob::dispatch($reviewers->user_id);
+                    ApprovalNotifyJob::dispatch($reviewers->user_id, [
+                        'type' => 'approval',
+                        'order_id' => $reviewer->order_id,
+                        'process_id' => $reviewer->id,
+                    ]);
                 }
             }
         } else {
@@ -275,7 +291,11 @@ class ApprovalController extends Controller
         foreach ($receivers as $receiver) {
             $receiver->hidden = false;
             $receiver->save();
-            ApprovalNotifyJob::dispatch($receiver->user_id);
+            ApprovalNotifyJob::dispatch($receiver->user_id, [
+                'type' => 'approval',
+                'order_id' => $receiver->order_id,
+                'process_id' => $receiver->id,
+            ]);
         }
 
         $this->complete($approvalOrder);
