@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\OrderRequest;
+use App\Jobs\ApprovalNotifyJob;
 use App\Jobs\CheckMessageJob;
 use App\Models\ApprovalOption;
 use App\Models\ApprovalOrder;
@@ -533,6 +534,14 @@ class OrderController extends Controller
 
                 $approvalOrder->process()->delete();
                 if ($insert) $approvalOrder->process()->createMany($insert);
+
+                foreach ($approvalOrder->process as $process) {
+                    if (!$process->hidden) ApprovalNotifyJob::dispatch($process['user_id'], [
+                        'type' => 'approval',
+                        'order_id' => $order->id,
+                        'process_id' => $process->id,
+                    ]);
+                }
             }
 
             OrderLog::create([

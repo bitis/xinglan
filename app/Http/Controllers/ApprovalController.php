@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ApprovalNotifyJob;
 use App\Jobs\QuotaBillPdfJob;
 use App\Jobs\QuotaHistory;
 use App\Models\ApprovalOrder;
@@ -183,6 +184,7 @@ class ApprovalController extends Controller
                     if ($process->mode == ApprovalMode::QUEUE->value) {
                         $checkers[0]->hidden = false;
                         $checkers[0]->save();
+                        ApprovalNotifyJob::dispatch($checkers[0]->user_id);
                     } else {
                         $this->completeStep($checkers);
                         $this->startReview($reviewers, $receivers, $approvalOrder);
@@ -197,6 +199,7 @@ class ApprovalController extends Controller
                     if ($process->mode == ApprovalMode::QUEUE->value) {
                         $reviewers[0]->hidden = false;
                         $reviewers[0]->save();
+                        ApprovalNotifyJob::dispatch($reviewers[0]->user_id);
                     } else {
                         $this->completeStep($reviewers);
                         $this->notifyReceiver($receivers, $approvalOrder);
@@ -231,10 +234,12 @@ class ApprovalController extends Controller
             if ($reviewers[0]->mode == ApprovalMode::QUEUE->value) {
                 $reviewers[0]->hidden = false;
                 $reviewers[0]->save();
+                ApprovalNotifyJob::dispatch($reviewers[0]->user_id);
             } else {
                 foreach ($reviewers as $reviewer) {
                     $reviewer->hidden = false;
                     $reviewer->save();
+                    ApprovalNotifyJob::dispatch($reviewers->user_id);
                 }
             }
         } else {
@@ -270,6 +275,7 @@ class ApprovalController extends Controller
         foreach ($receivers as $receiver) {
             $receiver->hidden = false;
             $receiver->save();
+            ApprovalNotifyJob::dispatch($receiver->user_id);
         }
 
         $this->complete($approvalOrder);
