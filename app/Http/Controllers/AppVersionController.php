@@ -27,7 +27,7 @@ class AppVersionController extends Controller
     public function form(Request $request): JsonResponse
     {
         $version = AppVersion::create($request->only(
-            'app_url', 'version', 'version_number', 'must_update', 'current_version_number'
+            'app_url', 'version', 'version_number', 'must_update', 'current_version_number', 'apk_url'
         ));
         return success($version);
     }
