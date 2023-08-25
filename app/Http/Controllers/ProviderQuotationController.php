@@ -19,8 +19,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Overtrue\EasySms\EasySms;
-use Overtrue\EasySms\Exceptions\InvalidArgumentException;
-use Overtrue\EasySms\Exceptions\NoGatewayAvailableException;
 
 class ProviderQuotationController extends Controller
 {

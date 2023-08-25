@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ApprovalNotifyJob;
 use App\Jobs\BidOpeningJob;
 use App\Jobs\QuotaBillPdfJob;
 use App\Jobs\QuotaHistory;
@@ -315,6 +316,14 @@ class OrderQuotationController extends Controller
 
                     $approvalOrder->process()->delete();
                     if ($insert) $approvalOrder->process()->createMany($insert);
+
+                    foreach ($approvalOrder->process as $process) {
+                        if (!$process->hidden) ApprovalNotifyJob::dispatch($process['user_id'], [
+                            'type' => 'approval',
+                            'order_id' => $order->id,
+                            'process_id' => $process->id,
+                        ]);
+                    }
                 }
 
                 OrderLog::create([
@@ -498,6 +507,14 @@ class OrderQuotationController extends Controller
 
                 $approvalOrder->process()->delete();
                 if ($insert) $approvalOrder->process()->createMany($insert);
+
+                foreach ($approvalOrder->process as $process) {
+                    if (!$process->hidden) ApprovalNotifyJob::dispatch($process['user_id'], [
+                        'type' => 'approval',
+                        'order_id' => $order->id,
+                        'process_id' => $process->id,
+                    ]);
+                }
             }
             DB::commit();
         } catch (Exception $exception) {
