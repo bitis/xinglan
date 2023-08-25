@@ -57,7 +57,19 @@ class ApprovalController extends Controller
             })
             ->where('hidden', false)
             ->orderBy('id', 'desc')
-            ->paginate(getPerPage());
+            ->paginate(getPerPage())->toArray();
+
+        $process['count']['All'] = 0;
+
+        foreach (ApprovalType::cases() as $item) {
+            $process['count'][$item->name] = ApprovalOrderProcess::where('approval_type', $item->value)
+                ->where('user_id', $request->user()->id)
+                ->where('approval_status', ApprovalStatus::Pending->value)
+                ->whereIn('step', [1, 2])
+                ->where('hidden', false)
+                ->count();
+            $process['count']['All'] += $process['count'][$item->name];
+        }
 
         return success($process);
     }
