@@ -124,7 +124,7 @@ class AccountController extends Controller
             $user->api_token = Str::random(32);
         }
 
-        $user->fill($request->only(['name', 'account']));
+        $user->fill($request->only(['name', 'account', 'push_id']));
 
         $user->save();
 

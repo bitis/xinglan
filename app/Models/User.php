@@ -33,6 +33,7 @@ class User extends Authenticatable
         'identity_id',
         'employee_id',
         'remark',
+        'push_id'
     ];
 
     /**
