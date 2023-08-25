@@ -44,7 +44,7 @@ class ApprovalController extends Controller
             })
             ->where('user_id', $request->user()->id)
             ->when(strlen($approval_status = $request->input('approval_status')), function ($query) use ($approval_status) {
-                $query->where('approval_status', $approval_status);
+                $query->whereIn('approval_status', explode(',', $approval_status));
             })
             ->when($request->input('company_id'), function ($query, $company_id) {
                 $query->where('company_id', $company_id);
