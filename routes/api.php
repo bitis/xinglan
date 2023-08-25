@@ -32,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('upload', 'UploadController@form');
 
     Route::get('app/index', 'IndexController@index');
+    Route::get('app/count', 'IndexController@count');
     Route::get('config', 'ConfigController@index');
 
     Route::prefix('enum')->group(function () {
