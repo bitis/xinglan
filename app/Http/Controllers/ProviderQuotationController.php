@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Common\Messages\WinBidNotify;
 use App\Models\ApprovalOption;
 use App\Models\ApprovalOrder;
 use App\Models\ApprovalOrderProcess;
@@ -17,6 +18,9 @@ use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Overtrue\EasySms\EasySms;
+use Overtrue\EasySms\Exceptions\InvalidArgumentException;
+use Overtrue\EasySms\Exceptions\NoGatewayAvailableException;
 
 class ProviderQuotationController extends Controller
 {
@@ -94,12 +98,13 @@ class ProviderQuotationController extends Controller
     }
 
     /**
-     * 手动开标（）
+     * 手动开标
      *
      * @param Request $request
+     * @param EasySms $easySms
      * @return JsonResponse
      */
-    public function pick(Request $request): JsonResponse
+    public function pick(Request $request, EasySms $easySms): JsonResponse
     {
         $order = Order::find($request->input('order_id'));
 
@@ -140,6 +145,14 @@ class ProviderQuotationController extends Controller
             'status' => 0,
         ]);
         $message->save();
+
+        $company = Company::find($request->input('wusun_company_id'));
+        $insuranceCompany = Company::find($order->insurance_company_id);
+
+        $easySms->send(
+            $company->contract_phone,
+            new WinBidNotify($company->name, $insuranceCompany->name, $order->case_number)
+        );
 
         return success();
     }

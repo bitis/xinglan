@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Common\Messages\WinBidNotify;
 use App\Models\Company;
 use App\Models\Enumerations\CheckStatus;
 use App\Models\Enumerations\MessageType;
@@ -13,6 +14,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Overtrue\EasySms\EasySms;
 
 class BidOpeningJob implements ShouldQueue
 {
@@ -29,7 +31,7 @@ class BidOpeningJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(EasySms $easySms): void
     {
         $order = Order::find($this->order_id);
 
@@ -75,6 +77,14 @@ class BidOpeningJob implements ShouldQueue
                     'status' => 0,
                 ]);
                 $message->save();
+
+                $insuranceCompany = Company::find($order->insurance_company_id);
+
+                $easySms->send(
+                    $company->contract_phone,
+                    new WinBidNotify($company->name, $insuranceCompany->name, $order->case_number)
+                );
+
             } else {
                 $quotation->win = 2;
             }
