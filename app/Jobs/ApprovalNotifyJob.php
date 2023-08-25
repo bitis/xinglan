@@ -41,7 +41,6 @@ class ApprovalNotifyJob implements ShouldQueue
             'sound' => 'sound',
             'channel_id' => 'jpush_1',
             'alert_type' => 1,
-            'badge_add_num' => 1,
             'extras' => $this->extras,
         ];
 
