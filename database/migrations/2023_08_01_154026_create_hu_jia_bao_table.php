@@ -185,7 +185,7 @@ return new class extends Migration {
         /**
          * 定损理算任务
          */
-        Schema::create('hjb_appraisal_task_infos', function (Blueprint $table) {
+        Schema::create('hjb_appraisal_tasks', function (Blueprint $table) {
             $table->id();
             $table->integer('sub_claim_info_id')->comment('子赔案ID');
             $table->string('ClaimNo')->comment('理赔编号');
