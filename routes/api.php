@@ -202,6 +202,7 @@ Route::prefix('hjb')->group(function () {
     Route::post('receiveAppraisalPass', 'HuJiaBao\ServeController@receiveAppraisalPass');
     Route::post('receiveTaskCanceled', 'HuJiaBao\ServeController@receiveTaskCanceled');
     Route::post('receiveAppraisalTask', 'HuJiaBao\ServeController@receiveAppraisalTask');
+    Route::post('receiveDocRefused', 'HuJiaBao\ServeController@receiveDocRefused');
 
     Route::get('investigationTask', 'HuJiaBao\ServeController@investigationTask');
     Route::get('appraisalTask', 'HuJiaBao\ServeController@appraisalTask');

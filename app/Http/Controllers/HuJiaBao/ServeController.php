@@ -5,6 +5,7 @@ namespace App\Http\Controllers\HuJiaBao;
 use App\Common\HuJiaBao\ApiClient;
 use App\Common\HuJiaBao\Response;
 use App\Http\Controllers\Controller;
+use App\Models\AppraisalTask;
 use App\Models\HuJiaBao\ClaimInfo;
 use App\Models\HuJiaBao\Log;
 use App\Models\HuJiaBao\PolicyInfo;
@@ -150,7 +151,7 @@ class ServeController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function investigationTasks(Request $request): JsonResponse
+    public function investigationTask(Request $request): JsonResponse
     {
         $claims = ClaimInfo::when($request->input('status'), fn($query, $status) => $query->where('status', $status))
             ->orderBy('id', 'desc')
@@ -249,7 +250,10 @@ class ServeController extends Controller
      */
     public function appraisalTask(Request $request): JsonResponse
     {
-        return success();
+        $tasks = AppraisalTask::when($request->input('status'), fn($query, $status) => $query->where('status', $status))
+            ->orderBy('id', 'desc')
+            ->paginate(getPerPage());
+        return success($tasks);
     }
 
 
@@ -298,6 +302,21 @@ class ServeController extends Controller
             'IsDeclined',  // 是否拒赔 《公用代码》-是否代码
         ]);
 
+        return Response::success();
+    }
+
+    /**
+     * 接收单证审核不通过通知
+     *
+     * @return JsonResponse
+     */
+    public function receiveDocRefused(): JsonResponse
+    {
+        Log::create([
+            'type' => '单证审核不通过推送',
+            'url' => request()->fullUrl(),
+            'request' => json_encode(request()->all()),
+        ]);
         return Response::success();
     }
 }
