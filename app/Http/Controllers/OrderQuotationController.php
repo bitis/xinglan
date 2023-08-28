@@ -232,6 +232,8 @@ class OrderQuotationController extends Controller
 
                 $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalQuotation->value);
 
+                $checker_text = '';
+
                 if (!$option) {
                     $quotation->check_status = CheckStatus::Accept->value;
                     $quotation->checked_at = now()->toDateTimeString();

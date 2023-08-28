@@ -203,8 +203,8 @@ Route::prefix('hjb')->group(function () {
     Route::post('receiveTaskCanceled', 'HuJiaBao\ServeController@receiveTaskCanceled');
     Route::post('receiveAppraisalTask', 'HuJiaBao\ServeController@receiveAppraisalTask');
 
-    Route::get('investigationTask', 'HuJiaBao\ServeController@tasks');
-    Route::get('receiveAppraisalTask', 'HuJiaBao\ServeController@tasks');
+    Route::get('investigationTask', 'HuJiaBao\ServeController@investigationTask');
+    Route::get('appraisalTask', 'HuJiaBao\ServeController@appraisalTask');
 
     Route::post('investigation', 'HuJiaBao\ServeController@investigation');
 });
