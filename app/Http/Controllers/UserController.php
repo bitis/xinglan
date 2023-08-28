@@ -113,7 +113,7 @@ class UserController extends Controller
             })
             ->when($request->input('name'), function ($query, $text) {
                 $query->where('name', 'like', "%$text%")
-                    ->where('mobile', 'like', "%$text%");
+                    ->orWhere('mobile', 'like', "%$text%");
             })->paginate(getPerPage());
 
         return success($users);
