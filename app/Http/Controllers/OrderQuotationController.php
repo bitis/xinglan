@@ -235,7 +235,6 @@ class OrderQuotationController extends Controller
                 if (!$option) {
                     $quotation->check_status = CheckStatus::Accept->value;
                     $quotation->checked_at = now()->toDateTimeString();
-                    $quotation->save();
 
                     // 生成报价单
                     QuotaBillPdfJob::dispatch($quotation);
@@ -326,7 +325,7 @@ class OrderQuotationController extends Controller
                         ]);
                     }
                 }
-
+                $quotation->save();
                 OrderLog::create([
                     'order_id' => $order->id,
                     'type' => OrderLog::TYPE_SUBMIT_QUOTATION,
