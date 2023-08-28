@@ -150,9 +150,13 @@ class ServeController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function tasks(Request $request): JsonResponse
+    public function investigationTasks(Request $request): JsonResponse
     {
-        return success();
+        $claims = ClaimInfo::when($request->input('status'), fn($query, $status) => $query->where('status', $status))
+            ->orderBy('id', 'desc')
+            ->paginate(getPerPage());
+
+        return success($claims);
     }
 
     /**
@@ -243,7 +247,7 @@ class ServeController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function appraisal(Request $request): JsonResponse
+    public function appraisalTask(Request $request): JsonResponse
     {
         return success();
     }

@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Str;
 
 return new class extends Migration {
     /**
@@ -243,7 +242,7 @@ return new class extends Migration {
             $table->id();
             $table->integer('appraisal_info_id')->comment('任务ID');
             $table->string('OperationType', 6)->comment('操作类型 《公用代码》-操作类型');
-            $table->integer('SequenceNo', 6)->nullable()->comment('损失项目ID 每个损失项目的ID，若为新增项目，传空');
+            $table->integer('SequenceNo')->nullable()->comment('损失项目ID 每个损失项目的ID，若为新增项目，传空');
             $table->integer('AppraisalTimes')->nullable()->comment('定损次数 当次理算次数');
             $table->string('LossItemName', 200)->nullable()->comment('损失项目名称 子赔案类型为财产损失时必传');
             $table->string('LossItemType', 6)->nullable()->comment('损失项目类型 《公用代码》-损失项目类型');
@@ -263,7 +262,7 @@ return new class extends Migration {
             $table->id();
             $table->integer('appraisal_info_id')->comment('任务ID');
             $table->string('OperationType', 6)->comment('操作类型 《公用代码》-操作类型');
-            $table->integer('SequenceNo', 6)->nullable()->comment('损失项目ID 每个损失项目的ID，若为新增项目，传空');
+            $table->integer('SequenceNo')->nullable()->comment('损失项目ID 每个损失项目的ID，若为新增项目，传空');
             $table->integer('AppraisalTimes')->nullable()->comment('定损次数 当次理算次数');
             $table->string('RescueUnit')->nullable()->comment('施救单位');
             $table->string('BenefitCode', 200)->comment('险别代码 《公用代码》-险别代码下的责任');
@@ -279,7 +278,7 @@ return new class extends Migration {
             $table->id();
             $table->integer('appraisal_info_id')->comment('任务ID');
             $table->string('OperationType', 6)->comment('操作类型 《公用代码》-操作类型');
-            $table->integer('SequenceNo', 6)->nullable()->comment('损失项目ID 每个损失项目的ID，若为新增项目，传空');
+            $table->integer('SequenceNo')->nullable()->comment('损失项目ID 每个损失项目的ID，若为新增项目，传空');
             $table->integer('CalculationTimes')->nullable()->comment('理算次数 当次理算次数');
             $table->integer('ReserveType')->nullable()->comment('赔偿类型 《公用代码》-赔偿类型');
             $table->string('BenefitCode', 100)->comment('险别代码 《公用代码》-险别代码下的责任');
