@@ -9,23 +9,23 @@ use Illuminate\Http\JsonResponse;
  */
 class Response
 {
-    public static function success(): JsonResponse
+    public static function success($requestCode): JsonResponse
     {
         return response()->json([
             "Head" => [
                 "ErrorMessage" => "",
-                "RequestCode" => "W01",
+                "RequestCode" => $requestCode,
                 "ResponseCode" => "1"
             ]
         ]);
     }
 
-    public static function failed($message = ''): JsonResponse
+    public static function failed($requestCode, $message = ''): JsonResponse
     {
         return response()->json([
             "Head" => [
                 "ErrorMessage" => $message,
-                "RequestCode" => "W01",
+                "RequestCode" => $requestCode,
                 "ResponseCode" => "0"
             ]
         ]);

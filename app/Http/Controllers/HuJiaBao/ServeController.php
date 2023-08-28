@@ -125,7 +125,7 @@ class ServeController extends Controller
             }
         }
 
-        return Response::success();
+        return Response::success('W01');
     }
 
     /**
@@ -239,7 +239,7 @@ class ServeController extends Controller
             'url' => request()->fullUrl(),
             'request' => json_encode(request()->all()),
         ]);
-        return Response::success();
+        return Response::success('W03');
     }
 
     /**
@@ -278,7 +278,7 @@ class ServeController extends Controller
             'TaskType',  // 任务类型 《公用代码》-任务类型
         ]);
 
-        return Response::success();
+        return Response::success('W05');
     }
 
     /**
@@ -302,7 +302,7 @@ class ServeController extends Controller
             'IsDeclined',  // 是否拒赔 《公用代码》-是否代码
         ]);
 
-        return Response::success();
+        return Response::success('W06');
     }
 
     /**
