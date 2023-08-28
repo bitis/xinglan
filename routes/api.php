@@ -199,5 +199,8 @@ Route::post('upload_', 'UploadController@form');
 Route::prefix('hjb')->group(function () {
     Route::post('upload', 'HuJiaBao\ServeController@upload');
     Route::post('receiveInvestigationTask', 'HuJiaBao\ServeController@receiveInvestigationTask');
+    Route::post('receiveAppraisalPass', 'HuJiaBao\ServeController@receiveAppraisalPass');
+    Route::post('receiveTaskCanceled', 'HuJiaBao\ServeController@receiveTaskCanceled');
+    Route::post('receiveAppraisalTask', 'HuJiaBao\ServeController@receiveAppraisalTask');
     Route::post('investigation', 'HuJiaBao\ServeController@investigation');
 });

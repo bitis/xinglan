@@ -6,6 +6,7 @@ use App\Common\HuJiaBao\ApiClient;
 use App\Common\HuJiaBao\Response;
 use App\Http\Controllers\Controller;
 use App\Models\HuJiaBao\ClaimInfo;
+use App\Models\HuJiaBao\Log;
 use App\Models\HuJiaBao\PolicyInfo;
 use App\Models\HuJiaBao\TaskInfo;
 use Exception;
@@ -24,6 +25,12 @@ class ServeController extends Controller
      */
     public function receiveInvestigationTask(Request $request): JsonResponse
     {
+        Log::create([
+            'type' => '查勘任务推送',
+            'url' => request()->fullUrl(),
+            'request' => json_encode(request()->all()),
+        ]);
+
         $PolicyInfoParams = $request->collect('PolicyInfo');
 
         $policyInfo = PolicyInfo::create($PolicyInfoParams->only([
@@ -222,7 +229,11 @@ class ServeController extends Controller
      */
     public function receiveAppraisalTask(): JsonResponse
     {
-
+        Log::create([
+            'type' => '定损理算推送',
+            'url' => request()->fullUrl(),
+            'request' => json_encode(request()->all()),
+        ]);
         return Response::success();
     }
 
@@ -246,6 +257,12 @@ class ServeController extends Controller
      */
     public function receiveTaskCanceled(Request $request): JsonResponse
     {
+        Log::create([
+            'type' => '任务关闭推送',
+            'url' => request()->fullUrl(),
+            'request' => json_encode(request()->all()),
+        ]);
+
         $request->only([
             'ClaimNo',  // 理赔编号
             'TaskID',  // 任务ID 核心任务唯一ID
@@ -264,6 +281,12 @@ class ServeController extends Controller
      */
     public function receiveAppraisalPass(Request $request): JsonResponse
     {
+        Log::create([
+            'type' => '核赔通过推送',
+            'url' => request()->fullUrl(),
+            'request' => json_encode(request()->all()),
+        ]);
+
         $request->only([
             'ClaimNo',  // 理赔编号
             'SubClaim',  // 子赔案
