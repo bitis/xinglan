@@ -87,7 +87,7 @@ class ApprovalController extends Controller
         $process = ApprovalOrderProcess::with('company:id,name')
             ->where('id', $request->input('process_id'))->first();
 
-        $withs = [];
+        $withs = ['repair_plan'];
 
         if ($process->approval_type == ApprovalType::ApprovalQuotation->value)
             $withs['quotation'] = function ($query) use ($company_id) {
