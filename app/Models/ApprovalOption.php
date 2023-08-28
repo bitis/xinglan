@@ -42,10 +42,7 @@ class ApprovalOption extends Model
      */
     public static function findByType($company_id, $type)
     {
-        $option = self::where('company_id', $company_id)->where('type', $type)->first();
-        if (!$option) throw new \Exception('请先配置审批流程');
-
-        return $option;
+         return self::where('company_id', $company_id)->where('type', $type)->first();
     }
 
 
