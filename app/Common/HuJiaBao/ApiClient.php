@@ -10,9 +10,9 @@ use Illuminate\Http\UploadedFile;
 
 class ApiClient
 {
-    protected string $host = 'http://hujiabao-sandbox.hujiabao.com/easyclaim-core-v2/mmi/server/v1/serviceReceive';
+    protected string $host = 'http://hujiabao-sandbox.hujiabao.com';
 
-    protected string $token = '';
+    protected string $token = 'Bearer MOATJJo0mhkNAOlOOpj6VfFq-mRJRGqJ';
 
     protected Client $client;
 
