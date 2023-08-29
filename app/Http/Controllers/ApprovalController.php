@@ -254,7 +254,7 @@ class ApprovalController extends Controller
                 foreach ($reviewers as $reviewer) {
                     $reviewer->hidden = false;
                     $reviewer->save();
-                    ApprovalNotifyJob::dispatch($reviewers->user_id, [
+                    ApprovalNotifyJob::dispatch($reviewer->user_id, [
                         'type' => 'approval',
                         'order_id' => $reviewer->order_id,
                         'process_id' => $reviewer->id,
