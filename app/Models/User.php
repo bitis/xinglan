@@ -61,7 +61,7 @@ class User extends Authenticatable
     public function avatar(): Attribute
     {
         return Attribute::make(
-            get: fn(mixed $value) => $value ?: config('default.avatar'),
+            get: fn(mixed $value) => $value ?: Company::find($this->company_id)?->logo,
         );
     }
 
