@@ -35,97 +35,110 @@ class ServeController extends Controller
             'request' => json_encode(request()->all()),
         ]);
 
-        $PolicyInfoParams = $request->collect('PolicyInfo');
+        try {
 
-        $policyInfo = PolicyInfo::create($PolicyInfoParams->only([
-            "PolicyNo",
-            "ProductType",
-            "EffectiveDate",
-            "ExpireDate",
-            "PolicyStatus",
-            "StandardPremium",
-        ])->toArray());
+            DB::beginTransaction();
 
-        $PropertyParams = collect($PolicyInfoParams->get('Property'));
+            $PolicyInfoParams = $request->collect('PolicyInfo');
 
-        $propertyInfo = $policyInfo->property()->create($PropertyParams->only([
-            "PropertyProvince",
-            "PropertyCity",
-            "PropertyDistrict",
-            "PropertyDetailAddress",
-        ])->toArray());
-
-        foreach ($PropertyParams->get('CoverageList') as $item) {
-            $coverageInfo = $propertyInfo->coverageList()->create(Arr::only($item, [
-                "IsFinalLevelCt",
-                "CoverageCode",
-                "SumInsured",
-                "SumPaymentAmt",
-            ]));
-
-            $coverageInfo->benefitList()->createMany($item['BenefitList']);
-        }
-
-        $ClaimInfoParams = collect($request->collect('ClaimInfo'));
-
-        if ($ClaimInfoParams) {
-            $claimInfo = ClaimInfo::create($ClaimInfoParams->only([
-                'ClaimNo',
-                'AccidentTime',
-                'ReportTime',
-                'ReportDelayCause',
-                'AccidentCause',
-                'AccidentCauseDesc',
-                'IsCatastrophe',
-                'CatastropheCode',
-                'PropertyLossAmt',
-                'InjuryLossAmt',
-                'ReportType',
-                'ReportName',
-                'ReportTel',
-                'InsuredRelation',
-                'AccidentProvince',
-                'AccidentCity',
-                'AccidentDistrict',
-                'AccidentDetailAddress',
-                'AccidentDesc',
+            $policyInfo = PolicyInfo::create($PolicyInfoParams->only([
+                "PolicyNo",
+                "ProductType",
+                "EffectiveDate",
+                "ExpireDate",
+                "PolicyStatus",
+                "StandardPremium",
             ])->toArray());
 
-            $SubClaimInfoParams = $ClaimInfoParams->get('SubClaimInfo');
+            $PropertyParams = collect($PolicyInfoParams->get('Property'));
 
-            if ($SubClaimInfoParams) {
-                $subClaimInfo = $claimInfo->subClaimInfo()->create(Arr::only($SubClaimInfoParams, [
-                    'SubClaim',
-                    'RiskName',
-                    'SubClaimType',
-                    'DamageObject',
-                    'DamageDesc',
-                    'Owner',
-                    'TotalLoss',
-                    'CertiType',
-                    'CertiNo',
-                    'Sex',
-                    'DateOfBirth',
-                    'Mobile',
-                    'InjuryName',
-                    'InjuryType',
-                    'InjuryLevel',
-                    'DisabilityGrade',
-                    'Treatment',
-                    'HospitalName',
-                    'DateOfAdmission',
-                    'DateOfDischarge',
-                    'DaysInHospital',
-                    'CareName',
-                    'CareDays',
-                    'ContactProvince',
-                    'ContactCity',
-                    'ContactDistrict',
-                    'ContactDetailAddress',
+            $propertyInfo = $policyInfo->property()->create($PropertyParams->only([
+                "PropertyProvince",
+                "PropertyCity",
+                "PropertyDistrict",
+                "PropertyDetailAddress",
+            ])->toArray());
+
+            foreach ($PropertyParams->get('CoverageList') as $item) {
+                $coverageInfo = $propertyInfo->coverageList()->create(Arr::only($item, [
+                    "IsFinalLevelCt",
+                    "CoverageCode",
+                    "SumInsured",
+                    "SumPaymentAmt",
                 ]));
 
-                $subClaimInfo->taskInfo()->create($SubClaimInfoParams['TaskInfo']);
+                $coverageInfo->benefitList()->createMany($item['BenefitList']);
             }
+
+            $ClaimInfoParams = collect($request->collect('ClaimInfo'));
+
+            if ($ClaimInfoParams) {
+                $claimInfo = ClaimInfo::create($ClaimInfoParams->only([
+                    'ClaimNo',
+                    'AccidentTime',
+                    'ReportTime',
+                    'ReportDelayCause',
+                    'AccidentCause',
+                    'AccidentCauseDesc',
+                    'IsCatastrophe',
+                    'CatastropheCode',
+                    'PropertyLossAmt',
+                    'InjuryLossAmt',
+                    'ReportType',
+                    'ReportName',
+                    'ReportTel',
+                    'InsuredRelation',
+                    'AccidentProvince',
+                    'AccidentCity',
+                    'AccidentDistrict',
+                    'AccidentDetailAddress',
+                    'AccidentDesc',
+                ])->toArray());
+
+                $SubClaimInfoParams = $ClaimInfoParams->get('SubClaimInfo');
+
+                if ($SubClaimInfoParams) {
+                    $subClaimInfo = $claimInfo->subClaimInfo()->create(Arr::only($SubClaimInfoParams, [
+                        'SubClaim',
+                        'RiskName',
+                        'SubClaimType',
+                        'DamageObject',
+                        'DamageDesc',
+                        'Owner',
+                        'TotalLoss',
+                        'CertiType',
+                        'CertiNo',
+                        'Sex',
+                        'DateOfBirth',
+                        'Mobile',
+                        'InjuryName',
+                        'InjuryType',
+                        'InjuryLevel',
+                        'DisabilityGrade',
+                        'Treatment',
+                        'HospitalName',
+                        'DateOfAdmission',
+                        'DateOfDischarge',
+                        'DaysInHospital',
+                        'CareName',
+                        'CareDays',
+                        'ContactProvince',
+                        'ContactCity',
+                        'ContactDistrict',
+                        'ContactDetailAddress',
+                    ]));
+
+                    $subClaimInfo->taskInfo()->create($SubClaimInfoParams['TaskInfo']);
+                    $investigationInfo = $subClaimInfo->investigationInfo()->create($SubClaimInfoParams['InvestigationInfo']);
+
+                    $investigationInfo->lossItemList()->createMany($SubClaimInfoParams['InvestigationInfo']['LossItemList']);
+                }
+            }
+
+            DB::commit();
+        } catch (Exception $exception) {
+            DB::rollBack();
+            return Response::failed('W01');
         }
 
         return Response::success('W01');

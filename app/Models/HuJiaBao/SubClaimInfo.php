@@ -88,4 +88,9 @@ class SubClaimInfo extends Model
     {
         return $this->hasOne(TaskInfo::class, 'sub_claim_info_id', 'id');
     }
+
+    public function investigationInfo(): HasOne
+    {
+        return $this->hasOne(InvestigationInfo::class, 'sub_claim_info_id', 'id');
+    }
 }
