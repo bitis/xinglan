@@ -5,11 +5,14 @@ namespace App\Http\Controllers\HuJiaBao;
 use App\Common\HuJiaBao\ApiClient;
 use App\Common\HuJiaBao\Response;
 use App\Http\Controllers\Controller;
-use App\Models\AppraisalTask;
+use App\Models\CalculationInfo;
+use App\Models\HuJiaBao\AppraisalInfo;
+use App\Models\HuJiaBao\AppraisalTask;
 use App\Models\HuJiaBao\ClaimInfo;
 use App\Models\HuJiaBao\Log;
 use App\Models\HuJiaBao\PolicyInfo;
 use App\Models\HuJiaBao\TaskInfo;
+use App\Models\PayeeInfo;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -232,13 +235,36 @@ class ServeController extends Controller
      *
      * @return JsonResponse
      */
-    public function receiveAppraisalTask(): JsonResponse
+    public function receiveAppraisalTask(Request $request): JsonResponse
     {
         Log::create([
             'type' => '定损理算推送',
             'url' => request()->fullUrl(),
             'request' => json_encode(request()->all()),
         ]);
+
+        $task = AppraisalTask::create($request->input('TaskInfo'));
+
+        $appraisalInfo = AppraisalInfo::create($request->input('AppraisalInfo'));
+
+        $appraisalInfo->task_id = $task->id;
+        $appraisalInfo->save();
+
+        $appraisalInfo->lossItemList()->createMany($request->input('AppraisalInfo.LossItemList'));
+        $appraisalInfo->rescueFeeList()->createMany($request->input('AppraisalInfo.RescueFeeList'));
+
+        foreach ($request->input('CalculationInfoList') as $calculationInfo) {
+            $calculationInfo['appraisal_info_id'] = $appraisalInfo->id;
+            CalculationInfo::create($calculationInfo);
+        }
+
+        foreach ($request->input('PayeeInfoList') as $info) {
+            $info['appraisal_info_id'] = $appraisalInfo->id;
+            $payeeInfo = PayeeInfo::create($info);
+
+            $payeeInfo->indemnity()->createMany($info['IndemnityInfoList']);
+        }
+
         return Response::success('W03');
     }
 
@@ -317,6 +343,6 @@ class ServeController extends Controller
             'url' => request()->fullUrl(),
             'request' => json_encode(request()->all()),
         ]);
-        return Response::success();
+        return Response::success('W07');
     }
 }

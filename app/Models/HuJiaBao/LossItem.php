@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\HuJiaBao;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LossItem extends Model
 {
@@ -24,7 +25,7 @@ class LossItem extends Model
         'Remark',
     ];
 
-    public function investigationInfo()
+    public function investigationInfo(): BelongsTo
     {
         return $this->belongsTo(InvestigationInfo::class, 'investigation_info_id', 'id');
     }

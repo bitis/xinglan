@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\HuJiaBao;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class InvestigationInfo extends Model
 {
@@ -25,7 +26,7 @@ class InvestigationInfo extends Model
         'Remark',
     ];
 
-    public function lossItemList()
+    public function lossItemList(): HasMany
     {
         return $this->hasMany(LossItem::class, 'investigation_info_id', 'id');
     }

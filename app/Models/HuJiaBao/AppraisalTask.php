@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\HuJiaBao;
 
 use App\Models\Traits\DefaultDatetimeFormat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,6 +12,15 @@ class AppraisalTask extends Model
 
     protected $table = 'hjb_appraisal_tasks';
 
-    protected $fillable = [];
+    protected $fillable = [
+        'ClaimNo',
+        'TaskID',
+        'DueDate',
+        'IsConfirmed',
+        'Remark',
+        'DispatcherName',
+        'DispatcherTel',
+        'status',
+    ];
 
 }
