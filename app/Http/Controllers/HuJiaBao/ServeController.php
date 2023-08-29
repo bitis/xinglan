@@ -153,7 +153,12 @@ class ServeController extends Controller
     public function upload(Request $request, ApiClient $client): JsonResponse
     {
         try {
-            $response = $client->upload($request->file('Files'), '12', '12', '122');
+            $response = $client->upload(
+                $request->file('files'),
+                '001',
+                $request->input('businessNo'),
+                $request->input('directory')
+            );
         } catch (\Exception $e) {
             return fail($e->getMessage());
         }
