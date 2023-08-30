@@ -524,7 +524,11 @@ class OrderController extends Controller
                 }
 
                 $checker_text = '审核人：（' . trim($checker_text, ',') . '）' . ['', '或签', '依次审批'][$option->approve_mode];
-                $profit_margin_ratio = ($quotation->bid_total_price - $order->total_cost) / $quotation->bid_total_price;
+
+                $profit_margin_ratio = 0;
+
+                if ($quotation->bid_total_price > 0)
+                    $profit_margin_ratio = ($quotation->bid_total_price - $order->total_cost) / $quotation->bid_total_price;
 
                 if ($profit_margin_ratio < $option->review_conditions) {
                     foreach ($reviewers as $reviewer) {
