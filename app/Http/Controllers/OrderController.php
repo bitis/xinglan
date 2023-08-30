@@ -452,7 +452,7 @@ class OrderController extends Controller
     {
         $user = $request->user();
 
-        $order = Order::where('company_id', $user->company_id)->find($request->input('id'));
+        $order = Order::where('wusun_company_id', $user->company_id)->find($request->input('id'));
 
         if (!$order) return fail('工单未找到');
 
