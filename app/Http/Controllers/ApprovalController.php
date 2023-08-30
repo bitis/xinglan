@@ -465,7 +465,10 @@ class ApprovalController extends Controller
 
         $order->cost_check_status = $accept ? Order::COST_CHECK_STATUS_PASS : Order::COST_CHECK_STATUS_WAIT;
         $order->cost_checked_at = $accept ? now()->toDateTimeString() : null;
-        $order->profit_margin_ratio = ($quotation->bid_total_price - $order->total_cost) / $quotation->bid_total_price;
+
+        $order->profit_margin_ratio = 0;
+        if ($order->bid_total_price > 0)
+            $order->profit_margin_ratio = ($quotation->bid_total_price - $order->total_cost) / $quotation->bid_total_price;
         $order->save();
 
 
