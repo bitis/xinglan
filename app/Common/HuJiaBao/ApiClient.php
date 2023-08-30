@@ -100,7 +100,8 @@ class ApiClient
                 throw new Exception($result['Messages']['Message']);
 
             foreach ($result['Model'] as &$item) {
-                $item['url'] = 'uploads/' . $item['OrgFileName'];
+                $item['url'] = '/uploads/' . $item['OrgFileName'];
+                unset($item['OldFileData']);
             }
 
             Files::insert($result['Model']);
