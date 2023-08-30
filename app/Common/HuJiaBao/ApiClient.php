@@ -22,7 +22,7 @@ class ApiClient
             'base_uri' => $this->host,
             'headers' => [
                 'Authorization' => $this->token,
-                'Content-Type' => 'text/plain',
+                'Content-Type' => 'multipart/form-data',
             ]
         ]);
     }
@@ -80,7 +80,7 @@ class ApiClient
         try {
             $response = $this->client->post($url, [
                 'multipart' => $multipart,
-                'form_params' => [
+                'query' => [
                     'BusinessType' => $BusinessType,
                     'BusinessNo' => $BusinessNo,
                     'Directory' => $Directory,
