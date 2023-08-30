@@ -108,7 +108,7 @@ class ApiClient
             return $result['Model'];
 
         } catch (GuzzleException $exception) {
-            throw new Exception($exception->getMessage());
+            throw $exception;
         }
     }
 
