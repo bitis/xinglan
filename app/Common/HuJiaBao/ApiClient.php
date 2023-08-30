@@ -2,11 +2,12 @@
 
 namespace App\Common\HuJiaBao;
 
+use App\Models\HuJiaBao\Files;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class ApiClient
 {
@@ -71,11 +72,17 @@ class ApiClient
     {
         $url = '/attachment-core/attachment/v1/uploadMulti';
 
-        $multipart = array_map(fn(UploadedFile $file) => [
-            'name' => 'Files',
-            'contents' => $file->getContent(),
-            'filename' => $file->getClientOriginalName()
-        ], $files);
+        $multipart = array_map(function (UploadedFile $file) {
+            $fileName = $file->hashName();
+
+            Storage::disk('qcloud')->put('uploads/' . $fileName, $file->getContent());
+
+            return [
+                'name' => 'Files',
+                'contents' => $file->getContent(),
+                'filename' => $fileName
+            ];
+        }, $files);
 
         try {
             $response = $this->client->post($url, [
@@ -91,6 +98,12 @@ class ApiClient
 
             if ($result['Status'] == 'BLOCK')
                 throw new Exception($result['Messages']['Message']);
+
+            foreach ($result['Model'] as &$item) {
+                $item['url'] = 'uploads/' . $item['OrgFileName'];
+            }
+
+            Files::insert($result['Model']);
 
             return $result['Model'];
 
