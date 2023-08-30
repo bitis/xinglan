@@ -121,6 +121,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('dispatchProvider', 'OrderController@dispatchProvider');
         Route::post('check', 'OrderController@check'); // 物损查勘人员查勘
         Route::post('confirmPlan', 'OrderController@confirmPlan'); // 物损确认方案
+        Route::post('confirmCost', 'OrderController@confirmCost'); // 成本核算
         Route::post('close', 'OrderController@close'); // 关闭
         Route::get('logs', 'OrderController@logs'); // 变更日志
         Route::get('export', 'OrderController@export'); // 导出 Excel

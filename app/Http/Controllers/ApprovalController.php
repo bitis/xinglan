@@ -315,6 +315,7 @@ class ApprovalController extends Controller
             ApprovalType::ApprovalQuotation->value => $this->approvalQuotation($approvalOrder, $accept),
             ApprovalType::ApprovalAssessment->value => $this->approvalAssessment($approvalOrder, $accept),
             ApprovalType::ApprovalClose->value => $this->approvalClose($approvalOrder, $accept),
+            ApprovalType::ApprovalRepairCost->value => $this->approvalRepairCost($approvalOrder, $accept),
         };
     }
 
@@ -435,6 +436,46 @@ class ApprovalController extends Controller
             'send_company_id' => $order->wusun_company_id,
             'to_company_id' => $order->wusun_company_id,
             'type' => MessageType::OrderClosed->value,
+            'order_id' => $order->id,
+            'order_number' => $order->order_number,
+            'case_number' => $order->case_number,
+            'goods_types' => $order->goods_types,
+            'remark' => $order->close_remark,
+            'status' => 0,
+        ]);
+
+        $message->save();
+    }
+
+
+    /**
+     * 施工修复成本审核
+     *
+     * @param ApprovalOrder $approvalOrder
+     * @param bool $accept
+     * @return void
+     */
+    private function approvalRepairCost(ApprovalOrder $approvalOrder, bool $accept)
+    {
+        $order = $approvalOrder->order;
+
+        $quotation = OrderQuotation::where('order_id', $order->id)
+            ->where('company_id', $approvalOrder->company_id)
+            ->first();
+
+        $order->cost_check_status = $accept ? Order::COST_CHECK_STATUS_PASS : Order::COST_CHECK_STATUS_WAIT;
+        $order->cost_checked_at = $accept ? now()->toDateTimeString() : null;
+        $order->profit_margin_ratio = ($quotation->bid_total_price - $order->total_cost) / $quotation->bid_total_price;
+        $order->save();
+
+
+        $quotation->save();
+
+        // Message
+        $message = new Message([
+            'send_company_id' => $order->wusun_company_id,
+            'to_company_id' => $order->wusun_company_id,
+            'type' => MessageType::ConfirmedCost,
             'order_id' => $order->id,
             'order_number' => $order->order_number,
             'case_number' => $order->case_number,

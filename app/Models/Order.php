@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Jobs\BidOpeningJob;
 use App\Jobs\OrderDispatch;
 use App\Jobs\QuotaMessageJob;
-use App\Models\Enumerations\CheckStatus;
 use App\Models\Traits\DefaultDatetimeFormat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -86,7 +85,16 @@ class Order extends Model
         'close_remark',
         'close_at',
         'close_status',
-        'repair_company_ids'
+        'repair_company_ids',
+        'repair_cost',
+        'other_cost',
+        'total_cost',
+        'cost_remark',
+        'cost_check_status',
+        'cost_submit_at',
+        'cost_creator_id',
+        'cost_creator_name',
+        'cost_checked_at',
     ];
 
     protected $casts = [
@@ -132,6 +140,9 @@ class Order extends Model
     const PLAN_TYPE_MEDIATE = 2; // 协调处理
 
 
+    const COST_CHECK_STATUS_WAIT = 0; // 未提交
+    const COST_CHECK_STATUS_APPROVAL = 1; // 审核中
+    const COST_CHECK_STATUS_PASS = 2; // 审核通过
 
     public function company(): BelongsTo
     {

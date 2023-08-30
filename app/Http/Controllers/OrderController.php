@@ -14,6 +14,7 @@ use App\Models\CompanyProvider;
 use App\Models\Enumerations\ApprovalMode;
 use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\ApprovalType;
+use App\Models\Enumerations\CheckStatus;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\MessageType;
 use App\Models\Enumerations\OrderCloseStatus;
@@ -438,6 +439,161 @@ class OrderController extends Controller
         ]);
 
         return success($order);
+    }
+
+    /**
+     * 成本核算
+     *
+     * @param Request $request
+     * @return JsonResponse
+     * @throws \Exception
+     */
+    public function confirmCost(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $order = Order::where('company_id', $user->company_id)->find($request->input('id'));
+
+        if (!$order) return fail('工单未找到');
+
+        $quotation = OrderQuotation::where('order_id', $request->input('id'))
+            ->where('company_id', $user->company_id)
+            ->first();
+
+        if (!$quotation or $quotation->check_status != CheckStatus::Accept->value) return fail('必须先通过对外报价');
+
+        if (in_array($order->cost_check_status, [1, 2])) return fail('当前状态不允许修改');
+
+        try {
+            DB::beginTransaction();
+
+            $order->fill($request->only([
+                'repair_cost',
+                'other_cost',
+                'total_cost',
+                'cost_remark',
+            ]));
+
+            $order->cost_check_status = Order::COST_CHECK_STATUS_APPROVAL;
+            $order->cost_submit_at = now()->toDateTimeString();
+            $order->cost_creator_id = $user->id;
+            $order->cost_creator_name = $user->name;
+            $order->cost_checked_at = null;
+            $order->save();
+
+            $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalRepairCost->value);
+
+            $checker_text = '';
+
+            if (!$option) {
+                $order->cost_check_status = Order::COST_CHECK_STATUS_PASS;
+                $order->cost_checked_at = now()->toDateTimeString();
+            } else {
+                $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
+                if ($approvalOrder) {
+                    ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
+                    $approvalOrder->delete();
+                }
+
+                $approvalOrder = ApprovalOrder::create([
+                    'order_id' => $order->id,
+                    'company_id' => $user->company_id,
+                    'approval_type' => $option->type,
+                ]);
+
+                list($checkers, $reviewers, $receivers) = ApprovalOption::groupByType($option->approver);
+
+                $checker_text = $reviewer_text = '';
+
+                $insert = [];
+                foreach ($checkers as $index => $checker) {
+                    $insert[] = [
+                        'user_id' => $checker['id'],
+                        'name' => $checker['name'],
+                        'creator_id' => $user->id,
+                        'creator_name' => $user->name,
+                        'order_id' => $order->id,
+                        'company_id' => $user->company_id,
+                        'step' => Approver::STEP_CHECKER,
+                        'approval_status' => ApprovalStatus::Pending->value,
+                        'mode' => $option->approve_mode,
+                        'approval_type' => $option->type,
+                        'hidden' => $index > 0 && $option->approve_mode == ApprovalMode::QUEUE->value,
+                    ];
+                    $checker_text .= $checker['name'] . ', ';
+                }
+
+                $checker_text = '审核人：（' . trim($checker_text, ',') . '）' . ['', '或签', '依次审批'][$option->approve_mode];
+                $profit_margin_ratio = ($quotation->bid_total_price - $order->total_cost) / $quotation->bid_total_price;
+
+                if ($profit_margin_ratio < $option->review_conditions) {
+                    foreach ($reviewers as $reviewer) {
+                        $insert[] = [
+                            'user_id' => $reviewer['id'],
+                            'name' => $reviewer['name'],
+                            'creator_id' => $user->id,
+                            'creator_name' => $user->name,
+                            'order_id' => $order->id,
+                            'company_id' => $user->company_id,
+                            'step' => Approver::STEP_REVIEWER,
+                            'approval_status' => ApprovalStatus::Pending->value,
+                            'mode' => $option->review_mode,
+                            'approval_type' => $option->type,
+                            'hidden' => true,
+                        ];
+                        $reviewer_text .= $reviewer['name'] . ', ';
+                    }
+                    $checker_text .= ('复审人：(' . trim($reviewer_text, ',') . '）' . ['', '或签', '依次审批'][$option->review_mode]);
+                }
+
+                foreach ($receivers as $receiver) {
+                    $insert[] = [
+                        'user_id' => $receiver['id'],
+                        'name' => $receiver['name'],
+                        'creator_id' => $user->id,
+                        'creator_name' => $user->name,
+                        'order_id' => $order->id,
+                        'company_id' => $user->company_id,
+                        'step' => Approver::STEP_RECEIVER,
+                        'approval_status' => ApprovalStatus::Pending->value,
+                        'mode' => ApprovalMode::QUEUE->value,
+                        'approval_type' => $option->type,
+                        'hidden' => true,
+                    ];
+                }
+
+                $approvalOrder->process()->delete();
+                if ($insert) $approvalOrder->process()->createMany($insert);
+
+                foreach ($approvalOrder->process as $process) {
+                    if (!$process->hidden) ApprovalNotifyJob::dispatch($process['user_id'], [
+                        'type' => 'approval',
+                        'order_id' => $order->id,
+                        'process_id' => $process->id,
+                        'creator_name' => $process->creator_name,
+                    ]);
+                }
+            }
+            $quotation->save();
+            OrderLog::create([
+                'order_id' => $order->id,
+                'type' => OrderLog::TYPE_SUBMIT_QUOTATION,
+                'creator_id' => $quotation->creator_id,
+                'creator_name' => $quotation->creator_name,
+                'creator_company_id' => $quotation->company_id,
+                'creator_company_name' => $quotation->company_name,
+                'content' => $quotation->creator_name . '提交施工成本修复审核，报价金额为' . $quotation->total_price . '预计施工工期：'
+                    . $quotation->repair_days . '天；备注：' . $quotation->quotation_remark . '；' . $checker_text,
+                'platform' => \request()->header('platform'),
+            ]);
+
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return fail($exception->getMessage());
+        }
+
+        return success();
     }
 
     /**

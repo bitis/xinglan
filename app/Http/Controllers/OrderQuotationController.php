@@ -143,10 +143,6 @@ class OrderQuotationController extends Controller
             ($quotation->isDirty('bid_repair_days') or $quotation->isDirty('bid_total_price'))
         ) return success('报价信息不允许修改');
 
-        if (in_array($quotation->cost_check_status, [1, 2]) and
-            $quotation->isDirty('plan_type', 'repair_days', 'repair_cost', 'other_cost', 'total_cost', 'cost_remark')
-        ) return success('成本信息审核中不允许修改');
-
         try {
             DB::beginTransaction();
 
