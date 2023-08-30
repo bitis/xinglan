@@ -125,7 +125,6 @@ class OrderQuotationController extends Controller
             'repair_cost',
             'other_cost',
             'total_cost',
-            'cost_remark',
             'profit_margin',
             'profit_margin_ratio',
             'repair_remark',
