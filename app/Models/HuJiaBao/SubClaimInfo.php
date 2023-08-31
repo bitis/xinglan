@@ -2,6 +2,7 @@
 
 namespace App\Models\HuJiaBao;
 
+use App\Models\Traits\DefaultDatetimeFormat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class SubClaimInfo extends Model
 {
-    use HasFactory;
+    use HasFactory, DefaultDatetimeFormat;
 
     protected $table = 'hjb_sub_claim_infos';
 

@@ -181,7 +181,13 @@ class ServeController extends Controller
      */
     public function investigationTask(Request $request): JsonResponse
     {
-        $claims = ClaimInfo::when($request->input('status'), fn($query, $status) => $query->where('status', $status))
+        $claims = PolicyInfo::with([
+            'property',
+            'property.coverageList',
+            'claimInfo',
+            'claimInfo.subClaimInfo',
+            'claimInfo.subClaimInfo.investigationInfo',
+        ])
             ->orderBy('id', 'desc')
             ->paginate(getPerPage());
 

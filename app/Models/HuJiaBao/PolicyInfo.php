@@ -2,6 +2,7 @@
 
 namespace App\Models\HuJiaBao;
 
+use App\Models\Traits\DefaultDatetimeFormat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class PolicyInfo extends Model
 {
-    use HasFactory;
+    use HasFactory, DefaultDatetimeFormat;
 
     protected $table = 'hjb_policy_infos';
 
@@ -27,5 +28,10 @@ class PolicyInfo extends Model
     public function property(): HasOne
     {
         return $this->hasOne(Property::class, 'policy_info_id', 'id');
+    }
+
+    public function claimInfo(): HasOne
+    {
+        return $this->hasOne(ClaimInfo::class, 'id', 'claim_info_id');
     }
 }
