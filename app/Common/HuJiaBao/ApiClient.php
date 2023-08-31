@@ -128,6 +128,6 @@ class ApiClient
      */
     public function investigation($data): array
     {
-        return $this->request('/claim-core/claim/v1/investigation', ['SubClaimInfo' => $data]);
+        return $this->request('/easyclaim-core-v2/mmi/server/v1/serviceReceive?requestCode=W02', ['SubClaimInfo' => $data]);
     }
 }
