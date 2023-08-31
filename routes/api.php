@@ -209,4 +209,5 @@ Route::prefix('hjb')->group(function () {
     Route::get('appraisalTask', 'HuJiaBao\ServeController@appraisalTask');
 
     Route::post('investigation', 'HuJiaBao\ServeController@investigation');
+    Route::post('appraisal', 'HuJiaBao\ServeController@appraisal');
 });
