@@ -67,7 +67,7 @@ class BidOpeningJob implements ShouldQueue
                 // Message
                 $message = new Message([
                     'send_company_id' => $order->insurance_company_id,
-                    'to_company_id' => $order->check_wusun_company_id,
+                    'to_company_id' => $order->wusun_company_id,
                     'type' => MessageType::OrderDispatch->value,
                     'order_id' => $order->id,
                     'order_number' => $order->order_number,
