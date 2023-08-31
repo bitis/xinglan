@@ -32,6 +32,6 @@ class PolicyInfo extends Model
 
     public function claimInfo(): HasOne
     {
-        return $this->hasOne(ClaimInfo::class, 'id', 'claim_info_id');
+        return $this->hasOne(ClaimInfo::class, 'policy_info_id', 'id');
     }
 }

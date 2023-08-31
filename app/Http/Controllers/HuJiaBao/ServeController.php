@@ -73,6 +73,7 @@ class ServeController extends Controller
             $ClaimInfoParams = collect($request->collect('ClaimInfo'));
 
             if ($ClaimInfoParams) {
+                $ClaimInfoParams->put('policy_info_id', $policyInfo->id);
                 $claimInfo = ClaimInfo::create($ClaimInfoParams->only([
                     'ClaimNo',
                     'AccidentTime',
@@ -203,7 +204,6 @@ class ServeController extends Controller
     public function investigation(Request $request, ApiClient $client): JsonResponse
     {
         // 根据任务信息获取子赔单
-
         $taskInfo = TaskInfo::where('id', $request->input('TaskID'))->first();
 
         if (!$taskInfo) return fail('任务不存在');
