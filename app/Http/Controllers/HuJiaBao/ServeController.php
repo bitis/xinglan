@@ -73,8 +73,9 @@ class ServeController extends Controller
             $ClaimInfoParams = collect($request->collect('ClaimInfo'));
 
             if ($ClaimInfoParams) {
-                $ClaimInfoParams->put('policy_info_id', $policyInfo->id);
+                $ClaimInfoParams = $ClaimInfoParams->put('policy_info_id', $policyInfo->id);
                 $claimInfo = ClaimInfo::create($ClaimInfoParams->only([
+                    'policy_info_id',
                     'ClaimNo',
                     'AccidentTime',
                     'ReportTime',
