@@ -47,11 +47,14 @@ class ApiClient
     {
         $log = Log::create(['type' => 'SEND', 'url' => $url, 'request' => json_encode($data)]);
         try {
-            $response = $this->client->post($url, $data);
+            $response = $this->client->post($url, [
+                'body' => $data
+            ]);
 
-            $result = json_decode($response->getBody()->getContents(), true);
+            $responseText = $response->getBody()->getContents();
+            $result = json_decode($responseText, true);
 
-            $log->response = $result;
+            $log->response = $responseText;
             $log->status = $response->getStatusCode();
             $log->save();
 
@@ -62,7 +65,7 @@ class ApiClient
 
         } catch (ServerException $exception) {
             if ($exception->hasResponse()) {
-                $log->response = $exception->getResponse()->getBody();
+                $log->response = $exception->getResponse()->getBody()->getContents();
                 $log->save();
             }
             throw new Exception($exception->getMessage());
