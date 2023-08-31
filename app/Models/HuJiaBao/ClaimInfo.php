@@ -17,6 +17,7 @@ class ClaimInfo extends Model
     protected $table = 'hjb_claim_infos';
 
     protected $fillable = [
+        'policy_info_id',
         'ClaimNo',
         'AccidentTime',
         'ReportTime',
