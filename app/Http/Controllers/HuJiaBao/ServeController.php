@@ -13,7 +13,6 @@ use App\Models\HuJiaBao\Log;
 use App\Models\HuJiaBao\PolicyInfo;
 use App\Models\HuJiaBao\SubClaimInfo;
 use App\Models\PayeeInfo;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -192,9 +191,11 @@ class ServeController extends Controller
         $claims = PolicyInfo::with([
             'property',
             'property.coverageList',
+            'property.coverageList.benefitList',
             'claimInfo',
             'claimInfo.subClaimInfo',
             'claimInfo.subClaimInfo.investigationInfo',
+            'claimInfo.subClaimInfo.investigationInfo.lossItemList',
         ])
             ->orderBy('id', 'desc')
             ->paginate(getPerPage());
@@ -277,32 +278,45 @@ class ServeController extends Controller
      */
     public function receiveAppraisalTask(Request $request): JsonResponse
     {
-        Log::create([
+        $log = Log::create([
             'type' => '定损理算推送',
             'url' => request()->fullUrl(),
             'request' => json_encode(request()->all()),
         ]);
 
-        $task = AppraisalTask::create($request->input('TaskInfo'));
+        try {
 
-        $appraisalInfo = AppraisalInfo::create($request->input('AppraisalInfo'));
+            DB::beginTransaction();
+            $task = AppraisalTask::create($request->input('TaskInfo'));
 
-        $appraisalInfo->task_id = $task->id;
-        $appraisalInfo->save();
+            $appraisalInfo = AppraisalInfo::create($request->input('AppraisalInfo'));
 
-        $appraisalInfo->lossItemList()->createMany($request->input('AppraisalInfo.LossItemList'));
-        $appraisalInfo->rescueFeeList()->createMany($request->input('AppraisalInfo.RescueFeeList'));
+            $appraisalInfo->task_id = $task->id;
+            $appraisalInfo->save();
 
-        foreach ($request->input('CalculationInfoList') as $calculationInfo) {
-            $calculationInfo['appraisal_info_id'] = $appraisalInfo->id;
-            CalculationInfo::create($calculationInfo);
-        }
+            if ($request->input('AppraisalInfo.LossItemList'))
+                $appraisalInfo->lossItemList()->createMany($request->input('AppraisalInfo.LossItemList'));
+            if ($request->input('AppraisalInfo.RescueFeeList'))
+                $appraisalInfo->rescueFeeList()->createMany($request->input('AppraisalInfo.RescueFeeList'));
 
-        foreach ($request->input('PayeeInfoList') as $info) {
-            $info['appraisal_info_id'] = $appraisalInfo->id;
-            $payeeInfo = PayeeInfo::create($info);
+            foreach ($request->input('CalculationInfoList', []) as $calculationInfo) {
+                $calculationInfo['appraisal_info_id'] = $appraisalInfo->id;
+                CalculationInfo::create($calculationInfo);
+            }
 
-            $payeeInfo->indemnity()->createMany($info['IndemnityInfoList']);
+            foreach ($request->input('PayeeInfoList', []) as $info) {
+                $info['appraisal_info_id'] = $appraisalInfo->id;
+                $payeeInfo = PayeeInfo::create($info);
+
+                $payeeInfo->indemnity()->createMany($info['IndemnityInfoList']);
+            }
+
+            DB::commit();
+        } catch (Exception $exception) {
+            DB::rollBack();
+            $log->response = $exception->getMessage();
+            $log->save();
+            return Response::failed('W03', $exception->getMessage());
         }
 
         return Response::success('W03');
