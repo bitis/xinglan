@@ -205,6 +205,7 @@ class ServeController extends Controller
      * 提交查勘资料
      *
      * @param Request $request
+     * @param ApiClient $client
      * @return JsonResponse
      */
     public function investigation(Request $request, ApiClient $client): JsonResponse
