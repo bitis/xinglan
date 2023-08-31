@@ -3,6 +3,7 @@
 namespace App\Common\HuJiaBao;
 
 use App\Models\HuJiaBao\Files;
+use App\Models\HuJiaBao\Log;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
@@ -44,9 +45,14 @@ class ApiClient
     public function request($url, array $data = []): array
     {
         try {
+            $log = Log::create(['type' => 'SEND', 'url' => $url, 'request' => $data]);
             $response = $this->client->post($url, $data);
 
             $result = json_decode($response->getBody()->getContents(), true);
+
+            $log->response = $result;
+            $log->status = $response->getStatusCode();
+            $log->save();
 
             if ($result['Head']['ResponseCode'] == 0)
                 throw new Exception($result['Head']['ErrorMessage']);
