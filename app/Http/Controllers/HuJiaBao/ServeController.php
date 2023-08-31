@@ -316,7 +316,7 @@ class ServeController extends Controller
             DB::rollBack();
             $log->response = $exception->getMessage();
             $log->save();
-            return Response::failed('W03', $exception->getMessage());
+//            return Response::failed('W03', $exception->getMessage());
         }
 
         return Response::success('W03');
