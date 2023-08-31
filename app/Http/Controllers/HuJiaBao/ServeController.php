@@ -13,6 +13,7 @@ use App\Models\HuJiaBao\Log;
 use App\Models\HuJiaBao\PolicyInfo;
 use App\Models\HuJiaBao\SubClaimInfo;
 use App\Models\PayeeInfo;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -234,6 +235,8 @@ class ServeController extends Controller
                 'PropertyTotalEstimatedAmount',
                 'Remark',
             ])->toArray();
+
+            $investigationInfo['InvestigatorArrivalDate'] = date('Y-m-d\TH:i:s', strtotime($investigationInfo['InvestigatorArrivalDate']));
 
             $LossItemList = $request->input('SubClaimInfo.InvestigationInfo.LossItemList');
 
