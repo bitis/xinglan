@@ -74,6 +74,7 @@ class ProviderQuotationController extends Controller
                     CompanyType::BaoXian->value => $query->where('wusun_company_id', $provider_id)
                 };
             })
+            ->orderBy('id', 'desc')
             ->paginate(getPerPage());
 
         return success($orders);
