@@ -67,7 +67,7 @@ class ServeController extends Controller
                     "SumPaymentAmt",
                 ]));
 
-                $coverageInfo->benefitList()->createMany($item['BenefitList']);
+                if (isset($item['BenefitList'])) $coverageInfo->benefitList()->createMany($item['BenefitList']);
             }
 
             $ClaimInfoParams = collect($request->collect('ClaimInfo'));
@@ -128,10 +128,17 @@ class ServeController extends Controller
                         'ContactDetailAddress',
                     ]));
 
-                    $subClaimInfo->taskInfo()->create($SubClaimInfoParams['TaskInfo']);
-                    $investigationInfo = $subClaimInfo->investigationInfo()->create($SubClaimInfoParams['InvestigationInfo']);
+                    if (isset($SubClaimInfoParams['TaskInfo']))
+                        $subClaimInfo->taskInfo()->create($SubClaimInfoParams['TaskInfo']);
 
-                    $investigationInfo->lossItemList()->createMany($SubClaimInfoParams['InvestigationInfo']['LossItemList']);
+                    if (isset($SubClaimInfoParams['InvestigationInfo'])) {
+                        $investigationInfo = $subClaimInfo->investigationInfo()
+                            ->create($SubClaimInfoParams['InvestigationInfo']);
+
+                        if (isset($SubClaimInfoParams['InvestigationInfo']['LossItemList']))
+                            $investigationInfo->lossItemList()
+                                ->createMany($SubClaimInfoParams['InvestigationInfo']['LossItemList']);
+                    }
                 }
             }
 
