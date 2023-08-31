@@ -52,7 +52,7 @@ class ApiClient
             ]);
 
             $responseText = $response->getBody()->getContents();
-            $result = json_decode($responseText, true);
+            $result = json_decode(trim($responseText, '\"'), true);
 
             $log->response = $responseText;
             $log->status = $response->getStatusCode();
