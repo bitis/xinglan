@@ -45,7 +45,7 @@ class ApiClient
     public function request($url, array $data = []): array
     {
         try {
-            $log = Log::create(['type' => 'SEND', 'url' => $url, 'request' => $data]);
+            $log = Log::create(['type' => 'SEND', 'url' => $url, 'request' => json_encode($data)]);
             $response = $this->client->post($url, $data);
 
             $result = json_decode($response->getBody()->getContents(), true);
