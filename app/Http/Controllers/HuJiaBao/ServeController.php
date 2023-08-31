@@ -250,6 +250,7 @@ class ServeController extends Controller
                 'created_at',
                 'updated_at',
                 'claim_info',
+                'DamageDesc',
             ])->merge([
                 'InvestigationInfo' => $investigationInfo,
             ])->toArray();
