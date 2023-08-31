@@ -25,7 +25,7 @@ class ApiClient
             'base_uri' => $this->host,
             'headers' => [
                 'Authorization' => $this->token,
-                'Content-Type' => 'multipart/form-data',
+                'Content-Type' => 'text/plain',
             ]
         ]);
     }
