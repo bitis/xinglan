@@ -11,7 +11,7 @@ use App\Models\HuJiaBao\AppraisalTask;
 use App\Models\HuJiaBao\ClaimInfo;
 use App\Models\HuJiaBao\Log;
 use App\Models\HuJiaBao\PolicyInfo;
-use App\Models\HuJiaBao\TaskInfo;
+use App\Models\HuJiaBao\SubClaimInfo;
 use App\Models\PayeeInfo;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -209,38 +209,37 @@ class ServeController extends Controller
      */
     public function investigation(Request $request, ApiClient $client): JsonResponse
     {
-        // 根据任务信息获取子赔单
-        $taskInfo = TaskInfo::where('id', $request->input('TaskID'))->first();
+        $subClaimInfo = SubClaimInfo::find($request->input('id'));
 
-        if (!$taskInfo) return fail('任务不存在');
-
-        $subClaimInfo = $taskInfo->subClaimInfo;
-
-        $claimInfo = $subClaimInfo->claimInfo;
-
-        $investigationInfo = $request->only([
-            'PropertyNature',
-            'IsInvolveRecovery',
-            'InvestigatorContact',
-            'InvestigatorArrivalDate',
-            'InvestigationProvince',
-            'InvestigationCity',
-            'InvestigationDistrict',
-            'InvestigationDetailAddress',
-            'InvestigationDescription',
-            'PropertyTotalEstimatedAmount',
-            'Remark',
-        ]);
-
-        $LossItemList = $request->input('LossItemList');
+        if (!$subClaimInfo) return fail('案件不存在');
 
         try {
             DB::beginTransaction();
 
-            $taskInfo->investigationInfo()->updateOrCreate(['task_info_id' => $taskInfo->id], $investigationInfo);
+            $subClaimInfo->fill($request->input('SubClaimInfo'));
 
-            $taskInfo->investigationInfo->lossItemList()->delete();
-            $taskInfo->investigationInfo->lossItemList()->createMany($LossItemList);
+            $subClaimInfo->save();
+
+            $investigationInfo = $request->collect('SubClaimInfo.InvestigationInfo')->only([
+                'PropertyNature',
+                'IsInvolveRecovery',
+                'InvestigatorContact',
+                'InvestigatorArrivalDate',
+                'InvestigationProvince',
+                'InvestigationCity',
+                'InvestigationDistrict',
+                'InvestigationDetailAddress',
+                'InvestigationDescription',
+                'PropertyTotalEstimatedAmount',
+                'Remark',
+            ])->toArray();
+
+            $LossItemList = $request->input('SubClaimInfo.InvestigationInfo.LossItemList');
+
+            $subClaimInfo->investigationInfo()->updateOrCreate(['sub_claim_info_id' => $subClaimInfo->id], $investigationInfo);
+
+            $subClaimInfo->investigationInfo->lossItemList()->delete();
+            $subClaimInfo->investigationInfo->lossItemList()->createMany($LossItemList);
 
             $investigationInfo['LossItemList'] = $LossItemList;
 
@@ -251,10 +250,8 @@ class ServeController extends Controller
                 'updated_at',
                 'claim_info',
             ])->merge([
-                'ClaimNo' => $claimInfo->ClaimNo,
-                'TaskID' => $taskInfo->TaskID,
                 'InvestigationInfo' => $investigationInfo,
-            ]);
+            ])->toArray();
 
             $client->investigation($form);
 

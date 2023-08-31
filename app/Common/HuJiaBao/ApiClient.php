@@ -122,6 +122,6 @@ class ApiClient
      */
     public function investigation($data): array
     {
-        return $this->request('/claim-core/claim/v1/investigation', $data);
+        return $this->request('/claim-core/claim/v1/investigation', ['SubClaimInfo' => $data]);
     }
 }
