@@ -7,6 +7,7 @@ use App\Models\HuJiaBao\Log;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\ServerException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -44,8 +45,8 @@ class ApiClient
      */
     public function request($url, array $data = []): array
     {
+        $log = Log::create(['type' => 'SEND', 'url' => $url, 'request' => json_encode($data)]);
         try {
-            $log = Log::create(['type' => 'SEND', 'url' => $url, 'request' => json_encode($data)]);
             $response = $this->client->post($url, $data);
 
             $result = json_decode($response->getBody()->getContents(), true);
@@ -59,7 +60,11 @@ class ApiClient
 
             return $result;
 
-        } catch (GuzzleException $exception) {
+        } catch (ServerException $exception) {
+            if ($exception->hasResponse()) {
+                $log->response = $exception->getResponse()->getBody();
+                $log->save();
+            }
             throw new Exception($exception->getMessage());
         }
     }
