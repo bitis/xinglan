@@ -274,6 +274,7 @@ class ServeController extends Controller
     /**
      * 接收定损理算任务
      *
+     * @param Request $request
      * @return JsonResponse
      */
     public function receiveAppraisalTask(Request $request): JsonResponse
@@ -323,14 +324,15 @@ class ServeController extends Controller
     }
 
     /**
-     * 定损理算
+     * 定损理算任务列表
      *
      * @param Request $request
      * @return JsonResponse
      */
     public function appraisalTask(Request $request): JsonResponse
     {
-        $tasks = AppraisalTask::when($request->input('status'), fn($query, $status) => $query->where('status', $status))
+        $tasks = AppraisalTask::with(['info'])
+            ->when($request->input('status'), fn($query, $status) => $query->where('status', $status))
             ->orderBy('id', 'desc')
             ->paginate(getPerPage());
         return success($tasks);
