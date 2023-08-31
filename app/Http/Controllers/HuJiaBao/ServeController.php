@@ -129,8 +129,10 @@ class ServeController extends Controller
                         'ContactDetailAddress',
                     ]));
 
-                    if (isset($SubClaimInfoParams['TaskInfo']))
-                        $subClaimInfo->taskInfo()->create($SubClaimInfoParams['TaskInfo']);
+                    if (isset($SubClaimInfoParams['TaskInfo'])) {
+                        $task = $subClaimInfo->taskInfo()->create($SubClaimInfoParams['TaskInfo']);
+                        $subClaimInfo->TaskID = $task->TaskID;
+                    }
 
                     if (isset($SubClaimInfoParams['InvestigationInfo'])) {
                         $investigationInfo = $subClaimInfo->investigationInfo()
@@ -140,6 +142,9 @@ class ServeController extends Controller
                             $investigationInfo->lossItemList()
                                 ->createMany($SubClaimInfoParams['InvestigationInfo']['LossItemList']);
                     }
+
+                    $subClaimInfo->ClaimNo = $claimInfo->ClaimNo;
+                    $subClaimInfo->save();
                 }
             }
 

@@ -46,6 +46,9 @@ class SubClaimInfo extends Model
         'ContactCity',
         'ContactDistrict',
         'ContactDetailAddress',
+        'DamageDescription',
+        'ClaimNo',
+        'TaskID'
     ];
 
     public static array $postback = [
