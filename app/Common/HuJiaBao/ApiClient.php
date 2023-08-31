@@ -51,8 +51,8 @@ class ApiClient
                 'body' => json_encode($data)
             ]);
 
-            $responseText = $response->getBody()->getContents();
-            $result = json_decode(trim($responseText, '\"'), true);
+            $responseText = trim(str_replace("\\\"", "\"", $response->getBody()->getContents()), '\"');
+            $result = json_decode($responseText, true);
 
             $log->response = $responseText;
             $log->status = $response->getStatusCode();
