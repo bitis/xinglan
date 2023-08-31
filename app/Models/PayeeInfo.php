@@ -28,6 +28,10 @@ class PayeeInfo extends Model
         'TotalIndemnityAmount',
     ];
 
+    protected $casts = [
+        'TotalIndemnityAmount' => 'array'
+    ];
+
     public function indemnity(): HasMany
     {
         return $this->hasMany(IndemnityInfo::class, 'payee_info_id', 'id');

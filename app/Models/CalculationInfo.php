@@ -13,7 +13,7 @@ class CalculationInfo extends Model
     protected $table = 'hjb_calculation_infos';
 
     protected $fillable = [
-        'appraisal_info_id',
+        'task_id',
         'SequenceNo',
         'CalculationTimes',
         'ReserveType',

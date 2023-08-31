@@ -338,6 +338,70 @@ class ServeController extends Controller
         return success($tasks);
     }
 
+    /**
+     * 定损理算回传
+     *
+     * @param Request $request
+     * @param ApiClient $client
+     * @return JsonResponse
+     */
+    public function appraisal(Request $request, ApiClient $client): JsonResponse
+    {
+        $task = AppraisalTask::find($request->input('id'));
+
+        if (!empty($task)) return fail('任务不存在');
+
+        $info = $task->info;
+
+        $info->fill($request->collect('AppraisalInfo')->only([
+            "RiskName",
+            "SubClaimType",
+            "DamageObject",
+            "Owner",
+            "TotalLoss",
+            "CertiType",
+            "CertiNo",
+            "Sex",
+            "DateOfBirth",
+            "Mobile",
+            "InjuryName",
+            "InjuryType",
+            "InjuryLevel",
+            "DisabilityGrade",
+            "Treatment",
+            "HospitalName",
+            "DateOfAdmission",
+            "DateOfDischarge",
+            "DaysInHospital",
+            "CareName",
+            "CareDays",
+            "ContactProvince",
+            "ContactCity",
+            "ContactDistrict",
+            "ContactDetailAddress",
+            "DamageDescription",
+            "AppraisalType",
+            "TotalLossAmount",
+            "TotalRescueAmount",
+        ]));
+
+        $info->save();
+
+        $info->lossItemList()->delete();
+        $info->lossItemList()->createMany($request->collect('AppraisalInfo.LossItemList'));
+
+        $info->rescueFeeList()->delete();
+        $info->rescueFeeList()->createMany($request->collect('AppraisalInfo.RescueFeeList'));
+
+        $task->calculationInfoList()->delete();
+        $task->calculationInfoList()->createMany($request->collect('CalculationInfoList'));
+
+        $task->payeeInfoList()->delete();
+        $task->payeeInfoList()->createMany($request->collect('PayeeInfoList'));
+
+        return success();
+    }
+
 
     /**
      * 接收任务关闭通知
