@@ -162,6 +162,7 @@ class ServeController extends Controller
      * 上传文件
      *
      * @param Request $request
+     * @param ApiClient $client
      * @return JsonResponse
      */
     public function upload(Request $request, ApiClient $client): JsonResponse
@@ -441,12 +442,26 @@ class ServeController extends Controller
             'request' => json_encode(request()->all()),
         ]);
 
-        $request->only([
+        $where = $request->only([
             'ClaimNo',  // 理赔编号
             'TaskID',  // 任务ID 核心任务唯一ID
             'SubClaim',  // 子赔案
-            'TaskType',  // 任务类型 《公用代码》-任务类型
         ]);
+
+        if ($request->input('TaskType') == '01') {
+            $subClaims = SubClaimInfo::where($where)->get();
+            SubClaimInfo::where($where)->update(['status' => 2]);
+
+            foreach ($subClaims as $subClaim) {
+                $policyInfo = $subClaim->claimInfo->policyInfo;
+                $policyInfo->status = 2;
+                $policyInfo->save();
+            }
+        } else {
+            $appraisalTask = AppraisalTask::where($where)->first();
+            $appraisalTask->status = 2;
+            $appraisalTask->save();
+        }
 
         return Response::success('W05');
     }
