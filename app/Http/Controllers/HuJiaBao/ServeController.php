@@ -491,12 +491,12 @@ class ServeController extends Controller
             'request' => json_encode(request()->all()),
         ]);
 
-        $request->only([
-            'ClaimNo',  // 理赔编号
-            'SubClaim',  // 子赔案
-            'CalculationTimes',  // 理算次数
-            'IsDeclined',  // 是否拒赔 《公用代码》-是否代码
-        ]);
+        $task = AppraisalTask::where($request->only(['ClaimNo', 'SubClaim']))->first();
+
+        $task->CalculationTimes = $request->input('CalculationTimes');
+        $task->IsDeclined = $request->input('IsDeclined');
+        $task->AppraisalPassAt = now()->toDateTimeString();
+        $task->save();
 
         return Response::success('W06');
     }

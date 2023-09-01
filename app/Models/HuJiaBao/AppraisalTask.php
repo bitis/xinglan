@@ -27,6 +27,9 @@ class AppraisalTask extends Model
         'DispatcherTel',
         'Remark',
         'status',
+        'CalculationTimes',
+        'IsDeclined',
+        'AppraisalPassAt'
     ];
 
     public function info(): HasOne
