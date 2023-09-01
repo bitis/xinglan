@@ -15,6 +15,7 @@ class RescueFeeList extends Model
 
     protected $fillable = [
         'appraisal_info_id',
+        'OperationType',
         'SequenceNo',
         'AppraisalTimes',
         'RescueUnit',
