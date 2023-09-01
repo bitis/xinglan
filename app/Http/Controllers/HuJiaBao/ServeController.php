@@ -352,10 +352,14 @@ class ServeController extends Controller
 
         if (empty($task)) return fail('任务不存在');
 
-        $info = $task->info;
-
         try {
             DB::beginTransaction();
+
+            $info = $task->info;
+
+            $task->fill($request->input('TaskInfo'));
+            $task->save();
+
             $info->fill($request->collect('AppraisalInfo')->only([
                 "RiskName",
                 "SubClaimType",
