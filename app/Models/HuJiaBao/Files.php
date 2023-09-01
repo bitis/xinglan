@@ -31,5 +31,6 @@ class Files extends Model
         'UploadUserId',
         'url',
         'BusinessNo',
+        'Directory'
     ];
 }
