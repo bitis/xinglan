@@ -6,6 +6,7 @@ use App\Jobs\BidOpeningJob;
 use App\Jobs\OrderDispatch;
 use App\Jobs\QuotaMessageJob;
 use App\Models\Traits\DefaultDatetimeFormat;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -159,7 +160,7 @@ class Order extends Model
         static::created(function ($order) {
             if ($order->bid_type != Order::BID_TYPE_JINGJIA) OrderDispatch::dispatch($order);
             if ($order->bid_type == Order::BID_TYPE_JINGJIA) {
-                BidOpeningJob::dispatch($order->id)->delay(strtotime($order->bid_end_time));
+                BidOpeningJob::dispatch($order->id)->delay(Carbon::createFromTimeString($order->bid_end_time));
                 QuotaMessageJob::dispatch($order);
             }
         });
