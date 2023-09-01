@@ -59,7 +59,7 @@ class BidOpeningJob implements ShouldQueue
                     'creator_name' => '系统',
                     'creator_company_id' => $order->insurance_company_id,
                     'creator_company_name' => Company::find($order->insurance_company_id)?->name,
-                    'content' => '自动开标：中标单位：' . $company?->name,
+                    'content' => '自动开标；中标单位：' . $company?->name,
                     'platform' => '',
                 ]);
 
