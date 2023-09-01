@@ -16,6 +16,8 @@ class AppraisalLossItem extends Model
 
     protected $fillable = [
         'appraisal_info_id',
+        'OperationType',
+        'OperationType',
         'SequenceNo',
         'AppraisalTimes',
         'LossItemName',
