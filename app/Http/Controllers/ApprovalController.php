@@ -166,6 +166,7 @@ class ApprovalController extends Controller
                 $message = new Message([
                     'send_company_id' => $user->company_id,
                     'to_company_id' => $user->company_id,
+                    'user_id' => $process->creator_id,
                     'type' => MessageType::AppraisalReject->value,
                     'order_id' => $approvalOrder->order_id,
                     'order_number' => $order->order_number,
