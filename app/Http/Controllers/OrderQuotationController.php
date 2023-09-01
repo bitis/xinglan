@@ -73,7 +73,7 @@ class OrderQuotationController extends Controller
              quotation.repair_cost, quotation.other_cost, quotation.total_cost, quotation.profit_margin,
              quotation.bid_created_at,quotation.bid_repair_days,quotation.bid_total_price,
              quotation.profit_margin_ratio, quotation.repair_remark, quotation.total_price, quotation.images,
-             quotation.check_status, quotation.checked_at, quotation.win, quotation.bid_end_time, quotation.submit')
+             quotation.check_status, quotation.checked_at, quotation.win, quotation.submit')
             ->orderBy('orders.id', 'desc')
             ->paginate(getPerPage());
 
