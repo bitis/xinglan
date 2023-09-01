@@ -426,8 +426,8 @@ class ServeController extends Controller
                 'CalculationInfoList' => $calculationInfoList->toArray(),
                 'PayeeInfoList' => $payeeInfoList->toArray()
             ];
-dd($form);
-//            $client->appraisal($form);
+
+            $client->appraisal($form);
         } catch (Exception $exception) {
             return fail($exception->getMessage());
         }
