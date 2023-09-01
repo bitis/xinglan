@@ -10,6 +10,8 @@ class Files extends Model
 {
     use HasFactory, DefaultDatetimeFormat;
 
+    protected $table = 'hjb_files';
+
     protected $fillable = [
         '@pk',
         '@type',
@@ -28,5 +30,6 @@ class Files extends Model
         'UploadDate',
         'UploadUserId',
         'url',
+        'BusinessNo',
     ];
 }

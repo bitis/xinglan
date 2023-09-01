@@ -115,6 +115,7 @@ class ApiClient
 
             foreach ($result['Model'] as &$item) {
                 $item['url'] = '/uploads/' . $item['OrgFileName'];
+                $item['BusinessNo'] = $BusinessNo;
                 unset($item['OldFileData']);
             }
 
