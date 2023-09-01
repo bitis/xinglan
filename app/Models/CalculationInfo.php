@@ -16,6 +16,7 @@ class CalculationInfo extends Model
 
     protected $fillable = [
         'task_id',
+        'OperationType',
         'SequenceNo',
         'CalculationTimes',
         'ReserveType',
