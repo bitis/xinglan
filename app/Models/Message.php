@@ -25,6 +25,8 @@ class Message extends Model
         'accept_user_id',
         'accept_at',
         'status',
+        'appraisal_type',
+        'appraisal_status',
     ];
 
     public function sendCompany(): HasOne

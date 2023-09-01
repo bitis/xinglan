@@ -161,6 +161,24 @@ class ApprovalController extends Controller
                     $cancel->approval_status = ApprovalStatus::Canceled;
                     $cancel->save();
                 }
+                $order = Order::find($approvalOrder->order_id);
+                // Message
+                $message = new Message([
+                    'send_company_id' => $user->company_id,
+                    'to_company_id' => $user->company_id,
+                    'type' => MessageType::AppraisalReject->value,
+                    'order_id' => $approvalOrder->order_id,
+                    'order_number' => $order->order_number,
+                    'case_number' => $order->case_number,
+                    'goods_types' => $order->goods_types,
+                    'remark' => $process->remark,
+                    'status' => 0,
+                    'appraisal_type' => $typeText,
+                    'appraisal_status' => $accept,
+                ]);
+
+                $message->save();
+
                 $this->complete($approvalOrder, false);
                 DB::commit();
                 return success();
