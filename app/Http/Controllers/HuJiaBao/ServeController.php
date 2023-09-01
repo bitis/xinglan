@@ -428,6 +428,10 @@ class ServeController extends Controller
             ];
 
             $client->appraisal($form);
+
+            $task->status = 1;
+            $task->save();
+
         } catch (Exception $exception) {
             return fail($exception->getMessage());
         }
