@@ -136,7 +136,7 @@ class ApiClient
      */
     public function investigation(array $data): array
     {
-        return $this->request('/easyclaim-core-v2/mmi/server/v1/serviceReceive?requestCode=W02', $data);
+        return $this->request('/easyclaim-core-v2/mmi/server/v1/serviceReceive?requestCode=W02', ['SubClaimInfo' => $data]);
     }
 
     /**
@@ -148,6 +148,6 @@ class ApiClient
      */
     public function appraisal(array $data): array
     {
-        return $this->request('/easyclaim-core-v2/mmi/server/v1/serviceReceive?requestCode=W04', ['SubClaimInfo' => $data]);
+        return $this->request('/easyclaim-core-v2/mmi/server/v1/serviceReceive?requestCode=W04', $data);
     }
 }
