@@ -395,10 +395,10 @@ class ServeController extends Controller
             $info->save();
 
             $info->lossItemList()->delete();
-            $info->lossItemList()->createMany($request->collect('AppraisalInfo.LossItemList'));
+            $lossItemList = $info->lossItemList()->createMany($request->collect('AppraisalInfo.LossItemList'));
 
             $info->rescueFeeList()->delete();
-            $info->rescueFeeList()->createMany($request->collect('AppraisalInfo.RescueFeeList'));
+            $rescueFeeList = $info->rescueFeeList()->createMany($request->collect('AppraisalInfo.RescueFeeList'));
 
             $task->calculationInfoList()->delete();
             $calculationInfoList = $task->calculationInfoList()->createMany($request->collect('CalculationInfoList'));
@@ -416,15 +416,18 @@ class ServeController extends Controller
             $form = [
                 'TaskInfo' => collect($task->attributesToArray())->except([
                     'id', 'status', 'created_at', 'updated_at'
-                ])->whereNotNull()->toArray(),
+                ])->whereNotNull()->merge([
+                    'LossItemList' => $lossItemList->toArray(),
+                    'RescueFeeList' => $rescueFeeList->toArray()
+                ])->toArray(),
                 'AppraisalInfo' => collect($info->attributesToArray())->except([
                     'id', 'task_id', 'created_at', 'updated_at'
                 ])->whereNotNull()->toArray(),
                 'CalculationInfoList' => $calculationInfoList->toArray(),
                 'PayeeInfoList' => $payeeInfoList->toArray()
             ];
-
-            $client->appraisal($form);
+dd($form);
+//            $client->appraisal($form);
         } catch (Exception $exception) {
             return fail($exception->getMessage());
         }

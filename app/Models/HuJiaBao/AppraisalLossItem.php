@@ -12,6 +12,8 @@ class AppraisalLossItem extends Model
 
     protected $table = 'hjb_appraisal_loss_items';
 
+    protected $hidden = ['id', 'appraisal_info_id', 'created_at', 'updated_at'];
+
     protected $fillable = [
         'appraisal_info_id',
         'SequenceNo',

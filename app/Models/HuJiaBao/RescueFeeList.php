@@ -11,6 +11,8 @@ class RescueFeeList extends Model
 
     protected $table = 'hjb_rescue_fees';
 
+    protected $hidden = ['id', 'appraisal_info_id', 'created_at', 'updated_at'];
+
     protected $fillable = [
         'appraisal_info_id',
         'SequenceNo',
