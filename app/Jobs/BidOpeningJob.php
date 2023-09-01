@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Common\Messages\WinBidNotify;
 use App\Models\Company;
-use App\Models\Enumerations\CheckStatus;
 use App\Models\Enumerations\MessageType;
 use App\Models\Message;
 use App\Models\Order;
@@ -80,11 +79,12 @@ class BidOpeningJob implements ShouldQueue
 
                 $insuranceCompany = Company::find($order->insurance_company_id);
 
-                $easySms->send(
-                    $company->contract_phone,
-                    new WinBidNotify($company->name, $insuranceCompany->name, $order->case_number)
-                );
-
+                try {
+                    $easySms->send(
+                        $company->contract_phone,
+                        new WinBidNotify($company->name, $insuranceCompany->name, $order->case_number)
+                    );
+                } catch (\Exception $exception) {}
             } else {
                 $quotation->win = 2;
             }
