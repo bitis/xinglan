@@ -407,18 +407,22 @@ class ServeController extends Controller
             throw $exception;
         }
 
-        $form = [
-            'TaskInfo' => collect($task->attributesToArray())->except([
-                'id', 'status', 'created_at', 'updated_at'
-            ])->whereNotNull()->toArray(),
-            'AppraisalInfo' => collect($info->attributesToArray())->except([
-                'id', 'task_id', 'created_at', 'updated_at'
-            ])->whereNotNull()->toArray(),
-            'CalculationInfoList' => $calculationInfoList->toArray(),
-            'PayeeInfoList' => $payeeInfoList->toArray()
-        ];
+        try {
+            $form = [
+                'TaskInfo' => collect($task->attributesToArray())->except([
+                    'id', 'status', 'created_at', 'updated_at'
+                ])->whereNotNull()->toArray(),
+                'AppraisalInfo' => collect($info->attributesToArray())->except([
+                    'id', 'task_id', 'created_at', 'updated_at'
+                ])->whereNotNull()->toArray(),
+                'CalculationInfoList' => $calculationInfoList->toArray(),
+                'PayeeInfoList' => $payeeInfoList->toArray()
+            ];
 
-        $client->appraisal($form);
+            $client->appraisal($form);
+        } catch (Exception $exception) {
+            return fail($exception->getMessage());
+        }
         return success();
     }
 
