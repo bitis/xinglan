@@ -416,13 +416,13 @@ class ServeController extends Controller
             $form = [
                 'TaskInfo' => collect($task->attributesToArray())->except([
                     'id', 'status', 'created_at', 'updated_at'
+                ])->whereNotNull()->toArray(),
+                'AppraisalInfo' => collect($info->attributesToArray())->except([
+                    'id', 'task_id', 'created_at', 'updated_at'
                 ])->whereNotNull()->merge([
                     'LossItemList' => $lossItemList->toArray(),
                     'RescueFeeList' => $rescueFeeList->toArray()
                 ])->toArray(),
-                'AppraisalInfo' => collect($info->attributesToArray())->except([
-                    'id', 'task_id', 'created_at', 'updated_at'
-                ])->whereNotNull()->toArray(),
                 'CalculationInfoList' => $calculationInfoList->toArray(),
                 'PayeeInfoList' => $payeeInfoList->toArray()
             ];
