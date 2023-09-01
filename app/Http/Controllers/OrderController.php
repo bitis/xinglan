@@ -744,6 +744,7 @@ class OrderController extends Controller
         };
 
         $logs = OrderLog::where('order_id', $request->input('order_id'))
+            ->where('creator_company_id', $user->company_id)
             ->orderBy('id', 'desc')
             ->get();
 
