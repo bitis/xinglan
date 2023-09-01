@@ -13,6 +13,8 @@ class PayeeInfo extends Model
 
     protected $table = 'hjb_payee_infos';
 
+    protected $hidden = ['id', 'task_id', 'created_at', 'updated_at'];
+
     protected $fillable = [
         'appraisal_info_id',
         'SequenceNo',
@@ -26,10 +28,11 @@ class PayeeInfo extends Model
         'AccountName',
         'BankCardNo',
         'TotalIndemnityAmount',
+        'IndemnityInfoList'
     ];
 
     protected $casts = [
-        'TotalIndemnityAmount' => 'array'
+        'IndemnityInfoList' => 'array'
     ];
 
     public function indemnity(): HasMany

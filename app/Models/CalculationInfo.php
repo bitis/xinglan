@@ -12,6 +12,8 @@ class CalculationInfo extends Model
 
     protected $table = 'hjb_calculation_infos';
 
+    protected $hidden = ['id', 'task_id', 'created_at', 'updated_at'];
+
     protected $fillable = [
         'task_id',
         'SequenceNo',

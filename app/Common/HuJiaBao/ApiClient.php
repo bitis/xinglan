@@ -130,12 +130,24 @@ class ApiClient
     /**
      * 提交查勘资料
      *
-     * @param $data
+     * @param array $data
      * @return array
      * @throws Exception
      */
-    public function investigation($data): array
+    public function investigation(array $data): array
     {
-        return $this->request('/easyclaim-core-v2/mmi/server/v1/serviceReceive?requestCode=W02', ['SubClaimInfo' => $data]);
+        return $this->request('/easyclaim-core-v2/mmi/server/v1/serviceReceive?requestCode=W02', $data);
+    }
+
+    /**
+     * 定损理算信息回传
+     *
+     * @param array $data
+     * @return array
+     * @throws Exception
+     */
+    public function appraisal(array $data): array
+    {
+        return $this->request('/easyclaim-core-v2/mmi/server/v1/serviceReceive?requestCode=W04', ['SubClaimInfo' => $data]);
     }
 }

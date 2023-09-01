@@ -349,56 +349,76 @@ class ServeController extends Controller
     {
         $task = AppraisalTask::find($request->input('id'));
 
-        if (!empty($task)) return fail('任务不存在');
+        if (empty($task)) return fail('任务不存在');
 
         $info = $task->info;
 
-        $info->fill($request->collect('AppraisalInfo')->only([
-            "RiskName",
-            "SubClaimType",
-            "DamageObject",
-            "Owner",
-            "TotalLoss",
-            "CertiType",
-            "CertiNo",
-            "Sex",
-            "DateOfBirth",
-            "Mobile",
-            "InjuryName",
-            "InjuryType",
-            "InjuryLevel",
-            "DisabilityGrade",
-            "Treatment",
-            "HospitalName",
-            "DateOfAdmission",
-            "DateOfDischarge",
-            "DaysInHospital",
-            "CareName",
-            "CareDays",
-            "ContactProvince",
-            "ContactCity",
-            "ContactDistrict",
-            "ContactDetailAddress",
-            "DamageDescription",
-            "AppraisalType",
-            "TotalLossAmount",
-            "TotalRescueAmount",
-        ]));
+        try {
+            DB::beginTransaction();
+            $info->fill($request->collect('AppraisalInfo')->only([
+                "RiskName",
+                "SubClaimType",
+                "DamageObject",
+                "Owner",
+                "TotalLoss",
+                "CertiType",
+                "CertiNo",
+                "Sex",
+                "DateOfBirth",
+                "Mobile",
+                "InjuryName",
+                "InjuryType",
+                "InjuryLevel",
+                "DisabilityGrade",
+                "Treatment",
+                "HospitalName",
+                "DateOfAdmission",
+                "DateOfDischarge",
+                "DaysInHospital",
+                "CareName",
+                "CareDays",
+                "ContactProvince",
+                "ContactCity",
+                "ContactDistrict",
+                "ContactDetailAddress",
+                "DamageDescription",
+                "AppraisalType",
+                "TotalLossAmount",
+                "TotalRescueAmount",
+            ])->toArray());
 
-        $info->save();
+            $info->save();
 
-        $info->lossItemList()->delete();
-        $info->lossItemList()->createMany($request->collect('AppraisalInfo.LossItemList'));
+            $info->lossItemList()->delete();
+            $info->lossItemList()->createMany($request->collect('AppraisalInfo.LossItemList'));
 
-        $info->rescueFeeList()->delete();
-        $info->rescueFeeList()->createMany($request->collect('AppraisalInfo.RescueFeeList'));
+            $info->rescueFeeList()->delete();
+            $info->rescueFeeList()->createMany($request->collect('AppraisalInfo.RescueFeeList'));
 
-        $task->calculationInfoList()->delete();
-        $task->calculationInfoList()->createMany($request->collect('CalculationInfoList'));
+            $task->calculationInfoList()->delete();
+            $calculationInfoList = $task->calculationInfoList()->createMany($request->collect('CalculationInfoList'));
 
-        $task->payeeInfoList()->delete();
-        $task->payeeInfoList()->createMany($request->collect('PayeeInfoList'));
+            $task->payeeInfoList()->delete();
+            $payeeInfoList = $task->payeeInfoList()->createMany($request->collect('PayeeInfoList'));
 
+            DB::commit();
+        } catch (Exception $exception) {
+            DB::rollBack();
+            throw $exception;
+        }
+
+        $form = [
+            'TaskInfo' => collect($task->attributesToArray())->except([
+                'id', 'status', 'created_at', 'updated_at'
+            ])->whereNotNull()->toArray(),
+            'AppraisalInfo' => collect($info->attributesToArray())->except([
+                'id', 'task_id', 'created_at', 'updated_at'
+            ])->whereNotNull()->toArray(),
+            'CalculationInfoList' => $calculationInfoList->toArray(),
+            'PayeeInfoList' => $payeeInfoList->toArray()
+        ];
+
+        $client->appraisal($form);
         return success();
     }
 
