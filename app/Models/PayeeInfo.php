@@ -17,6 +17,7 @@ class PayeeInfo extends Model
 
     protected $fillable = [
         'appraisal_info_id',
+        'OperationType',
         'SequenceNo',
         'CalculationTimes',
         'PayeeName',
