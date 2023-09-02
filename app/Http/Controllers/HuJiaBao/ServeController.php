@@ -339,7 +339,6 @@ class ServeController extends Controller
             'calculationInfoList',
             'payeeInfoList',
             'payeeInfoList.indemnity',
-            'payeeInfoList.indemnity',
         ])
             ->when($request->input('status'), fn($query, $status) => $query->where('status', $status))
             ->orderBy('id', 'desc')
