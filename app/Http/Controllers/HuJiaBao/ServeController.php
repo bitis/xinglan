@@ -174,7 +174,7 @@ class ServeController extends Controller
                 $request->input('businessNo'),
                 $request->input('directory')
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return fail($e->getMessage());
         }
 
