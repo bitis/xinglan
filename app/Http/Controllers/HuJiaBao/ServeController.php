@@ -416,7 +416,7 @@ class ServeController extends Controller
             DB::commit();
         } catch (Exception $exception) {
             DB::rollBack();
-            throw $exception;
+            return fail('数据异常');
         }
 
         try {
