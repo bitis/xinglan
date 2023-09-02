@@ -195,6 +195,7 @@ class ServeController extends Controller
             'property.coverageList.benefitList',
             'claimInfo',
             'claimInfo.subClaimInfo',
+            'claimInfo.subClaimInfo.files',
             'claimInfo.subClaimInfo.investigationInfo',
             'claimInfo.subClaimInfo.investigationInfo.lossItemList',
         ])
@@ -339,6 +340,7 @@ class ServeController extends Controller
             'calculationInfoList',
             'payeeInfoList',
             'payeeInfoList.indemnity',
+            'files'
         ])
             ->when($request->input('status'), fn($query, $status) => $query->where('status', $status))
             ->orderBy('id', 'desc')

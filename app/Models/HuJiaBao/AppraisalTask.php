@@ -46,4 +46,9 @@ class AppraisalTask extends Model
     {
         return $this->hasMany(PayeeInfo::class, 'task_id', 'id');
     }
+
+    public function files(): HasMany
+    {
+        return $this->hasMany(Files::class, 'BusinessNo', 'ClaimNo');
+    }
 }
