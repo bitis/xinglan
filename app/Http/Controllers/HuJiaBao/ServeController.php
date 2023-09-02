@@ -332,7 +332,15 @@ class ServeController extends Controller
      */
     public function appraisalTask(Request $request): JsonResponse
     {
-        $tasks = AppraisalTask::with(['info'])
+        $tasks = AppraisalTask::with([
+            'info',
+            'info.lossItemList',
+            'info.rescueFeeList',
+            'calculationInfoList',
+            'payeeInfoList',
+            'payeeInfoList.indemnity',
+            'payeeInfoList.indemnity',
+        ])
             ->when($request->input('status'), fn($query, $status) => $query->where('status', $status))
             ->orderBy('id', 'desc')
             ->paginate(getPerPage());
