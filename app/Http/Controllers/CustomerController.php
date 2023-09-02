@@ -9,6 +9,12 @@ use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
+    /**
+     * 获取指定公司的客户列表。
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function index(Request $request): JsonResponse
     {
         $current_company_id = $request->user()->company_id;
@@ -36,6 +42,12 @@ class CustomerController extends Controller
         return success($customers);
     }
 
+    /**
+     * 修改客户信息
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function form(Request $request): JsonResponse
     {
         $id = $request->input('id');
