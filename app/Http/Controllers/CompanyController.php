@@ -128,7 +128,7 @@ class CompanyController extends Controller
 
                 $company->save();
 
-                CreateCompany::dispatch($company)->afterResponse();
+                CreateCompany::dispatch($company);
             }
 
             DB::commit();
