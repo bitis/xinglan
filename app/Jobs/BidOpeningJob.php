@@ -84,7 +84,14 @@ class BidOpeningJob implements ShouldQueue
                         $company->contract_phone,
                         new WinBidNotify($company->name, $insuranceCompany->name, $order->case_number)
                     );
-                } catch (\Exception $exception) {}
+
+                    if ($company->backup_contract_phone)
+                        $easySms->send(
+                            $company->backup_contract_phone,
+                            new WinBidNotify($company->name, $insuranceCompany->name, $order->case_number)
+                        );
+                } catch (\Exception $exception) {
+                }
             } else {
                 $quotation->win = 2;
             }

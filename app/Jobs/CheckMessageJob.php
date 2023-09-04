@@ -39,5 +39,11 @@ class CheckMessageJob implements ShouldQueue
             $wusunCompany->contract_phone,
             new CheckNotify($wusunCompany->name, $insuranceCompany->name, $order->case_number)
         );
+
+        if ($wusunCompany->backup_contract_phone)
+            $easySms->send(
+                $wusunCompany->backup_contract_phone,
+                new CheckNotify($wusunCompany->name, $insuranceCompany->name, $order->case_number)
+            );
     }
 }

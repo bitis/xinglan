@@ -7,7 +7,6 @@ use App\Models\Company;
 use App\Models\CompanyProvider;
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -50,6 +49,12 @@ class QuotaMessageJob implements ShouldQueue
                     $wusunCompany->contract_phone,
                     new QuotaNotify($provider->name, $insuranceCompany->name, $order->case_number)
                 );
+
+                if ($wusunCompany->backup_contract_phone)
+                    $easySms->send(
+                        $wusunCompany->backup_contract_phone,
+                        new QuotaNotify($wusunCompany->name, $insuranceCompany->name, $order->case_number)
+                    );
             } catch (NoGatewayAvailableException  $e) {
                 Log::error('SMS_ERROR', $e->results);
             }
