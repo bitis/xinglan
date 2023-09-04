@@ -24,6 +24,7 @@ class Company extends Model
         'name',
         'contract_name',
         'contract_phone',
+        'backup_contract_phone',
         'province',
         'city',
         'area',

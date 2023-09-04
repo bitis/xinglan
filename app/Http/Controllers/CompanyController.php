@@ -92,6 +92,7 @@ class CompanyController extends Controller
                 'name',
                 'contract_name',
                 'contract_phone',
+                'backup_contract_phone',
                 'province',
                 'city',
                 'area',
@@ -128,7 +129,7 @@ class CompanyController extends Controller
 
                 $company->save();
 
-                CreateCompany::dispatch($company);
+                CreateCompany::dispatch($company)->afterCommit();
             }
 
             DB::commit();
