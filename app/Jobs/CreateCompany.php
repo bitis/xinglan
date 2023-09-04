@@ -42,6 +42,8 @@ class CreateCompany implements ShouldQueue
             ]);
 
             $role->givePermissionTo(Role::where('company_id', 0)->where('show_name', $defaultRole)->first()?->permissions?->pluck('name')->toArray());
+
+            unset($role);
         }
 
         $user = User::find($company->admin_id);
