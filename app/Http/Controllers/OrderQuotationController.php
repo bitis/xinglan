@@ -21,6 +21,7 @@ use App\Models\Enumerations\Status;
 use App\Models\Order;
 use App\Models\OrderLog;
 use App\Models\OrderQuotation;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -208,7 +209,7 @@ class OrderQuotationController extends Controller
                         $order->bid_type = 1;
                         $order->bid_status = Order::BID_STATUS_PROGRESSING;
                         $order->bid_end_time = now()->addHours($hours)->addMinutes($minutes)->toDateTimeString();
-                        BidOpeningJob::dispatch($order->id)->delay($order->bid_end_time);
+                        BidOpeningJob::dispatch($order->id)->delay(Carbon::createFromTimeString($order->bid_end_time));
                         QuotaMessageJob::dispatch($order);
                     }
                     $order->save();
