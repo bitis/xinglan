@@ -120,7 +120,7 @@ class ProviderController extends Controller
                         $company->admin_id = $admin->id;
                         $company->top_id = $company->id;
                         $company->save();
-                        CreateCompany::dispatch($company)->afterResponse();
+                        CreateCompany::dispatch($company);
                         return $company;
                     });
 
