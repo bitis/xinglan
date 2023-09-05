@@ -2,23 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Common\Messages\CheckNotify;
 use App\Common\Messages\WinBidNotify;
-use App\Models\ApprovalOption;
-use App\Models\ApprovalOrder;
-use App\Models\ApprovalOrderProcess;
-use App\Models\Approver;
 use App\Models\Company;
-use App\Models\Enumerations\ApprovalMode;
-use App\Models\Enumerations\ApprovalStatus;
-use App\Models\Enumerations\ApprovalType;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\MessageType;
 use App\Models\Message;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Overtrue\EasySms\EasySms;
+use Overtrue\EasySms\Exceptions\InvalidArgumentException;
 
 class ProviderQuotationController extends Controller
 {
@@ -102,6 +96,7 @@ class ProviderQuotationController extends Controller
      * @param Request $request
      * @param EasySms $easySms
      * @return JsonResponse
+     * @throws InvalidArgumentException
      */
     public function pick(Request $request, EasySms $easySms): JsonResponse
     {
@@ -148,10 +143,18 @@ class ProviderQuotationController extends Controller
         $company = Company::find($request->input('wusun_company_id'));
         $insuranceCompany = Company::find($order->insurance_company_id);
 
-        $easySms->send(
-            $company->contract_phone,
-            new WinBidNotify($company->name, $insuranceCompany->name, $order->case_number)
-        );
+        try {
+            $easySms->send(
+                $company->contract_phone,
+                new WinBidNotify($company->name, $insuranceCompany->name, $order->case_number)
+            );
+            if ($company->backup_contract_phone)
+                $easySms->send(
+                    $company->backup_contract_phone,
+                    new WinBidNotify($company->name, $insuranceCompany->name, $order->case_number)
+                );
+        } catch (\Exception $exception) {
+        }
 
         return success();
     }
