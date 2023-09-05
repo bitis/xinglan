@@ -7,7 +7,7 @@ use Overtrue\EasySms\Message;
 
 class WinBidNotify extends Message
 {
-    protected $template = '1908207';
+    protected $template = '1918423';
 
     public function __construct(protected $wusunCompanyName, protected $insuranceCompanyName, protected $caseNumber)
     {
@@ -18,7 +18,6 @@ class WinBidNotify extends Message
     {
         return [
             $this->wusunCompanyName,
-            $this->insuranceCompanyName,
             $this->caseNumber
         ];
     }

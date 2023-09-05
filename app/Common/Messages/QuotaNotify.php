@@ -8,7 +8,7 @@ use function Symfony\Component\Translation\t;
 
 class QuotaNotify extends Message
 {
-    protected $template = '1877283';
+    protected $template = '1918431';
 
     public function __construct(protected $wusunCompanyName, protected $insuranceCompanyName, protected $caseNumber)
     {
@@ -19,7 +19,6 @@ class QuotaNotify extends Message
     {
         return [
             $this->wusunCompanyName,
-            $this->insuranceCompanyName,
             $this->caseNumber
         ];
     }
