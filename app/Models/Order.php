@@ -21,6 +21,7 @@ class Order extends Model
     protected $fillable = [
         'order_number',
         'insurance_company_id',
+        'insurance_company_name',
         'external_number',
         'case_number',
         'insurance_check_name',
