@@ -17,7 +17,6 @@ class WinBidNotify extends Message
     public function getData(GatewayInterface $gateway = null): array
     {
         return [
-            $this->wusunCompanyName,
             $this->caseNumber
         ];
     }
