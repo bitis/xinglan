@@ -125,6 +125,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('close', 'OrderController@close'); // 关闭
         Route::get('logs', 'OrderController@logs'); // 变更日志
         Route::get('export', 'OrderController@export'); // 导出 Excel
+        Route::post('setQuota', 'OrderController@setQuota'); // 设置为维修方报价
 
 
         Route::prefix('repair')->group(function () {
@@ -177,6 +178,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('list', 'ApprovalController@index');
         Route::get('detail', 'ApprovalController@detail');
         Route::post('form', 'ApprovalController@form');
+    });
+
+    Route::prefix('repair')->group(function () {
+        Route::prefix('quotation')->group(function () {
+            Route::get('list', 'RepairQuotationController@index'); // 报价大厅
+            Route::post('quota', 'RepairQuotationController@quota'); // 报价
+        });
     });
 
     Route::prefix('bankAccount')->group(function () {
