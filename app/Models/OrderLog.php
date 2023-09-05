@@ -32,4 +32,6 @@ class OrderLog extends Model
     const TYPE_APPROVAL = 5; // 审核
     const TYPE_BID_OPEN = 6; // 自动开标
 
+    const TYPE_REPAIR_BID = 7; // 打开维修方报价
+
 }

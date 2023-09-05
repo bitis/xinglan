@@ -777,7 +777,7 @@ class OrderController extends Controller
 
             OrderLog::create([
                 'order_id' => $order->id,
-                'type' => OrderLog::TYPE_DISPATCHED,
+                'type' => OrderLog::TYPE_REPAIR_BID,
                 'creator_id' => $user->id,
                 'creator_name' => $user->name,
                 'creator_company_id' => $company->id,
