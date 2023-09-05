@@ -200,4 +200,9 @@ class Order extends Model
     {
         return $this->hasMany(OrderInsurer::class);
     }
+
+    public function repair_quotas(): HasMany
+    {
+        return $this->hasMany(RepairQuota::class, 'order_id', 'id');
+    }
 }

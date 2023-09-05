@@ -177,6 +177,7 @@ class OrderController extends Controller
         $is_create = empty($order->id);
 
         $order->fill(Arr::whereNotNull($orderParams));
+        $order->insurance_company_name = Company::find($order->insurance_company_id)?->name;
 
         if ($order->isDirty('review_images') or $order->isDirty('review_remark')) {
             $order->review_at = now()->toDateTimeString();

@@ -19,23 +19,46 @@ class RepairQuotationController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $user = $request->user();
+        $company = $request->user()->company;
 
-        $company = $user->company;
-
-        $orders = Order::leftjoin('repair_quotas as quota', 'orders.id', 'quota.order_id')
+        $orders = Order::where('repair_bid_type', 1)
             ->where(function ($query) use ($company) {
                 return match ($company->getRawOriginal('type')) {
                     CompanyType::WuSun->value => $query->where('wusun_company_id', $company->id),
                     CompanyType::WeiXiu->value => $query->whereIn('wusun_company_id', CompanyProvider::where('provider_id', $company->id)->pluck('company_id')),
                 };
             })
-            ->where('repair_bid_type', 1)
+            ->when($company->getRawOriginal('type') == CompanyType::WeiXiu->value, function ($query) {
+                $query->leftjoin('repair_quotas as quota', 'orders.id', 'quota.order_id')->selectRaw('orders.*, quota.repair_company_id, quota.win, quota.submit_at as quota_submit_at');
+            })
             ->orderBy('orders.id', 'desc')
-            ->selectRaw('orders.*, quota.repair_company_id, quota.win, quota.submit_at as quota_submit_at')
             ->paginate(getPerPage());
 
         return success($orders);
+    }
+
+    /**
+     * 报价大厅详情
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function detail(Request $request): JsonResponse
+    {
+        $company = $request->user()->company;
+
+        $with = match ($company->getRawOriginal('type')) {
+            CompanyType::WuSun->value => ['company:id,name', 'wusun:id,name', 'repair_quotas'],
+            CompanyType::WeiXiu->value => ['wusun:id,name'],
+        };
+
+        $order = Order::with($with)->find($request->input('order_id'));
+
+        if ($company->getRawOriginal('type') == CompanyType::WeiXiu->value) {
+            $order->repair_quota = RepairQuota::where('order_id', $order->id)->where('repair_company_id', $company->id)->first();;
+        }
+
+        return success($order);
     }
 
     /**

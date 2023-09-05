@@ -183,6 +183,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('repair')->group(function () {
         Route::prefix('quotation')->group(function () {
             Route::get('list', 'RepairQuotationController@index'); // 报价大厅
+            Route::get('detail', 'RepairQuotationController@detail'); // 详情
             Route::post('quota', 'RepairQuotationController@quota'); // 报价
         });
     });
