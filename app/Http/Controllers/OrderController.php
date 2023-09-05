@@ -753,4 +753,41 @@ class OrderController extends Controller
 
         return success($logs);
     }
+
+    /**
+     * 设置为维修方报价
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function setQuota(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $company = $user->company;
+
+        $order = Order::find($request->input('order_id'));
+        if (empty($order) or $order->wusun_company_id != $company->id) return fail('工单不存在');
+
+        $order->repair_bid_type = intval($request->input('repair_bid_type'));
+        $order->save();
+
+        if ($order->isDirty('repair_bid_type')) {
+
+            $operateText = $order->repair_bid_type ? '关闭' : '打开';
+
+            OrderLog::create([
+                'order_id' => $order->id,
+                'type' => OrderLog::TYPE_DISPATCHED,
+                'creator_id' => $user->id,
+                'creator_name' => $user->name,
+                'creator_company_id' => $company->id,
+                'creator_company_name' => $company->name,
+                'remark' => $order->remark,
+                'content' => $user->name . $operateText . '维修方报价',
+                'platform' => $request->header('platform'),
+            ]);
+        }
+
+        return success();
+    }
 }
