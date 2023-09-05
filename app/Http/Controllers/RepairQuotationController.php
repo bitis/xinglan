@@ -21,7 +21,8 @@ class RepairQuotationController extends Controller
     {
         $company = $request->user()->company;
 
-        $orders = Order::where('repair_bid_type', 1)
+        $orders = Order::with(['company:id,name', 'wusun:id,name'])
+            ->where('repair_bid_type', 1)
             ->where(function ($query) use ($company) {
                 return match ($company->getRawOriginal('type')) {
                     CompanyType::WuSun->value => $query->where('wusun_company_id', $company->id),
