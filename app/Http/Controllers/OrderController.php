@@ -220,8 +220,6 @@ class OrderController extends Controller
                     'bid_end_time' => now()->toDateTimeString(),
                 ]);
 
-                CheckMessageJob::dispatch($order);
-
                 OrderLog::create([
                     'order_id' => $order->id,
                     'type' => OrderLog::TYPE_DISPATCH_CHECK,

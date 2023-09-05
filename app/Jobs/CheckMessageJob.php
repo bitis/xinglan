@@ -32,6 +32,8 @@ class CheckMessageJob implements ShouldQueue
     {
         $order = $this->order;
 
+        if (!$order->wusun_company_id) return;
+
         $wusunCompany = Company::find($order->wusun_company_id);
         $insuranceCompany = Company::find($order->insurance_company_id);
 

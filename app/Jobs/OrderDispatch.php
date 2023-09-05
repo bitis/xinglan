@@ -114,6 +114,9 @@ class OrderDispatch implements ShouldQueue
         }
 
         $this->order->save();
+
+        CheckMessageJob::dispatch($this->order);
+
     }
 
     protected function dispatchByWeight(array $available)
