@@ -32,9 +32,9 @@ class CheckMessageJob implements ShouldQueue
     {
         $order = $this->order;
 
-        if (!$order->wusun_company_id) return;
+        if (!$order->check_wusun_company_id) return;
 
-        $wusunCompany = Company::find($order->wusun_company_id);
+        $wusunCompany = Company::find($order->check_wusun_company_id);
         $insuranceCompany = Company::find($order->insurance_company_id);
 
         $easySms->send(
