@@ -765,6 +765,7 @@ class OrderController extends Controller
         if (empty($order) or $order->wusun_company_id != $company->id) return fail('工单不存在');
 
         $order->repair_bid_type = intval($request->input('repair_bid_type'));
+        $order->repair_bid_publish_at = now()->toDateTimeString();
         $order->save();
 
         if ($order->isDirty('repair_bid_type')) {

@@ -97,6 +97,7 @@ class Order extends Model
         'cost_creator_id',
         'cost_creator_name',
         'cost_checked_at',
+        'repair_bid_publish_at'
     ];
 
     protected $casts = [
