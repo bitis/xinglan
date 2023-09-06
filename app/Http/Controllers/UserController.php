@@ -38,8 +38,8 @@ class UserController extends Controller
                 $query->where('status', $status);
             })->when($text, function ($query, $text) {
                 $query->where('name', 'like', "%$text%")
-                    ->where('account', 'like', "%$text%")
-                    ->where('mobile', 'like', "%$text%");
+                    ->orWhere('account', 'like', "%$text%")
+                    ->orWhere('mobile', 'like', "%$text%");
             })->paginate(getPerPage());
 
         return success($userList);
