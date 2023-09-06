@@ -18,6 +18,11 @@ class OrderRepairController extends Controller
         return success($plan);
     }
 
+    /**
+     * 维修
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function form(Request $request): JsonResponse
     {
         $order_id = $request->input('order_id');
