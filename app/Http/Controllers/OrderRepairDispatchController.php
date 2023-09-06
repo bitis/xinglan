@@ -56,8 +56,8 @@ class OrderRepairDispatchController extends Controller
 
 
         $repair_company_id = [];
-        if($plan->repair_type == OrderRepairPlan::TYPE_THIRD_REPAIR) {
-           $repair_company_id[] = $plan->repair_company_id;
+        if ($plan->repair_type == OrderRepairPlan::TYPE_THIRD_REPAIR) {
+            $repair_company_id[] = $plan->repair_company_id;
         }
 
         if ($request->input('costs')) {
@@ -77,12 +77,12 @@ class OrderRepairDispatchController extends Controller
             $plan->repair_company_id = $plan->company_id;
             $plan->repair_company_name = Company::find($plan->company_id)->name;
             $plan->save();
-
-            $plan->order->wusun_repair_user_id = $plan->repair_user_id;
-            $plan->order->repair_company_ids = count($repair_company_id)
-                ? trim(implode(',', array_unique($repair_company_id)), ',') : null;
-            $plan->order->save();
         }
+
+        $plan->order->wusun_repair_user_id = $plan->repair_user_id;
+        $plan->order->repair_company_ids = count($repair_company_id)
+            ? trim(implode(',', array_unique($repair_company_id)), ',') : null;
+        $plan->order->save();
 
         return success();
     }
