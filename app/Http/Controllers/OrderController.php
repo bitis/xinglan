@@ -735,9 +735,9 @@ class OrderController extends Controller
         $company = $user->company;
 
         $types = match ($company->getRawOriginal('type')) {
-            CompanyType::WuSun->value => [],
-            CompanyType::BaoXian->value => [],
-            CompanyType::WeiXiu->value => [],
+            CompanyType::WuSun->value,
+            CompanyType::BaoXian->value => [OrderLog::TYPE_NEW_ORDER, OrderLog::TYPE_BID_OPEN],
+            CompanyType::WeiXiu->value => [OrderLog::TYPE_SUBMIT_QUOTATION],
         };
 
         $logs = OrderLog::where('order_id', $request->input('order_id'))
