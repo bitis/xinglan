@@ -32,6 +32,11 @@ class RepairQuotationController extends Controller
             ->when($company->getRawOriginal('type') == CompanyType::WeiXiu->value, function ($query) {
                 $query->leftjoin('repair_quotas as quota', 'orders.id', 'quota.order_id')->selectRaw('orders.*, quota.repair_company_id, quota.win, quota.submit_at as quota_submit_at');
             })
+            ->when($request->input('name'), function ($query, $name) {
+                $query->where('order_number', 'like', '%' . $name . '%')
+                    ->orWhere('case_number', 'like', '%' . $name . '%')
+                    ->orWhere('license_plate', 'like', '%' . $name . '%');
+            })
             ->orderBy('orders.id', 'desc')
             ->paginate(getPerPage());
 
