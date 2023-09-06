@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\Status;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;

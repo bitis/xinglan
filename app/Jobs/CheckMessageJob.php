@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Common\Messages\CheckNotify;
-use App\Common\Messages\QuotaNotify;
 use App\Models\Company;
 use App\Models\Order;
 use Illuminate\Bus\Queueable;

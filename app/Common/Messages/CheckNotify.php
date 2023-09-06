@@ -4,7 +4,6 @@ namespace App\Common\Messages;
 
 use Overtrue\EasySms\Contracts\GatewayInterface;
 use Overtrue\EasySms\Message;
-use function Symfony\Component\Translation\t;
 
 class CheckNotify extends Message
 {

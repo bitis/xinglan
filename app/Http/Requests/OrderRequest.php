@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use App\Models\Enumerations\InsuranceType;
 use App\Models\Enumerations\OrderCloseStatus;
-use App\Models\Enumerations\OrderStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

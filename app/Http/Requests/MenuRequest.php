@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use App\Models\Enumerations\MenuType;
-use App\Models\Enumerations\Status;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Common\Messages\CheckNotify;
 use App\Common\Messages\WinBidNotify;
 use App\Models\Company;
 use App\Models\Enumerations\CompanyType;
