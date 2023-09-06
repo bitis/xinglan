@@ -323,8 +323,6 @@ class OrderController extends Controller
             throw_if($user->company_id != $order->check_wusun_company_id
                 and $user->company_id != $order->wusun_company_id, '非本公司订单');
 
-            throw_if($order->wusun_check_accept_at, '查勘已完成');
-
             $company = Company::find($user->company_id);
 
             throw_if($company->getRawOriginal('type') != CompanyType::WuSun->value, '只有物损公司可以派遣查勘');
