@@ -101,7 +101,7 @@ class RepairQuotationController extends Controller
             'repair_company_name' => $company->name,
             'total_price' => $request->input('total_price'),
             'repair_days' => $request->input('repair_days'),
-            'images',
+            'images' => $request->input('images'),
             'submit_at' => now()->toDateTimeString(),
             'operator_id' => $user->id,
             'operator_name' => $user->name,
