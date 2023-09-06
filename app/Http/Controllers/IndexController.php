@@ -29,23 +29,20 @@ class IndexController extends Controller
 
         $result = [];
 
-        $order_status = OrderStatus::toArray();
+        $order_status = OrderStatus::cases();
 
         if ($company->getRawOriginal('type') == CompanyType::WeiXiu->value) {
-            $order_status = Arr::only($order_status, [
-                OrderStatus::WaitRepair->value,
-                OrderStatus::Repairing->value,
-                OrderStatus::Repaired->value,
-            ]);
-
-            $order_status[] = [
-                'id' => OrderStatus::Paid,
-                'name' => OrderStatus::Paid->name()
+            $order_status = [
+                OrderStatus::WaitRepair,
+                OrderStatus::Repairing,
+                OrderStatus::Repaired,
+                OrderStatus::Paid,
             ];
         }
+
         foreach ($order_status as $item) {
-            $collect = $params->merge(['order_status' => $item['id']->value]);
-            $result[$item['id']->name] = OrderService::list($request->user(), $collect)->count();
+            $collect = $params->merge(['order_status' => $item->value]);
+            $result[$item->name] = OrderService::list($request->user(), $collect)->count();
         }
 
         $result['all'] = OrderService::list($request->user(), $params)->count();
