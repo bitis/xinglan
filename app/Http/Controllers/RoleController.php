@@ -8,6 +8,7 @@ use App\Models\Menu;
 use App\Models\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RoleController extends Controller
 {
@@ -36,7 +37,14 @@ class RoleController extends Controller
         if (!$role = Role::findById($role_id))
             return fail('修改的角色不存在');
 
-        $role->syncPermissions(Menu::whereIn('id', $menu_id)->pluck('permission'));
+        try {
+            DB::beginTransaction();
+            $role->syncPermissions(Menu::whereIn('id', $menu_id)->pluck('permission'));
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return fail($exception->getMessage());
+        }
 
         return success();
     }
