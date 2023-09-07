@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderRepairPlan;
+use App\Models\RepairQuota;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -74,6 +75,13 @@ class OrderRepairController extends Controller
             $order->repair_status = Order::REPAIR_STATUS_WAIT;
             $order->repair_company_ids = '';
             $order->save();
+
+            RepairQuota::where('order_id', $order->id)->where('win', 1)->update([
+                'win' => 0,
+                'updated_at' => now()->toDateTimeString()
+            ]);
+
+            RepairQuota::where('order_id', $order->id)->where('type', RepairQuota::TYPE_CHOOSE)->delete();
         }
 
         return success();
