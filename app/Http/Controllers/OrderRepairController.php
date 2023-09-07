@@ -72,6 +72,7 @@ class OrderRepairController extends Controller
         } else {
             $plan->delete();
             $order->repair_status = Order::REPAIR_STATUS_WAIT;
+            $order->repair_company_ids = '';
             $order->save();
         }
 
