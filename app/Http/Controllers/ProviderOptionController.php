@@ -45,7 +45,7 @@ class ProviderOptionController extends Controller
      */
     public function form(ProviderOptionRequest $request): JsonResponse
     {
-        $params = $request->only(['company_id', 'provider_id', 'insurance_type', 'province', 'city', 'area', 'weight', 'status']);
+        $params = $request->only(['company_id', 'provider_id', 'insurance_type', 'province', 'city', 'area', 'weight', 'status', 'match_last_chars']);
 
         $option = ProviderOption::findOr($request->input('id'), function () use ($params) {
             $relation_id = CompanyProvider::where('company_id', $params['company_id'])

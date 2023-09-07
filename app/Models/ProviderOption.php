@@ -23,7 +23,8 @@ class ProviderOption extends Model
         'city',
         'area',
         'weight',
-        'status'
+        'status',
+        'match_last_chars'
     ];
 
     public function provider(): BelongsTo
