@@ -81,7 +81,7 @@ class OrderRepairController extends Controller
                 'updated_at' => now()->toDateTimeString()
             ]);
 
-            RepairQuota::where('order_id', $order->id)->where('type', RepairQuota::TYPE_CHOOSE)->delete();
+            RepairQuota::where('order_id', $order->id)->where('quota_type', RepairQuota::TYPE_CHOOSE)->delete();
         }
 
         return success();
