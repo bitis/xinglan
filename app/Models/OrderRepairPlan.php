@@ -34,7 +34,8 @@ class OrderRepairPlan extends Model
         'cost_images',
         'before_repair_images',
         'repair_images',
-        'after_repair_images'
+        'after_repair_images',
+        'repair_remark'
     ];
 
     const REPAIR_STATUS_WAIT = 0;
