@@ -17,6 +17,7 @@ class Company extends Model
     use HasFactory, DefaultDatetimeFormat;
 
     protected $fillable = [
+        'top_id',
         'parent_id',
         'invite_code',
         'type',
@@ -37,8 +38,15 @@ class Company extends Model
         'logo',
         'remark',
         'service_rate',
+        'license_no',
+        'license_image',
+        'identification_images',
         'admin_id',
-        'top_id'
+        'queue_index',
+    ];
+
+    protected $casts = [
+        'identification_images' => 'array',
     ];
 
     public function users(): HasMany

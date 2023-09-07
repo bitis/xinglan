@@ -71,7 +71,7 @@ class OrderDispatch implements ShouldQueue
             $company->queue_index++;
             $company->save();
         } elseif ($dispatchRole == OrderDispatchRole::Area->value) {
-            $options = ProviderOption::where('company_id', $company->id)
+            $options = ProviderOption::where('company_id',  $company->id)
                 ->where('insurance_type', $this->order->insurance_type)
                 ->where('province', $this->order->province)
                 ->where('city', $this->order->city)
