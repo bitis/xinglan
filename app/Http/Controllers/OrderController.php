@@ -163,109 +163,161 @@ class OrderController extends Controller
         $user = $request->user();
         $company = $user->company;
 
-        $order = Order::findOr($request->input('id'), fn() => new Order([
-            'creator_id' => $user->id,
-            'creator_name' => $user->name,
-            'creator_company_id' => $company->id,
-            'creator_company_type' => $company->getRawOriginal('type'),
-            'order_number' => Order::genOrderNumber()
-        ]));
-
-        if ($order->close_status == OrderCloseStatus::Closed->value) return fail('工单已关闭');
-
-        $is_create = empty($order->id);
-
-        $order->fill(Arr::whereNotNull($orderParams));
-        $order->insurance_company_name = Company::find($order->insurance_company_id)?->name;
-
-        if ($order->isDirty('review_images') or $order->isDirty('review_remark')) {
-            $order->review_at = now()->toDateTimeString();
-        }
-
-        $order->save();
-
-        if ($insurers = $request->input('insurers')) {
-            $order->insurers()->delete();
-            $order->insurers()->createMany($insurers);
-        }
-
-        if ($is_create) {
-            OrderLog::create([
-                'order_id' => $order->id,
-                'type' => OrderLog::TYPE_NEW_ORDER,
+        try {
+            DB::beginTransaction();
+            $order = Order::findOr($request->input('id'), fn() => new Order([
                 'creator_id' => $user->id,
                 'creator_name' => $user->name,
                 'creator_company_id' => $company->id,
-                'creator_company_name' => $company->name,
-                'remark' => $order->remark,
-                'content' => '新建工单',
-                'platform' => $request->header('platform'),
-            ]);
+                'creator_company_type' => $company->getRawOriginal('type'),
+                'order_number' => Order::genOrderNumber()
+            ]));
 
-            /**
-             * 物损公司自建工单直接派发给自己
-             */
-            if ($company->getRawOriginal('type') == CompanyType::WuSun->value) {
-                $order->fill([
-                    'check_wusun_company_id' => $company->id,
-                    'check_wusun_company_name' => $company->name,
-                    'wusun_company_id' => $company->id,
-                    'wusun_company_name' => $company->name,
-                    'confim_wusun_at' => now()->toDateTimeString(),
-                    'dispatch_check_wusun_at' => now()->toDateTimeString(),
-                    'dispatched' => true,
-                    'bid_type' => Order::BID_TYPE_FENPAI,
-                    'bid_status' => Order::BID_STATUS_FINISHED,
-                    'bid_end_time' => now()->toDateTimeString(),
-                ]);
+            if ($order->close_status == OrderCloseStatus::Closed->value) return fail('工单已关闭');
 
-                OrderLog::create([
-                    'order_id' => $order->id,
-                    'type' => OrderLog::TYPE_DISPATCH_CHECK,
-                    'creator_id' => $user->id,
-                    'creator_name' => $user->name,
-                    'creator_company_id' => $company->id,
-                    'creator_company_name' => $company->name,
-                    'remark' => $order->remark,
-                    'content' => '派遣查勘服务商：' . $company->name,
-                    'platform' => $request->header('platform'),
-                ]);
+            $is_create = empty($order->id);
 
-                // Message
-                $message = new Message([
-                    'send_company_id' => $order->insurance_company_id,
-                    'to_company_id' => $order->check_wusun_company_id,
-                    'type' => MessageType::NewOrder->value,
-                    'order_id' => $order->id,
-                    'order_number' => $order->order_number,
-                    'case_number' => $order->case_number,
-                    'goods_types' => $order->goods_types,
-                    'remark' => $order->remark,
-                    'status' => 0,
-                ]);
-                $message->save();
-            } elseif ($order->bid_type == Order::BID_TYPE_JINGJIA) {
-                $order->fill([
-                    'wusun_check_status' => 2,
-                ]);
+            $order->fill(Arr::whereNotNull($orderParams));
+            $order->insurance_company_name = Company::find($order->insurance_company_id)?->name;
+
+            if ($order->isDirty('review_images') or $order->isDirty('review_remark')) {
+                $order->review_at = now()->toDateTimeString();
             }
 
             $order->save();
 
-        } else {
-            if ($order->isDirty('check_wusun_company_id')) {
+            if ($insurers = $request->input('insurers')) {
+                $order->insurers()->delete();
+                $order->insurers()->createMany($insurers);
+            }
+
+            if ($is_create) {
                 OrderLog::create([
                     'order_id' => $order->id,
-                    'type' => OrderLog::TYPE_DISPATCH_CHECK,
+                    'type' => OrderLog::TYPE_NEW_ORDER,
                     'creator_id' => $user->id,
                     'creator_name' => $user->name,
                     'creator_company_id' => $company->id,
                     'creator_company_name' => $company->name,
-                    'content' => '派遣查勘服务商修改为：' . $company->name,
+                    'remark' => $order->remark,
+                    'content' => '新建工单',
                     'platform' => $request->header('platform'),
                 ]);
+
+                /**
+                 * 物损公司自建工单直接派发给自己
+                 */
+                if ($company->getRawOriginal('type') == CompanyType::WuSun->value) {
+                    $order->fill([
+                        'check_wusun_company_id' => $company->id,
+                        'check_wusun_company_name' => $company->name,
+                        'wusun_company_id' => $company->id,
+                        'wusun_company_name' => $company->name,
+                        'confim_wusun_at' => now()->toDateTimeString(),
+                        'dispatch_check_wusun_at' => now()->toDateTimeString(),
+                        'dispatched' => true,
+                        'bid_type' => Order::BID_TYPE_FENPAI,
+                        'bid_status' => Order::BID_STATUS_FINISHED,
+                        'bid_end_time' => now()->toDateTimeString(),
+                    ]);
+
+                    OrderLog::create([
+                        'order_id' => $order->id,
+                        'type' => OrderLog::TYPE_DISPATCH_CHECK,
+                        'creator_id' => $user->id,
+                        'creator_name' => $user->name,
+                        'creator_company_id' => $company->id,
+                        'creator_company_name' => $company->name,
+                        'remark' => $order->remark,
+                        'content' => '派遣查勘服务商：' . $company->name,
+                        'platform' => $request->header('platform'),
+                    ]);
+
+                    // Message
+                    $message = new Message([
+                        'send_company_id' => $order->insurance_company_id,
+                        'to_company_id' => $order->check_wusun_company_id,
+                        'type' => MessageType::NewOrder->value,
+                        'order_id' => $order->id,
+                        'order_number' => $order->order_number,
+                        'case_number' => $order->case_number,
+                        'goods_types' => $order->goods_types,
+                        'remark' => $order->remark,
+                        'status' => 0,
+                    ]);
+                    $message->save();
+                } elseif ($order->bid_type == Order::BID_TYPE_JINGJIA) {
+                    $order->fill([
+                        'wusun_check_status' => 2,
+                    ]);
+                }
+
+                if ($company->getRawOriginal('type') == CompanyType::BaoXian->value && $request->input('wusun_company_id')) {
+                    $wusun = Company::find($request->input('wusun_company_id'));
+
+                    if (empty($wusun)) throw new \Exception('指定的物损公司不存在');
+
+                    $order->fill([
+                        'check_wusun_company_id' => $wusun->id,
+                        'check_wusun_company_name' => $wusun->name,
+                        'wusun_company_id' => $wusun->id,
+                        'wusun_company_name' => $wusun->name,
+                        'confim_wusun_at' => now()->toDateTimeString(),
+                        'dispatch_check_wusun_at' => now()->toDateTimeString(),
+                        'dispatched' => true,
+                        'bid_type' => Order::BID_TYPE_FENPAI,
+                        'bid_status' => Order::BID_STATUS_FINISHED,
+                        'bid_end_time' => now()->toDateTimeString(),
+                    ]);
+
+                    OrderLog::create([
+                        'order_id' => $order->id,
+                        'type' => OrderLog::TYPE_DISPATCH_CHECK,
+                        'creator_id' => $user->id,
+                        'creator_name' => $user->name,
+                        'creator_company_id' => $company->id,
+                        'creator_company_name' => $company->name,
+                        'remark' => $order->remark,
+                        'content' => '派遣查勘服务商：' . $wusun->name,
+                        'platform' => $request->header('platform'),
+                    ]);
+
+                    // Message
+                    Message::create([
+                        'send_company_id' => $order->insurance_company_id,
+                        'to_company_id' => $wusun->id,
+                        'type' => MessageType::NewOrder->value,
+                        'order_id' => $order->id,
+                        'order_number' => $order->order_number,
+                        'case_number' => $order->case_number,
+                        'goods_types' => $order->goods_types,
+                        'remark' => $order->remark,
+                        'status' => 0,
+                    ]);
+                }
+
+                $order->save();
+
+            } else {
+                if ($order->isDirty('check_wusun_company_id')) {
+                    OrderLog::create([
+                        'order_id' => $order->id,
+                        'type' => OrderLog::TYPE_DISPATCH_CHECK,
+                        'creator_id' => $user->id,
+                        'creator_name' => $user->name,
+                        'creator_company_id' => $company->id,
+                        'creator_company_name' => $company->name,
+                        'content' => '派遣查勘服务商修改为：' . $company->name,
+                        'platform' => $request->header('platform'),
+                    ]);
+                }
             }
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return fail($exception->getMessage());
         }
+
 
         return success($order->load(['company:id,name', 'insurers']));
     }
