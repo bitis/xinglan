@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use App\Models\OrderRepairPlan;
+use App\Models\RepairQuota;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -58,6 +59,28 @@ class OrderRepairDispatchController extends Controller
         $repair_company_id = [];
         if ($plan->repair_type == OrderRepairPlan::TYPE_THIRD_REPAIR) {
             $repair_company_id[] = $plan->repair_company_id;
+
+            $quota = RepairQuota::where([
+                'order_id' => $plan->order_id,
+                'repair_company_id' => $plan->repair_company_id
+            ])->first();
+
+            if ($quota) {
+                $quota->win = 1;
+                $quota->save();
+            } else {
+                RepairQuota::cretate([
+                    'order_id' => $plan->order_id,
+                    'repair_company_id' => $plan->repair_company_id,
+                    'repair_company_name' => $plan->repair_company_name,
+                    'total_price' => $plan->repair_cost,
+                    'images' => $plan->cost_tables,
+                    'submit_at' => now()->toDateTimeString(),
+                    'win' => 1,
+                    'quota_type' => RepairQuota::TYPE_CHOOSE,
+                    'remark' => '物损公司分派时自动生成',
+                ]);
+            }
         }
 
         if ($request->input('costs')) {
@@ -70,6 +93,27 @@ class OrderRepairDispatchController extends Controller
             $plan->tasks()->createMany($tasks);
             foreach ($tasks as $task) {
                 $repair_company_id[] = $task['repair_company_id'];
+
+                $quota = RepairQuota::where([
+                    'order_id' => $plan->order_id,
+                    'repair_company_id' => $task['repair_company_id']
+                ])->first();
+
+                if ($quota) {
+                    $quota->win = 1;
+                    $quota->save();
+                } else {
+                    RepairQuota::cretate([
+                        'order_id' => $plan->order_id,
+                        'repair_company_id' => $task['repair_company_id'],
+                        'repair_company_name' => $task['repair_company_name'],
+                        'total_price' => $task['repair_cost'],
+                        'submit_at' => now()->toDateTimeString(),
+                        'win' => 1,
+                        'quota_type' => RepairQuota::TYPE_CHOOSE,
+                        'remark' => '物损公司分派时自动生成',
+                    ]);
+                }
             }
         }
 
