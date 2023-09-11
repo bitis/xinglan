@@ -246,10 +246,14 @@ class OrderController extends Controller
                         'status' => 0,
                     ]);
                     $message->save();
-                } elseif ($order->bid_type == Order::BID_TYPE_JINGJIA) {
-                    $order->fill([
-                        'wusun_check_status' => 2,
-                    ]);
+                } else {
+                    $order->insurance_check_name = $user->name;
+                    $order->insurance_check_phone = $user->mobile;
+                    if ($order->bid_type == Order::BID_TYPE_JINGJIA) {
+                        $order->fill([
+                            'wusun_check_status' => 2,
+                        ]);
+                    }
                 }
 
                 if ($company->getRawOriginal('type') == CompanyType::BaoXian->value && $request->input('wusun_company_id')) {
