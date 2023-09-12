@@ -178,7 +178,7 @@ class OrderQuotationController extends Controller
                     // 首次报价低于竞价金额，或者是当前公司创建的工单，直接分配工单
                     if (!$bidOption
                         or $quotation->total_price < $bidOption->bid_first_price
-                        or $order->creator_company_id = $quotation->company_id
+                        or $order->creator_company_id == $quotation->company_id
                     ) {
                         $order->bid_type = Order::BID_TYPE_FENPAI;
                         $order->bid_status = Order::BID_STATUS_FINISHED;
@@ -206,7 +206,7 @@ class OrderQuotationController extends Controller
                         $hours = ceil($duration);
                         $minutes = $duration * 60 % 60;
 
-                        $order->bid_type = 1;
+                        $order->bid_type = Order::BID_TYPE_JINGJIA;
                         $order->bid_status = Order::BID_STATUS_PROGRESSING;
                         $order->bid_end_time = now()->addHours($hours)->addMinutes($minutes)->toDateTimeString();
                         BidOpeningJob::dispatch($order->id)->delay(Carbon::createFromTimeString($order->bid_end_time));
