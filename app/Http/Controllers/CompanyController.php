@@ -87,7 +87,6 @@ class CompanyController extends Controller
             });
 
             $company->fill($request->only([
-                'invite_code',
                 'type',
                 'name',
                 'contract_name',
