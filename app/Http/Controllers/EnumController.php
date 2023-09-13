@@ -14,6 +14,7 @@ use App\Models\Enumerations\Status;
 use App\Models\Enumerations\WuSunStatus;
 use App\Models\GoodsType;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class EnumController extends Controller
 {
@@ -62,8 +63,20 @@ class EnumController extends Controller
         return success(OrderPlanType::toArray());
     }
 
-    public function approvalType(): JsonResponse
+    public function approvalType(Request $request): JsonResponse
     {
+        if ($request->user()->company?->getRawOriginal('type') == CompanyType::BaoXian->value) {
+            return success([
+                [
+                    'id' => ApprovalType::ApprovalQuotation,
+                    'name' => ApprovalType::ApprovalQuotation->name(),
+                ], [
+                    'id' => ApprovalType::ApprovalRepaired,
+                    'name' => ApprovalType::ApprovalRepaired->name(),
+                ],
+            ]);
+        }
+
         return success(ApprovalType::toArray());
     }
 }

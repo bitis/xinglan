@@ -19,7 +19,7 @@ class MenuController extends Controller
         $company_type = Company::find($user->company_id)?->getRawOriginal('type');
 
         $isAdmin = $request->user()->hasRole('admin');
-        $menus = $isAdmin ? Menu::all() : Menu::whereIn('show_if_type', [0, $company_type])->get();
+        $menus = $isAdmin ? Menu::all() : Menu::whereRaw("find_in_set($company_type, show_if_type)")->get();
 
         $permissions = $request->user()->getAllPermissions();
 
