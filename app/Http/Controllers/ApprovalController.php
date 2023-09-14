@@ -91,7 +91,7 @@ class ApprovalController extends Controller
 
 //        if ($process->approval_type == ApprovalType::ApprovalQuotation->value)
         $withs['quotation'] = function ($query) use ($company_id) {
-            return $query->where('company_id', $company_id);
+            return $query->where('win', 1);
         };
 
         $process->order = Order::with(array_merge(['company:id,name'], $withs))->find($process->order_id);
