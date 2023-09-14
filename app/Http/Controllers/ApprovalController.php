@@ -357,7 +357,7 @@ class ApprovalController extends Controller
     {
         $order = $approvalOrder->order;
 
-        $quotation = OrderQuotation::where('order_id', $order->id)->first();
+        $quotation = OrderQuotation::where('order_id', $order->id)->where('win', 1)->first();
 
         $quotation->check_status = $accept ? CheckStatus::Accept->value : CheckStatus::Reject->value;
         $quotation->checked_at = now()->toDateTimeString();
