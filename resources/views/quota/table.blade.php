@@ -128,7 +128,7 @@
         </tr>
         <tr class="table_row">
             <td colspan="2">报价备注</td>
-            <td colspan="7">{{ $quotation->repair_remark }}</td>
+            <td colspan="7">{{ $quotation->quotation_remark }}</td>
         </tr>
     </table>
     <div style="
