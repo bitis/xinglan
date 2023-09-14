@@ -13,6 +13,7 @@ use App\Models\Enumerations\ApprovalMode;
 use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\ApprovalType;
 use App\Models\Enumerations\CheckStatus;
+use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\MessageType;
 use App\Models\Enumerations\OrderCloseStatus;
 use App\Models\FinancialOrder;
@@ -83,15 +84,18 @@ class ApprovalController extends Controller
      */
     public function detail(Request $request): JsonResponse
     {
-        $company_id = $request->user()->company_id;
+        $company = $request->user()->company;
+
         $process = ApprovalOrderProcess::with('company:id,name')
             ->where('id', $request->input('process_id'))->first();
 
         $withs = ['repair_plan'];
 
 //        if ($process->approval_type == ApprovalType::ApprovalQuotation->value)
-        $withs['quotation'] = function ($query) use ($company_id) {
-            return $query->where('win', 1);
+        $withs['quotation'] = function ($query) use ($company) {
+            if ($company->getRawOriginal('type') == CompanyType::BaoXian->value)
+                return $query->where('win', 1);
+            return $query->where('company_id', $company->id);
         };
 
         $process->order = Order::with(array_merge(['company:id,name'], $withs))->find($process->order_id);
