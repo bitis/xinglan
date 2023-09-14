@@ -230,7 +230,8 @@ class OrderQuotationController extends Controller
                 $quotation->check_status = CheckStatus::Wait->value;
                 $quotation->pdf = '';
 
-                $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalQuotation->value);
+                $option = ApprovalOption::findByType($order->insurance_company_id, ApprovalType::ApprovalQuotation->value)
+                    ?: ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalQuotation->value);
 
                 $checker_text = '';
 
@@ -251,7 +252,7 @@ class OrderQuotationController extends Controller
 
                     $approvalOrder = ApprovalOrder::create([
                         'order_id' => $order->id,
-                        'company_id' => $quotation->company_id,
+                        'company_id' => $option->company_id,
                         'approval_type' => $option->type,
                     ]);
 
@@ -267,7 +268,7 @@ class OrderQuotationController extends Controller
                             'creator_id' => $user->id,
                             'creator_name' => $user->name,
                             'order_id' => $order->id,
-                            'company_id' => $quotation->company_id,
+                            'company_id' => $option->company_id,
                             'step' => Approver::STEP_CHECKER,
                             'approval_status' => ApprovalStatus::Pending->value,
                             'mode' => $option->approve_mode,
@@ -287,7 +288,7 @@ class OrderQuotationController extends Controller
                                 'creator_id' => $user->id,
                                 'creator_name' => $user->name,
                                 'order_id' => $order->id,
-                                'company_id' => $quotation->company_id,
+                                'company_id' => $option->company_id,
                                 'step' => Approver::STEP_REVIEWER,
                                 'approval_status' => ApprovalStatus::Pending->value,
                                 'mode' => $option->review_mode,
@@ -306,7 +307,7 @@ class OrderQuotationController extends Controller
                             'creator_id' => $user->id,
                             'creator_name' => $user->name,
                             'order_id' => $order->id,
-                            'company_id' => $quotation->company_id,
+                            'company_id' => $option->company_id,
                             'step' => Approver::STEP_RECEIVER,
                             'approval_status' => ApprovalStatus::Pending->value,
                             'mode' => ApprovalMode::QUEUE->value,
