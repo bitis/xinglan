@@ -50,17 +50,20 @@ enum OrderStatus: int
                 ->where('close_status', '<>', OrderCloseStatus::Closed->value)
                 ->where('wusun_check_status', Order::WUSUN_CHECK_STATUS_WAITING),
             OrderStatus::Checking => $query
-                ->where('wusun_check_status', Order::WUSUN_CHECK_STATUS_CHECKING)
-                ->where('close_status', '<>', OrderCloseStatus::Closed->value),
+                ->where('close_status', '<>', OrderCloseStatus::Closed->value)
+                ->where('wusun_check_status', Order::WUSUN_CHECK_STATUS_CHECKING),
             OrderStatus::WaitPlan => $query
                 ->where('close_status', '<>', OrderCloseStatus::Closed->value)
                 ->where('wusun_check_status', Order::WUSUN_CHECK_STATUS_FINISHED)
                 ->whereNull('plan_confirm_at'),
             OrderStatus::WaitCost => $query
+                ->where('close_status', '<>', OrderCloseStatus::Closed->value)
                 ->leftJoin('order_quotations', 'order_quotations.order_id', '=', 'orders.id')
                 ->where('order_quotations.check_status', '=', CheckStatus::Accept->value)
-                ->where('cost_check_status', '<>', Order::COST_CHECK_STATUS_PASS),
+                ->where('cost_check_status', '<>', Order::COST_CHECK_STATUS_PASS)
+                ->where('confirm_price_status', '=', Order::CONFIRM_PRICE_STATUS_FINISHED),
             OrderStatus::WaitQuote => $query
+                ->where('close_status', '<>', OrderCloseStatus::Closed->value)
                 ->leftJoin('order_quotations', 'order_quotations.order_id', '=', 'orders.id')
                 ->where('close_status', '<>', OrderCloseStatus::Closed->value)
                 ->where('orders.plan_type', Order::PLAN_TYPE_REPAIR)
@@ -71,8 +74,8 @@ enum OrderStatus: int
                     });
                 }),
             OrderStatus::WaitConfirmPrice => $query
-                ->leftJoin('order_quotations', 'order_quotations.order_id', '=', 'orders.id')
                 ->where('close_status', '<>', OrderCloseStatus::Closed->value)
+                ->leftJoin('order_quotations', 'order_quotations.order_id', '=', 'orders.id')
                 ->where('order_quotations.check_status', CheckStatus::Accept->value)
                 ->where('orders.plan_type', Order::PLAN_TYPE_REPAIR)
                 ->where('confirm_price_status', '<>', Order::CONFIRM_PRICE_STATUS_FINISHED),
