@@ -531,7 +531,6 @@ class OrderController extends Controller
             $order->cost_creator_id = $user->id;
             $order->cost_creator_name = $user->name;
             $order->cost_checked_at = null;
-            $order->save();
 
             $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalRepairCost->value);
 
@@ -642,7 +641,7 @@ class OrderController extends Controller
                     . $quotation->repair_days . '天；备注：' . $quotation->quotation_remark . '；' . $checker_text,
                 'platform' => \request()->header('platform'),
             ]);
-
+            $order->save();
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
