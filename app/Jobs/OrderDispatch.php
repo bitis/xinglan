@@ -55,7 +55,6 @@ class OrderDispatch implements ShouldQueue
             $lastChar = substr($this->order->case_number, -1);
 
             $provider = CompanyProvider::where('company_id', $company->id)
-                ->whereRaw("find_in_set($lastChar, match_last_chars)")
                 ->where('status', $status)->first();
 
             if ($provider) goto CONFIRM_PROVIDER;
