@@ -42,7 +42,6 @@ class OrderDispatch implements ShouldQueue
 
         // 无可用外协单位
         if (!$providers = CompanyProvider::where('company_id', $company->id)
-            ->where('insurance_type', $this->order->insurance_type)
             ->where('status', $status)->get()) return;
 
         $config = BidOption::where('company_id', $company->id)->first();
@@ -56,7 +55,6 @@ class OrderDispatch implements ShouldQueue
             $lastChar = substr($this->order->case_number, -1);
 
             $provider = CompanyProvider::where('company_id', $company->id)
-                ->where('insurance_type', $this->order->insurance_type)
                 ->whereRaw("find_in_set($lastChar, match_last_chars)")
                 ->where('status', $status)->first();
 
