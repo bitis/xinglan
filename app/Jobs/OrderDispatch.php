@@ -53,15 +53,19 @@ class OrderDispatch implements ShouldQueue
         $provider = [];
 
         // 报案尾号匹配
-//        if ($this->order->case_number) {
-//            $lastChar = substr($this->order->case_number, -1);
-//
-//            $provider = CompanyProvider::where('company_id', $company->id)
-//                ->whereRaw("find_in_set($lastChar, match_last_chars)")
-//                ->where('status', $status)->first();
-//
-//            if ($provider) goto CONFIRM_PROVIDER;
-//        }
+        if ($this->order->case_number) {
+            $lastChar = substr($this->order->case_number, -1);
+
+            $mathOption = ProviderOption::where('company_id', $company->id)
+                ->where('insurance_type', $this->order->insurance_type)
+                ->whereRaw("find_in_set($lastChar, match_last_chars)")
+                ->where('status', $status)
+                ->first();
+
+            $provider = CompanyProvider::find($mathOption?->relation_id);
+
+            if ($provider) goto CONFIRM_PROVIDER;
+        }
 
         if ($dispatchRole == OrderDispatchRole::Queue->value) {
             $index = $company->queue_index % count($providers);
