@@ -40,9 +40,11 @@ class OrderDispatch implements ShouldQueue
 
         $company = Company::find($this->order->insurance_company_id);
 
+        $providers = CompanyProvider::where('company_id', $company->id)
+            ->where('status', $status)->get();
+
         // 无可用外协单位
-        if (!$providers = CompanyProvider::where('company_id', $company->id)
-            ->where('status', $status)->get()) return;
+        if (!count($providers)) return;
 
         $config = BidOption::where('company_id', $company->id)->first();
 
