@@ -54,7 +54,7 @@ class ProviderOptionController extends Controller
             return new ProviderOption(['relation_id' => $relation_id]);
         });
 
-        $option->fill(Arr::whereNotNull($params));
+        $option->fill($params);
 
         $option->save();
 
