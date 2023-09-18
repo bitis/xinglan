@@ -152,11 +152,9 @@ class OrderQuotationController extends Controller
                 $quotation->bid_repair_days = $quotation->getOriginal('bid_repair_days');
             }
 
-            $quotation->save();
-
             if ($quotation->isDirty('bid_total_price') or $quotation->isDirty('bid_repair_days')) {
                 $quotation->bid_created_at = now()->toDateTimeString();
-
+                $quotation->save();
                 // 对外报价
                 OrderLog::create([
                     'order_id' => $order->id,
@@ -173,7 +171,7 @@ class OrderQuotationController extends Controller
                 /**
                  * 检查是否首次报价
                  */
-                if ($order->bid_type == 0 && $order->wusun_company_id = 0 && $quotation->company_id == $order->check_wusun_company_id) {
+                if ($order->bid_type == 0 && $order->wusun_company_id == 0 && $quotation->company_id == $order->check_wusun_company_id) {
 
                     $bidOption = BidOption::where('company_id', $quotation->company_id)->where('status', Status::Normal->value)->first();
 
