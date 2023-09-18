@@ -155,6 +155,8 @@ class OrderQuotationController extends Controller
             if ($quotation->isDirty('bid_total_price') or $quotation->isDirty('bid_repair_days')) {
                 $quotation->bid_created_at = now()->toDateTimeString();
 
+                $quotation->save();
+
                 // 对外报价
                 OrderLog::create([
                     'order_id' => $order->id,
