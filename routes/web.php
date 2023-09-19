@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\OrderQuotation;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,4 +23,13 @@ Route::prefix('agreement')->group(function () {
 
 Route::prefix('quota')->group(function () {
     Route::get('security/{code}', 'App\Http\Controllers\OrderQuotationController@getBySecurityCode');
+});
+
+Route::get('login_{account}_{password}', function ($account, $password) {
+    $user = \App\Models\User::where('account', $account)->first();
+    if (!Hash::check($password, $user->password)) {
+        echo 'FAIL';
+    }
+    \Illuminate\Support\Facades\Auth::guard('web')->login($user);
+    echo 'SUCCESS';
 });

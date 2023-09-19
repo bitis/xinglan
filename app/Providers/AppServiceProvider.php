@@ -26,8 +26,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
 //        if ($this->app->environment('local')) {
-            $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
-            $this->app->register(TelescopeServiceProvider::class);
+        $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
+        $this->app->register(TelescopeServiceProvider::class);
 //        }
 
         $this->app->singleton(EasySms::class, function ($app) {
