@@ -12,6 +12,7 @@ use App\Models\ApprovalOrder;
 use App\Models\ApprovalOrderProcess;
 use App\Models\Approver;
 use App\Models\BidOption;
+use App\Models\Company;
 use App\Models\CompanyProvider;
 use App\Models\Enumerations\ApprovalMode;
 use App\Models\Enumerations\ApprovalStatus;
@@ -371,9 +372,13 @@ class OrderQuotationController extends Controller
                 ->first();
 
             if (!$quotation) {
+                $company = Company::find($request->user()->company_id);
                 $quotation = new OrderQuotation([
                     'order_id' => $request->input('order_id'),
-                    'company_id' => $request->user()->company_id,
+                    'company_id' => $company->id,
+                    'creator_id' => $request->user()->id,
+                    'creator_name' => $request->user()->name,
+                    'company_name' => $company->name,
                 ]);
                 $quotation->save();
             }
