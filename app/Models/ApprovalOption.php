@@ -62,6 +62,6 @@ class ApprovalOption extends Model
             }
         }
 
-        return [$checkers, $receivers, $reviewers];
+        return [$checkers, $reviewers, $receivers];
     }
 }
