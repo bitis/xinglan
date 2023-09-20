@@ -16,6 +16,7 @@ enum MessageType : int
     case OrderDispatch = 5;
     case ConfirmedCost = 6;
     case AppraisalReject = 7;
+    case Repaired = 8;
 
     public function name(): string
     {
@@ -27,6 +28,7 @@ enum MessageType : int
             MessageType::OrderDispatch => '中标通知',
             MessageType::ConfirmedCost => '成本核算',
             MessageType::AppraisalReject => '审批拒绝',
+            MessageType::Repaired => '复勘结束',
         };
     }
 

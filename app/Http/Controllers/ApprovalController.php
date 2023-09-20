@@ -247,7 +247,6 @@ class ApprovalController extends Controller
         } catch (\Exception $exception) {
             DB::rollBack();
 
-            if (!app()->environment('prod')) throw $exception;
             return fail($exception->getMessage());
         }
 
@@ -347,6 +346,8 @@ class ApprovalController extends Controller
             ApprovalType::ApprovalAssessment->value => $this->approvalAssessment($approvalOrder, $accept),
             ApprovalType::ApprovalClose->value => $this->approvalClose($approvalOrder, $accept),
             ApprovalType::ApprovalRepairCost->value => $this->approvalRepairCost($approvalOrder, $accept),
+            ApprovalType::ApprovalRepaired->value => $this->approvalRepaired($approvalOrder, $accept),
+
         };
     }
 
@@ -510,6 +511,33 @@ class ApprovalController extends Controller
             'send_company_id' => $order->wusun_company_id,
             'to_company_id' => $order->wusun_company_id,
             'type' => MessageType::ConfirmedCost,
+            'order_id' => $order->id,
+            'order_number' => $order->order_number,
+            'case_number' => $order->case_number,
+            'goods_types' => $order->goods_types,
+            'remark' => $order->close_remark,
+            'status' => 0,
+        ]);
+
+        $message->save();
+    }
+
+    private function approvalRepaired(ApprovalOrder $approvalOrder, bool $accept): void
+    {
+        $order = $approvalOrder->order;
+
+        $plan = OrderRepairPlan::where('order_id', $order->id)->first();
+
+        if (!$accept) {
+            $plan->after_repair_images = '';
+            $plan->save();
+        }
+
+        // Message
+        $message = new Message([
+            'send_company_id' => $order->wusun_company_id,
+            'to_company_id' => $order->wusun_company_id,
+            'type' => MessageType::Repaired,
             'order_id' => $order->id,
             'order_number' => $order->order_number,
             'case_number' => $order->case_number,
