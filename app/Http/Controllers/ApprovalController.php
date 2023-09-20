@@ -523,15 +523,22 @@ class ApprovalController extends Controller
         $message->save();
     }
 
+    /**
+     * 已修复资料审核
+     *
+     * @param ApprovalOrder $approvalOrder
+     * @param bool $accept
+     * @return void
+     */
     private function approvalRepaired(ApprovalOrder $approvalOrder, bool $accept): void
     {
         $order = $approvalOrder->order;
 
-        $plan = OrderRepairPlan::where('order_id', $order->id)->first();
 
         if (!$accept) {
-            $plan->after_repair_images = '';
-            $plan->save();
+            $order->review_images = '';
+            $order->review_remark = '';
+            $order->save();
         }
 
         // Message
