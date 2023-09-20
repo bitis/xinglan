@@ -156,7 +156,7 @@ class ApprovalController extends Controller
                 'creator_name' => $user->name,
                 'creator_company_id' => $user->company_id,
                 'creator_company_name' => Company::find($user->company_id)?->name,
-                'content' => $user->name . ($accept ? '通过' : '拒绝') . $typeText . "备注：" . $process->remark,
+                'content' => $user->name . ($accept ? '通过' : '拒绝') . $typeText . "，备注：" . $process->remark,
                 'platform' => \request()->header('platform'),
             ]);
 
