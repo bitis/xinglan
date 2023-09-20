@@ -182,6 +182,89 @@ class OrderController extends Controller
 
             if ($order->isDirty('review_images') or $order->isDirty('review_remark')) {
                 $order->review_at = now()->toDateTimeString();
+
+                // 复勘审批
+                $option = ApprovalOption::findByType($order->insurance_company_id, ApprovalType::ApprovalRepaired->value)
+                    ?: ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalRepaired->value);
+
+                $checker_text = '';
+
+                if ($option) {
+                    $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
+                    if ($approvalOrder) {
+                        ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
+                        $approvalOrder->delete();
+                    }
+
+                    $approvalOrder = ApprovalOrder::create([
+                        'order_id' => $order->id,
+                        'company_id' => $option->company_id,
+                        'approval_type' => $option->type,
+                    ]);
+
+                    list($checkers, $reviewers, $receivers) = ApprovalOption::groupByType($option->approver);
+
+                    $checker_text = '';
+
+                    $insert = [];
+                    foreach ($checkers as $index => $checker) {
+                        $insert[] = [
+                            'user_id' => $checker['id'],
+                            'name' => $checker['name'],
+                            'creator_id' => $user->id,
+                            'creator_name' => $user->name,
+                            'order_id' => $order->id,
+                            'company_id' => $option->company_id,
+                            'step' => Approver::STEP_CHECKER,
+                            'approval_status' => ApprovalStatus::Pending->value,
+                            'mode' => $option->approve_mode,
+                            'approval_type' => $option->type,
+                            'hidden' => $index > 0 && $option->approve_mode == ApprovalMode::QUEUE->value,
+                        ];
+                        $checker_text .= $checker['name'] . ', ';
+                    }
+
+                    $checker_text = '审核人：（' . trim($checker_text, ',') . '）' . ['', '或签', '依次审批'][$option->approve_mode];
+
+                    foreach ($receivers as $receiver) {
+                        $insert[] = [
+                            'user_id' => $receiver['id'],
+                            'name' => $receiver['name'],
+                            'creator_id' => $user->id,
+                            'creator_name' => $user->name,
+                            'order_id' => $order->id,
+                            'company_id' => $option->company_id,
+                            'step' => Approver::STEP_RECEIVER,
+                            'approval_status' => ApprovalStatus::Pending->value,
+                            'mode' => ApprovalMode::QUEUE->value,
+                            'approval_type' => $option->type,
+                            'hidden' => true,
+                        ];
+                    }
+
+                    $approvalOrder->process()->delete();
+                    if ($insert) $approvalOrder->process()->createMany($insert);
+
+                    foreach ($approvalOrder->process as $process) {
+                        if (!$process->hidden) ApprovalNotifyJob::dispatch($process['user_id'], [
+                            'type' => 'approval',
+                            'order_id' => $order->id,
+                            'process_id' => $process->id,
+                            'creator_name' => $process->creator_name,
+                        ]);
+                    }
+                }
+
+                OrderLog::create([
+                    'order_id' => $order->id,
+                    'type' => OrderLog::TYPE_QUOTATION,
+                    'creator_id' => $user->id,
+                    'creator_name' => $user->name,
+                    'creator_company_id' => $user->company_id,
+                    'creator_company_name' => $company->name,
+                    'content' => $user->name . '提交复勘资料' . '；备注：' . $order->review_remark . "审批人：" . $checker_text,
+                    'platform' => \request()->header('platform'),
+                ]);
             }
 
             $order->save();
