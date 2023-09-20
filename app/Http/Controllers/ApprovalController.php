@@ -538,6 +538,7 @@ class ApprovalController extends Controller
         if (!$accept) {
             $order->review_images = '';
             $order->review_remark = '';
+            $order->review_at = null;
             $order->save();
         }
 
