@@ -118,6 +118,10 @@ class OrderQuotationController extends Controller
                 'creator_name' => $user->name
             ]));
 
+        if ($order->bid_type == Order::BID_TYPE_JINGJIA && now()->gt($order->bid_end_time) && !$quotation->id) {
+            return fail('报价已截止');
+        }
+
         if ($quotation->company_id == $order->wusun_company_id) $quotation->win = 1;
 
         $quotation->fill($request->only([
@@ -143,7 +147,7 @@ class OrderQuotationController extends Controller
         if (
             $quotation->bid_created_at and
             ($quotation->isDirty('bid_repair_days') or $quotation->isDirty('bid_total_price'))
-        ) return success('报价信息不允许修改');
+        ) return fail('报价信息不允许修改');
 
         try {
             DB::beginTransaction();
