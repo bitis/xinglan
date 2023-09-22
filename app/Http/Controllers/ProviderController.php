@@ -100,7 +100,7 @@ class ProviderController extends Controller
                     $providerCompany = Company::findOr($companyParams['provider_id'], function () use ($companyParams, $adminParams, $currentCompany, $providerParams) {
                         $providerType = $currentCompany->getRawOriginal('type') + 1;
 
-                        if ($currentCompany->getRawOriginal('type') == CompanyType::BaoXian->value && $providerParams['car_part']) {
+                        if ($currentCompany->getRawOriginal('type') == CompanyType::BaoXian->value && !empty($providerParams['car_part'])) {
                             $providerType = CompanyType::CheJian->value;
                         }
 
