@@ -9,6 +9,7 @@ use App\Models\CompanyProvider;
 use App\Models\Enumerations\CompanyLevel;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\Status;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +31,8 @@ class ProviderController extends Controller
             ->where('company_id', $request->user()->company_id)
             ->when($request->input('name'), function ($query, $name) {
                 $query->where('provider_name', 'like', "%$name%");
-            })->when(strlen($status = $request->input('status')), function ($query) use ($status) {
+            })
+            ->when(strlen($status = $request->input('status')), function ($query) use ($status) {
                 $query->where('status', $status);
             })
             ->orderBy('id', 'desc')
@@ -83,6 +85,7 @@ class ProviderController extends Controller
             'expiration_date',
             'car_insurance',
             'other_insurance',
+            'car_part',
             'introduce',
             'remark',
             'status',
@@ -93,11 +96,19 @@ class ProviderController extends Controller
         try {
             DB::beginTransaction();
             $provider = CompanyProvider::where('company_id', $request->user()->company_id)
-                ->findOr($request->input('id'), function () use ($companyParams, $adminParams, $currentCompany) {
-                    $providerCompany = Company::findOr($companyParams['provider_id'], function () use ($companyParams, $adminParams, $currentCompany) {
+                ->findOr($request->input('id'), function () use ($companyParams, $adminParams, $currentCompany, $providerParams) {
+                    $providerCompany = Company::findOr($companyParams['provider_id'], function () use ($companyParams, $adminParams, $currentCompany, $providerParams) {
                         $providerType = $currentCompany->getRawOriginal('type') + 1;
 
+                        if ($currentCompany->getRawOriginal('type') == CompanyType::BaoXian->value && $providerParams['car_part']) {
+                            $providerType = CompanyType::CheJian->value;
+                        }
+
                         if (!CompanyType::from($providerType)) throw new \Exception('维修公司不允许添加外协');
+
+                        if (User::where('account', $adminParams['account'])->exists()) {
+                            throw new \Exception('当前输入账号已存在');
+                        }
 
                         $company = new Company([
                             'level' => CompanyLevel::One,
@@ -121,7 +132,9 @@ class ProviderController extends Controller
                         $company->admin_id = $admin->id;
                         $company->top_id = $company->id;
                         $company->save();
+
                         CreateCompany::dispatch($company)->afterCommit();
+
                         return $company;
                     });
 
@@ -135,6 +148,7 @@ class ProviderController extends Controller
                         'company_name' => $currentCompany->name,
                         'provider_id' => $providerCompany->id,
                         'provider_name' => $providerCompany->name,
+                        'provider_company_type' => $providerCompany->type,
                     ]);
                 });
 

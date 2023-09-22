@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Company;
 use App\Models\Enumerations\CompanyType;
+use App\Models\Enumerations\InsuranceType;
 use App\Models\Enumerations\OrderStatus;
 use App\Models\Order;
 use App\Models\User;
@@ -15,9 +16,10 @@ class OrderService
     /**
      * @param User $user
      * @param Collection $params
+     * @param array $with
      * @return Builder
      */
-    public static function list(User $user, Collection $params, $with = []): Builder
+    public static function list(User $user, Collection $params, array $with = []): Builder
     {
         $current_company = $user->company;
 
@@ -31,8 +33,11 @@ class OrderService
                     return match ($current_company->getRawOriginal('type')) {
                         CompanyType::BaoXian->value => $query->where('insurance_company_id', $company_id),
                         CompanyType::WuSun->value => $query->where('wusun_company_id', $company_id)
-                            ->OrWhere('check_wusun_company_id', $company_id),
+                            ->OrWhere('check_wusun_company_id', $company_id)
+                            ->whereIn('insurance_type', [InsuranceType::Car->value, InsuranceType::Other->value]),
                         CompanyType::WeiXiu->value => $query->whereRaw("find_in_set($company_id, repair_company_ids)"),
+                        CompanyType::CheJian->value => $query->where('wusun_company_id', $company_id)
+                            ->where('insurance_type', InsuranceType::CarPart->value),
                     };
 
                 $groupId = Company::getGroupId($current_company->id);
@@ -40,8 +45,11 @@ class OrderService
                 return match ($current_company->getRawOriginal('type')) {
                     CompanyType::BaoXian->value => $query->whereIn('insurance_company_id', $groupId),
                     CompanyType::WuSun->value => $query->whereIn('wusun_company_id', $groupId)
-                        ->OrWhereIn('check_wusun_company_id', $groupId),
-                    CompanyType::WeiXiu->value => $query->whereRaw("find_in_set('". $current_company->id . "', repair_company_ids)"),
+                        ->OrWhereIn('check_wusun_company_id', $groupId)
+                        ->whereIn('insurance_type', [InsuranceType::Car->value, InsuranceType::Other->value]),
+                    CompanyType::WeiXiu->value => $query->whereRaw("find_in_set('" . $current_company->id . "', repair_company_ids)"),
+                    CompanyType::CheJian->value => $query->where('wusun_company_id', $company_id)
+                        ->where('insurance_type', InsuranceType::CarPart->value),
                 };
             })
             ->when($params->get('customer_id'), function ($query, $customer_id) use ($current_company) {

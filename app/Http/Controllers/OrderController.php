@@ -15,6 +15,7 @@ use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\ApprovalType;
 use App\Models\Enumerations\CheckStatus;
 use App\Models\Enumerations\CompanyType;
+use App\Models\Enumerations\InsuranceType;
 use App\Models\Enumerations\MessageType;
 use App\Models\Enumerations\OrderCloseStatus;
 use App\Models\Enumerations\Status;
@@ -332,6 +333,11 @@ class OrderController extends Controller
                 } else {
                     $order->insurance_check_name = $user->name;
                     $order->insurance_check_phone = $user->mobile;
+
+                    if ($order->insurance_type == InsuranceType::CarPart->value) {
+                        $order->bid_type = Order::BID_TYPE_JINGJIA;
+                    }
+
                     if ($order->bid_type == Order::BID_TYPE_JINGJIA) {
                         $order->fill([
                             'wusun_check_status' => 2,

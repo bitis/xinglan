@@ -39,21 +39,22 @@ class QuotaMessageJob implements ShouldQueue
 
         $insuranceCompany = Company::find($order->insurance_company_id);
 
-        $providers = CompanyProvider::where('company_id', $order->insurance_company_id)->get();
+        $providers = CompanyProvider::where('company_id', $order->insurance_company_id)
+            ->where('car_part', 1)->get();
 
         foreach ($providers as $provider) {
-            $wusunCompany = Company::find($provider->provider_id);
+            $providerCompany = Company::find($provider->provider_id);
 
             try {
                 $easySms->send(
-                    $wusunCompany->contract_phone,
+                    $providerCompany->contract_phone,
                     new QuotaNotify($provider->name, $insuranceCompany->name, $order->case_number)
                 );
 
-                if ($wusunCompany->backup_contract_phone)
+                if ($providerCompany->backup_contract_phone)
                     $easySms->send(
-                        $wusunCompany->backup_contract_phone,
-                        new QuotaNotify($wusunCompany->name, $insuranceCompany->name, $order->case_number)
+                        $providerCompany->backup_contract_phone,
+                        new QuotaNotify($providerCompany->name, $insuranceCompany->name, $order->case_number)
                     );
             } catch (NoGatewayAvailableException  $e) {
                 Log::error('SMS_ERROR', $e->results);
