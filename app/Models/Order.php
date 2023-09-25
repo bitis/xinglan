@@ -74,6 +74,7 @@ class Order extends Model
         'bid_type',
         'bid_status',
         'bid_end_time',
+        'bid_win_price',
         'confirmed_price',
         'confirmed_repair_days',
         'confirmed_remark',

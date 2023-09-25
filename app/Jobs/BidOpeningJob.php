@@ -51,7 +51,7 @@ class BidOpeningJob implements ShouldQueue
                 $order->wusun_company_id = $quotation->company_id;
                 $order->wusun_company_name = $company?->name;
                 $order->confim_wusun_at = $order->bid_end_time;
-                $order->bid_win_price = $quotation->total_price;
+                $order->bid_win_price = $quotation->bid_total_price;
 
                 OrderLog::create([
                     'order_id' => $order->id,
