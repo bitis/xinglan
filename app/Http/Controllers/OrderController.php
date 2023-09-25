@@ -283,8 +283,8 @@ class OrderController extends Controller
                     'creator_name' => $user->name,
                     'creator_company_id' => $company->id,
                     'creator_company_name' => $company->name,
-                    'remark' => $order->remark,
-                    'content' => '新建工单',
+                    'remark' => $order->remark . "",
+                    'content' => $user->name .'（'. $user->mobile . '）新建工单',
                     'platform' => $request->header('platform'),
                 ]);
 
