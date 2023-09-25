@@ -105,9 +105,11 @@ class ProviderQuotationController extends Controller
 
         if ($order->bid_status == Order::BID_STATUS_FINISHED) return fail('不可重复开标');
 
+        $quotation = $order->quotations()->where('company_id', $request->input('wusun_company_id'))->first();
         $order->bid_status = Order::BID_STATUS_FINISHED;
         $order->bid_end_time = now()->toDateTimeString();
         $order->confim_wusun_at = $order->bid_end_time;
+        $order->bid_win_price = $quotation->total_price;
         $order->fill($request->only([
             'wusun_company_id',
             'wusun_company_name'
