@@ -32,8 +32,11 @@ class GoodsTypeController extends Controller
      */
     public function form(GoodsTypeRequest $request): JsonResponse
     {
-        $goodsType = GoodsType::where('company_id', $request->user()->company_id)
-            ->findOr($request->input('id'), fn() => new GoodsType(['company_id' => $request->user()->company_id]));
+        $company_id = $request->user()->company_id;
+
+        $goodsType = GoodsType::findOr($request->input('id'), fn() => new GoodsType(['company_id' => $company_id]));
+
+        if ($goodsType->company_id != $company_id) return fail('当前类型不可修改');
 
         $goodsType->fill($request->only(['name', 'remark', 'order', 'status']));
 
