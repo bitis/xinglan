@@ -18,6 +18,7 @@ use App\Models\Enumerations\ApprovalMode;
 use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\ApprovalType;
 use App\Models\Enumerations\CheckStatus;
+use App\Models\Enumerations\InsuranceType;
 use App\Models\Enumerations\Status;
 use App\Models\Order;
 use App\Models\OrderLog;
@@ -46,6 +47,7 @@ class OrderQuotationController extends Controller
         if ($request->user()->hasRole('admin')) return success('超级管理员无法查看');
 
         $company_id = $request->user()->company_id;
+        $company = $request->user()->compnay;
         $customersId = CompanyProvider::where('provider_id', $company_id)->pluck('company_id');
 
         $orders = Order::with('company:id,name')
@@ -71,6 +73,9 @@ class OrderQuotationController extends Controller
                     ->orWhere('license_plate', 'like', '%' . $name . '%');
             })
             ->whereIn('insurance_company_id', $customersId)
+            ->when($company->car_part, function ($query) {
+                $query->where('insurance_type', InsuranceType::CarPart);
+            })
             ->selectRaw('orders.*, quotation.company_id, quotation.plan_type, quotation.repair_days,
              quotation.repair_cost, quotation.other_cost, quotation.total_cost, quotation.profit_margin,
              quotation.bid_created_at,quotation.bid_repair_days,quotation.bid_total_price,
