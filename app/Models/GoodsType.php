@@ -11,5 +11,5 @@ class GoodsType extends Model
 
     protected $hidden = ['created_at', 'updated_at'];
 
-    protected $fillable = ['name', 'company_id', 'remark', 'order', 'status'];
+    protected $fillable = ['name', 'company_id', 'remark', 'order', 'status'. 'type'];
 }
