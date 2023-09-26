@@ -38,7 +38,7 @@ class GoodsTypeController extends Controller
 
         if ($goodsType->company_id != $company_id) return fail('当前类型不可修改');
 
-        $goodsType->fill($request->only(['name', 'remark', 'order', 'status']));
+        $goodsType->fill($request->only(['name', 'remark', 'order', 'status', 'type']));
 
         $goodsType->save();
 
