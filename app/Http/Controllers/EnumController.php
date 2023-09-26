@@ -11,7 +11,6 @@ use App\Models\Enumerations\OrderCloseStatus;
 use App\Models\Enumerations\OrderPlanType;
 use App\Models\Enumerations\OrderStatus;
 use App\Models\Enumerations\Status;
-use App\Models\Enumerations\WuSunStatus;
 use App\Models\GoodsType;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -53,11 +52,6 @@ class EnumController extends Controller
     public function messageType(): JsonResponse
     {
         return success(MessageType::toArray());
-    }
-
-    public function wuSunCheckStatus(): JsonResponse
-    {
-        return success(WuSunStatus::toArray());
     }
 
     public function orderPlanType(): JsonResponse
