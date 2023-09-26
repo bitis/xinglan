@@ -17,7 +17,7 @@ enum InsuranceType: int
         return match ($this) {
             InsuranceType::Car => '车险',
             InsuranceType::Other => '非车险',
-            InsuranceType::CarPart => '车件',
+            InsuranceType::CarPart => '外修',
         };
     }
 }
