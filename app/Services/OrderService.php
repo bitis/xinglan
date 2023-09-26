@@ -28,7 +28,7 @@ class OrderService
 
         return Order::with($with)
             ->where(function ($query) use ($current_company, $company_id) {
-                if ($current_company->car_part = 1)
+                if ($current_company->car_part == 1)
                     $query->where('insurance_type', InsuranceType::CarPart->value);
 
                 if ($company_id)
