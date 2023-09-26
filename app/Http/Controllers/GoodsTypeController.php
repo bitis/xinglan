@@ -19,7 +19,7 @@ class GoodsTypeController extends Controller
     {
         $result = GoodsType::where('type', $request->input('type', 0))
             ->whereIn('company_id', [$request->user()->company_id, 0])
-            ->paginate(getPerPage());
+            ->get();
 
         return success($result);
     }
