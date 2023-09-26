@@ -73,7 +73,8 @@ class ProviderController extends Controller
             'official_seal',
             'logo',
             'remark',
-            'service_rate'
+            'service_rate',
+            'car_part'
         ]);
         $providerParams = $request->only([
             'provider_name',
@@ -99,10 +100,6 @@ class ProviderController extends Controller
                 ->findOr($request->input('id'), function () use ($companyParams, $adminParams, $currentCompany, $providerParams) {
                     $providerCompany = Company::findOr($companyParams['provider_id'], function () use ($companyParams, $adminParams, $currentCompany, $providerParams) {
                         $providerType = $currentCompany->getRawOriginal('type') + 1;
-
-                        if ($currentCompany->getRawOriginal('type') == CompanyType::BaoXian->value && !empty($providerParams['car_part'])) {
-                            $providerType = CompanyType::CheJian->value;
-                        }
 
                         if (!CompanyType::from($providerType)) throw new \Exception('维修公司不允许添加外协');
 
