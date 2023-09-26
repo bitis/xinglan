@@ -17,7 +17,11 @@ class GoodsTypeController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        return success(GoodsType::whereIn('company_id', [$request->user()->company_id, 0])->get());
+        $result = GoodsType::where('type', $request->input('type', 0))
+            ->whereIn('company_id', [$request->user()->company_id, 0])
+            ->paginate(getPerPage());
+
+        return success($result);
     }
 
     /**
