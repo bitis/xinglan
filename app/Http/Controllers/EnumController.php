@@ -18,9 +18,11 @@ use Illuminate\Http\Request;
 
 class EnumController extends Controller
 {
-    public function goodsType(): JsonResponse
+    public function goodsType(Request $request): JsonResponse
     {
-        return success(GoodsType::where('status', Status::Normal)->get());
+        return success(GoodsType::where('type', $request->input('type', 0))
+            ->whereIn('company_id', [$request->user()->company_id, 0])
+            ->where('status', Status::Normal)->get());
     }
 
     public function companyType(): JsonResponse
