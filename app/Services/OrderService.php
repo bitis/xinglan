@@ -29,7 +29,7 @@ class OrderService
         return Order::with($with)
             ->where(function ($query) use ($current_company, $company_id) {
                 if ($current_company->car_part = 1)
-                    $query->whereIn('insurance_type', InsuranceType::CarPart->value);
+                    $query->where('insurance_type', InsuranceType::CarPart->value);
 
                 if ($company_id)
                     return match ($current_company->getRawOriginal('type')) {
