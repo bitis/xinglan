@@ -47,7 +47,7 @@ class OrderQuotationController extends Controller
         if ($request->user()->hasRole('admin')) return success('超级管理员无法查看');
 
         $company_id = $request->user()->company_id;
-        $company = $request->user()->compnay;
+        $company = $request->user()->company;
         $customersId = CompanyProvider::where('provider_id', $company_id)->pluck('company_id');
 
         $orders = Order::with('company:id,name')
