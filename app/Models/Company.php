@@ -43,6 +43,7 @@ class Company extends Model
         'identification_images',
         'admin_id',
         'queue_index',
+        'car_part'
     ];
 
     protected $casts = [
