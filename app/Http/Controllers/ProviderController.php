@@ -141,6 +141,9 @@ class ProviderController extends Controller
                         'provider_id' => $providerCompany->id,
                     ])->exists()) throw new \Exception('该公司已被添加');
 
+                    $providerCompany->car_part = $providerParams['car_part'] ?? false;
+                    $providerCompany->save();
+
                     return new CompanyProvider([
                         'company_id' => $currentCompany->id,
                         'company_name' => $currentCompany->name,
