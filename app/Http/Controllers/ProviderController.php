@@ -145,7 +145,7 @@ class ProviderController extends Controller
                         'company_name' => $currentCompany->name,
                         'provider_id' => $providerCompany->id,
                         'provider_name' => $providerCompany->name,
-                        'provider_company_type' => $providerCompany->type,
+                        'provider_company_type' => $providerCompany->getRawOriginal('type'),
                     ]);
                 });
 
