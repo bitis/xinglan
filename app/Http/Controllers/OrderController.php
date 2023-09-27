@@ -161,7 +161,11 @@ class OrderController extends Controller
             'bid_end_time',
         ]);
 
-        if ($request->input('bid_type') == 1 && $request->input('bid_end_time') && now()->gt($request->input('bid_end_time'))) {
+        if ($request->input('bid_type') == 1 && !$request->input('bid_end_time')) {
+            return fail('请选择报价截止时间');
+        }
+
+        if ($request->input('bid_end_time') && now()->gt($request->input('bid_end_time'))) {
             return fail('报价截止时间不能小于当前时间');
         }
 
@@ -289,7 +293,7 @@ class OrderController extends Controller
                     'creator_company_id' => $company->id,
                     'creator_company_name' => $company->name,
                     'remark' => $order->remark . "",
-                    'content' => $user->name .'新建工单',
+                    'content' => '新建工单',
                     'platform' => $request->header('platform'),
                 ]);
 
