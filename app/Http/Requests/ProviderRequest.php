@@ -41,10 +41,6 @@ class ProviderRequest extends FormRequest
             'area' => 'exclude_with:id,provider_id',
             'address' => 'exclude_with:id,provider_id',
             'bank_name' => 'required',
-            'bank_account_name' => 'required',
-            'bank_account_number' => 'required',
-            'license_no' => 'required',
-            'license_image' => 'required|array',
             'status' => [
                 Rule::enum(Status::class)
             ]
