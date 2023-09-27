@@ -285,10 +285,11 @@ class OrderController extends Controller
                     'type' => OrderLog::TYPE_NEW_ORDER,
                     'creator_id' => $user->id,
                     'creator_name' => $user->name,
+                    'creator_phone' => $user->mobile,
                     'creator_company_id' => $company->id,
                     'creator_company_name' => $company->name,
                     'remark' => $order->remark . "",
-                    'content' => $user->name .'（'. $user->mobile . '）新建工单',
+                    'content' => $user->name .'新建工单',
                     'platform' => $request->header('platform'),
                 ]);
 

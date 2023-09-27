@@ -15,6 +15,7 @@ class OrderLog extends Model
         'type',
         'creator_id',
         'creator_name',
+        'creator_phone',
         'creator_company_id',
         'creator_company_name',
         'remark',
