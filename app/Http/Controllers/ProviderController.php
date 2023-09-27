@@ -112,7 +112,8 @@ class ProviderController extends Controller
                             'parent_id' => 0,
                             'status' => Status::Normal,
                             'invite_code' => rand(100000, 999999),
-                            'type' => $providerType
+                            'type' => $providerType,
+                            'car_part' => $providerParams['car_part']
                         ]);
 
                         $company->fill($companyParams);
