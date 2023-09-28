@@ -674,29 +674,27 @@ class OrderController extends Controller
 
                 $checker_text = '审核人：（' . trim($checker_text, ',') . '）' . ['', '或签', '依次审批'][$option->approve_mode];
 
-                $profit_margin_ratio = 0;
-
-                if ($quotation->bid_total_price > 0)
+                if ($quotation && $quotation->bid_total_price > 0) {
                     $profit_margin_ratio = ($quotation->bid_total_price - $order->total_cost) / $quotation->bid_total_price;
-
-                if ($profit_margin_ratio < $option->review_conditions) {
-                    foreach ($reviewers as $reviewer) {
-                        $insert[] = [
-                            'user_id' => $reviewer['id'],
-                            'name' => $reviewer['name'],
-                            'creator_id' => $user->id,
-                            'creator_name' => $user->name,
-                            'order_id' => $order->id,
-                            'company_id' => $user->company_id,
-                            'step' => Approver::STEP_REVIEWER,
-                            'approval_status' => ApprovalStatus::Pending->value,
-                            'mode' => $option->review_mode,
-                            'approval_type' => $option->type,
-                            'hidden' => true,
-                        ];
-                        $reviewer_text .= $reviewer['name'] . ', ';
+                    if ($profit_margin_ratio < $option->review_conditions) {
+                        foreach ($reviewers as $reviewer) {
+                            $insert[] = [
+                                'user_id' => $reviewer['id'],
+                                'name' => $reviewer['name'],
+                                'creator_id' => $user->id,
+                                'creator_name' => $user->name,
+                                'order_id' => $order->id,
+                                'company_id' => $user->company_id,
+                                'step' => Approver::STEP_REVIEWER,
+                                'approval_status' => ApprovalStatus::Pending->value,
+                                'mode' => $option->review_mode,
+                                'approval_type' => $option->type,
+                                'hidden' => true,
+                            ];
+                            $reviewer_text .= $reviewer['name'] . ', ';
+                        }
+                        $checker_text .= ('复审人：(' . trim($reviewer_text, ',') . '）' . ['', '或签', '依次审批'][$option->review_mode]);
                     }
-                    $checker_text .= ('复审人：(' . trim($reviewer_text, ',') . '）' . ['', '或签', '依次审批'][$option->review_mode]);
                 }
 
                 foreach ($receivers as $receiver) {
@@ -727,16 +725,16 @@ class OrderController extends Controller
                     ]);
                 }
             }
-            $quotation->save();
+
             OrderLog::create([
                 'order_id' => $order->id,
                 'type' => OrderLog::TYPE_SUBMIT_QUOTATION,
-                'creator_id' => $quotation->creator_id,
-                'creator_name' => $quotation->creator_name,
-                'creator_company_id' => $quotation->company_id,
-                'creator_company_name' => $quotation->company_name,
-                'content' => $quotation->creator_name . '提交施工成本修复审核，报价金额为' . $quotation->total_price . '预计施工工期：'
-                    . $quotation->repair_days . '天；备注：' . $quotation->quotation_remark . '；' . $checker_text,
+                'creator_id' => $user->id,
+                'creator_name' => $user->name,
+                'creator_company_id' => $user->company_id,
+                'creator_company_name' => $order->wusun_company_name,
+                'content' => $user->name . '提交施工成本修复审核，施工成本：' . $order->repair_cost . '；其他成本：'
+                    . $order->other_cost . '；总成本：' . $order->total_cost . '；备注：' . $quotation->cost_remark . '；' . $checker_text,
                 'platform' => \request()->header('platform'),
             ]);
             $order->save();
