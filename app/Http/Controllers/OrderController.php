@@ -608,9 +608,9 @@ class OrderController extends Controller
 
         $quotation = OrderQuotation::where('order_id', $request->input('id'))
             ->where('company_id', $user->company_id)
-            ->firstOr();
+            ->first();
 
-        if (!$quotation or $quotation->check_status != CheckStatus::Accept->value) return fail('必须先通过对外报价');
+//        if (!$quotation or $quotation->check_status != CheckStatus::Accept->value) return fail('必须先通过对外报价');
 
         if (in_array($order->cost_check_status, [1, 2])) return fail('当前状态不允许修改');
 
