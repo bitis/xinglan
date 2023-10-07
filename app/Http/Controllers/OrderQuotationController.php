@@ -422,7 +422,7 @@ class OrderQuotationController extends Controller
             return fail($e->getMessage());
         }
 
-        return success();
+        return success($quotation->items);
     }
 
     /**
