@@ -29,12 +29,6 @@ class ServeController extends Controller
      */
     public function receiveInvestigationTask(Request $request): JsonResponse
     {
-        Log::create([
-            'type' => '查勘任务推送',
-            'url' => request()->fullUrl(),
-            'request' => json_encode(request()->all()),
-        ]);
-
         try {
 
             DB::beginTransaction();
@@ -152,7 +146,13 @@ class ServeController extends Controller
             DB::commit();
         } catch (Exception $exception) {
             DB::rollBack();
-            return Response::failed('W01');
+            Log::create([
+                'type' => '查勘任务推送',
+                'url' => request()->fullUrl(),
+                'request' => json_encode(request()->all()),
+                'response' => $exception->getMessage(),
+            ]);
+            return Response::failed('W01', '接收查勘任务推送失败:'.$exception->getMessage());
         }
 
         return Response::success('W01');
