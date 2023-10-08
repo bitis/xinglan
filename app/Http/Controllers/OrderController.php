@@ -163,6 +163,7 @@ class OrderController extends Controller
             'review_at',
             'bid_type',
             'bid_end_time',
+            'lossPersons'
         ]);
 
         if ($request->input('bid_type') == 1 && !$request->input('bid_end_time')) {
@@ -462,13 +463,16 @@ class OrderController extends Controller
                     ]);
                 }
             }
+
+            $order->lossPersons()->delete();
+            $order->lossPersons()->createMany($request->input('lossPersons'));
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
             return fail($exception->getMessage());
         }
 
-        return success($order->load(['company:id,name', 'insurers']));
+        return success($order->load(['company:id,name', 'insurers', 'lossPersons']));
     }
 
     /**

@@ -106,6 +106,8 @@ class Order extends Model
         'review_images' => 'array'
     ];
 
+    protected $with = ['lossPersons'];
+
     const BID_STATUS_PROGRESSING = 0;
     const BID_STATUS_FINISHED = 1;
 
@@ -196,5 +198,10 @@ class Order extends Model
     public function repair_quotas(): HasMany
     {
         return $this->hasMany(RepairQuota::class, 'order_id', 'id');
+    }
+
+    public function lossPersons(): HasMany
+    {
+        return $this->hasMany(LossPerson::class, 'order_id', 'id');
     }
 }
