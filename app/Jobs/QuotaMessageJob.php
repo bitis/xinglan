@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Common\Messages\QuotaNotify;
 use App\Models\Company;
 use App\Models\CompanyProvider;
+use App\Models\Enumerations\InsuranceType;
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -39,8 +40,10 @@ class QuotaMessageJob implements ShouldQueue
 
         $insuranceCompany = Company::find($order->insurance_company_id);
 
-        $providers = CompanyProvider::where('company_id', $order->insurance_company_id)
-            ->where('car_part', 1)->get();
+        if ($order->insurance_type == InsuranceType::CarPart->value)
+            $providers = CompanyProvider::where('company_id', $order->insurance_company_id)->where('car_part', 1)->get();
+        else
+            $providers = CompanyProvider::where('company_id', $order->insurance_company_id)->where('car_part', '<>', 1)->get();
 
         foreach ($providers as $provider) {
             $providerCompany = Company::find($provider->provider_id);

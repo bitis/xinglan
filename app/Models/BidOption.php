@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Enumerations\Status;
 use App\Models\Traits\DefaultDatetimeFormat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,5 +30,10 @@ class BidOption extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class, 'company_id', 'id');
+    }
+
+    public static function findByCompany($id)
+    {
+        return self::where('company_id', $id)->where('status', Status::Normal->value)->first();
     }
 }

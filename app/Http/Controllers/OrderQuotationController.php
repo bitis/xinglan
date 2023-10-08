@@ -177,53 +177,6 @@ class OrderQuotationController extends Controller
                         . $quotation->bid_repair_days . '天；备注：' . $quotation->quotation_remark,
                     'platform' => \request()->header('platform'),
                 ]);
-
-                /**
-                 * 检查是否首次报价
-                 */
-                if ($order->bid_type == 0 && $order->wusun_company_id == 0 && $quotation->company_id == $order->check_wusun_company_id) {
-
-                    $bidOption = BidOption::where('company_id', $quotation->company_id)->where('status', Status::Normal->value)->first();
-
-                    // 首次报价低于竞价金额，或者是当前公司创建的工单，直接分配工单
-                    if (!$bidOption
-                        or $quotation->total_price < $bidOption->bid_first_price
-                        or $order->creator_company_id == $quotation->company_id
-                    ) {
-                        $order->bid_type = Order::BID_TYPE_FENPAI;
-                        $order->bid_status = Order::BID_STATUS_FINISHED;
-                        $order->bid_end_time = now()->toDateTimeString();
-                        $order->wusun_company_id = $quotation->company_id;
-                        $order->wusun_company_name = $quotation->company->name;
-                        $order->confim_wusun_at = now()->toDateTimeString();
-                        $order->bid_win_price = $quotation->bid_total_price;
-                        $quotation->win = 1;
-                        $quotation->bid_end_time = now()->toDateTimeString();
-                    } else {
-                        $now = date('His');
-
-                        if ($quotation->total_price < $bidOption->min_goods_price) {
-                            if ($now > '083000' && $now < '180000') $duration = $bidOption->working_time_deadline_min;
-                            else $duration = $bidOption->resting_time_deadline_min;
-                        } elseif ($quotation->total_price < $bidOption->mid_goods_price) {
-                            if ($now > '083000' && $now < '180000') $duration = $bidOption->working_time_deadline_mid;
-                            else $duration = $bidOption->resting_time_deadline_mid;
-                        } else {
-                            if ($now > '083000' && $now < '180000') $duration = $bidOption->working_time_deadline_max;
-                            else $duration = $bidOption->resting_time_deadline_max;
-                        }
-
-                        $hours = ceil($duration);
-                        $minutes = $duration * 60 % 60;
-
-                        $order->bid_type = Order::BID_TYPE_JINGJIA;
-                        $order->bid_status = Order::BID_STATUS_PROGRESSING;
-                        $order->bid_end_time = now()->addHours($hours)->addMinutes($minutes)->toDateTimeString();
-                        BidOpeningJob::dispatch($order->id)->delay(Carbon::createFromTimeString($order->bid_end_time));
-                        QuotaMessageJob::dispatch($order);
-                    }
-                    $order->save();
-                }
             }
 
             $quotation->save();

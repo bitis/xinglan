@@ -4,16 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\OrderRequest;
 use App\Jobs\ApprovalNotifyJob;
+use App\Jobs\BidOpeningJob;
+use App\Jobs\OrderDispatch;
+use App\Jobs\QuotaMessageJob;
 use App\Models\ApprovalOption;
 use App\Models\ApprovalOrder;
 use App\Models\ApprovalOrderProcess;
 use App\Models\Approver;
+use App\Models\BidOption;
 use App\Models\Company;
 use App\Models\CompanyProvider;
 use App\Models\Enumerations\ApprovalMode;
 use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\ApprovalType;
-use App\Models\Enumerations\CheckStatus;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\InsuranceType;
 use App\Models\Enumerations\MessageType;
@@ -25,6 +28,7 @@ use App\Models\OrderLog;
 use App\Models\OrderQuotation;
 use App\Models\User;
 use App\Services\OrderService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -213,8 +217,6 @@ class OrderController extends Controller
 
                     list($checkers, $reviewers, $receivers) = ApprovalOption::groupByType($option->approver);
 
-                    $checker_text = '';
-
                     $insert = [];
                     foreach ($checkers as $index => $checker) {
                         $insert[] = [
@@ -344,7 +346,46 @@ class OrderController extends Controller
                     $order->insurance_check_phone = $user->mobile;
 
                     if ($order->insurance_type == InsuranceType::CarPart->value) {
+                        // 车件全部竞价
                         $order->bid_type = Order::BID_TYPE_JINGJIA;
+                    } else {
+                        // 车险和非车险根据配置是否竞价
+                        $bidOption = BidOption::findByCompany($order->insurance_company_id);
+
+                        if ($bidOption && $order->owner_price > $bidOption->bid_first_price && $order->bid_type != Order::BID_TYPE_JINGJIA) {
+                            // 竞价
+                            $now = date('His');
+
+                            if ($order->owner_price < $bidOption->min_goods_price) {
+                                if ($now > '083000' && $now < '180000') $duration = $bidOption->working_time_deadline_min;
+                                else $duration = $bidOption->resting_time_deadline_min;
+                            } elseif ($order->owner_price < $bidOption->mid_goods_price) {
+                                if ($now > '083000' && $now < '180000') $duration = $bidOption->working_time_deadline_mid;
+                                else $duration = $bidOption->resting_time_deadline_mid;
+                            } else {
+                                if ($now > '083000' && $now < '180000') $duration = $bidOption->working_time_deadline_max;
+                                else $duration = $bidOption->resting_time_deadline_max;
+                            }
+
+                            $hours = ceil($duration);
+                            $minutes = $duration * 60 % 60;
+
+                            $order->bid_type = Order::BID_TYPE_JINGJIA;
+                            $order->bid_status = Order::BID_STATUS_PROGRESSING;
+                            $order->bid_end_time = now()->addHours($hours)->addMinutes($minutes)->toDateTimeString();
+
+                            OrderLog::create([
+                                'order_id' => $order->id,
+                                'type' => OrderLog::TYPE_DISPATCH_CHECK,
+                                'creator_id' => $user->id,
+                                'creator_name' => $user->name,
+                                'creator_company_id' => $company->id,
+                                'creator_company_name' => $company->name,
+                                'remark' => $order->remark,
+                                'content' => '根据系统配置竞价规则，当前工单改为竞价，竞价截止时间：' . $order->bid_end_time,
+                                'platform' => 'system',
+                            ]);
+                        }
                     }
 
                     if ($order->bid_type == Order::BID_TYPE_JINGJIA) {
@@ -400,6 +441,13 @@ class OrderController extends Controller
 
                 $order->save();
 
+                // 创建工单后
+                if ($order->bid_type != Order::BID_TYPE_JINGJIA) OrderDispatch::dispatch($order);
+                if ($order->bid_type == Order::BID_TYPE_JINGJIA) {
+                    BidOpeningJob::dispatch($order->id)->delay(Carbon::createFromTimeString($order->bid_end_time));
+                    QuotaMessageJob::dispatch($order);
+                }
+
             } else {
                 if ($order->isDirty('check_wusun_company_id')) {
                     OrderLog::create([
@@ -419,7 +467,6 @@ class OrderController extends Controller
             DB::rollBack();
             return fail($exception->getMessage());
         }
-
 
         return success($order->load(['company:id,name', 'insurers']));
     }

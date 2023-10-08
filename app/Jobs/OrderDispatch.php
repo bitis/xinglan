@@ -99,6 +99,12 @@ class OrderDispatch implements ShouldQueue
                 'check_wusun_company_id' => $provider->provider_id,
                 'check_wusun_company_name' => $provider->provider_name,
                 'dispatch_check_wusun_at' => now()->toDateTimeString(),
+                'wusun_company_id' => $company->id,
+                'wusun_company_name' => $company->name,
+                'confim_wusun_at' => now()->toDateTimeString(),
+                'bid_type' => Order::BID_TYPE_FENPAI,
+                'bid_status' => Order::BID_STATUS_FINISHED,
+                'bid_end_time' => now()->toDateTimeString(),
                 'dispatched' => true
             ]);
 
