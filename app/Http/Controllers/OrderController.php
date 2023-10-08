@@ -463,9 +463,9 @@ class OrderController extends Controller
                     ]);
                 }
             }
-
+            $lossPersons = $request->input('lossPersons');
             $order->lossPersons()->delete();
-            $order->lossPersons()->createMany($request->input('lossPersons'));
+            if ($lossPersons) $order->lossPersons()->createMany($lossPersons);
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
