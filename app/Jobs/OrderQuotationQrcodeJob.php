@@ -13,6 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class OrderQuotationQrcodeJob implements ShouldQueue
 {
@@ -32,6 +33,11 @@ class OrderQuotationQrcodeJob implements ShouldQueue
     public function handle(): void
     {
         $quotation = $this->quotation;
+
+        if (empty($quotation->security_code)) {
+            $quotation->security_code = Str::random();
+            $quotation->save();
+        }
 
         $security_url = config('app.url') . '/quota/security/' . $quotation->security_code;
 
