@@ -29,6 +29,8 @@ class ServeController extends Controller
      */
     public function receiveInvestigationTask(Request $request): JsonResponse
     {
+
+        \Illuminate\Support\Facades\Log::info('HJB', $request->all());
         try {
 
             DB::beginTransaction();
