@@ -990,4 +990,50 @@ class OrderController extends Controller
 
         return success();
     }
+
+    /**
+     * 重新开标
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function reQuota(Request $request): JsonResponse
+    {
+        $order = Order::where('insurance_company_id', $request->user()->company_id)
+            ->where('id', $request->input('order_id'))
+            ->first();
+
+        if (!$order) return fail('工单不存在');
+
+        if ($order->bid_type != Order::BID_TYPE_JINGJIA) return fail('非竞价工单不可以重新竞价');
+
+        $quotations = OrderQuotation::where('order_id', $request->input('order_id'))->get();
+
+        foreach ($quotations as $quotation) {
+            $quotation->items()->delete();
+            $quotation->delete();
+        }
+
+        $order->check_wusun_company_id = null;
+        $order->check_wusun_company_name = null;
+        $order->dispatch_check_wusun_at = null;
+        $order->accept_check_wusun_at = null;
+        $order->dispatched = 0;
+        $order->wusun_company_id = null;
+        $order->wusun_company_name = null;
+        $order->confim_wusun_at = null;
+        $order->wusun_check_id = null;
+        $order->wusun_check_name = null;
+        $order->wusun_check_phone = null;
+        $order->wusun_check_accept_at = null;
+        $order->dispatch_check_at = null;
+
+        $order->bid_win_price = 0;
+        $order->bid_status = Order::BID_STATUS_PROGRESSING;
+
+        $order->bid_end_time = now()->toDateTimeString();
+        $order->bid_end_time = now()->toDateTimeString();
+
+        return success();
+    }
 }
