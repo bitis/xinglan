@@ -86,7 +86,7 @@
         </tr>
         <tr class="table_row">
             <td colspan="1" class="table_label">车牌号</td>
-            <td colspan="3" class="table_value">{{ $quotation->license_plate }}</td>
+            <td colspan="3" class="table_value">{{ $quotation->order->license_plate }}</td>
             <td colspan="1" class="table_label">报价单位</td>
             <td colspan="3" class="table_value">{{ $quotation->company->name }}</td>
         </tr>
