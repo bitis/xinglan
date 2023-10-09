@@ -26,7 +26,8 @@ class ApprovalNotifyJob implements ShouldQueue
     public function __construct(int $user_id, $extras = [])
     {
         $this->user = User::find($user_id);
-        $this->extras = $extras;
+        $company = $this->user->company;
+        $this->extras = array_merge($extras, ['company_type' => $company->getRawOriginal('type')]);
     }
 
     /**

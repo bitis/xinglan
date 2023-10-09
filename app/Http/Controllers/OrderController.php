@@ -268,6 +268,7 @@ class OrderController extends Controller
                             'order_id' => $order->id,
                             'process_id' => $process->id,
                             'creator_name' => $process->creator_name,
+                            'approval_type' => $approvalOrder->approval_type,
                         ]);
                     }
                 }
@@ -778,6 +779,7 @@ class OrderController extends Controller
                         'order_id' => $order->id,
                         'process_id' => $process->id,
                         'creator_name' => $process->creator_name,
+                        'approval_type' => $approvalOrder->approval_type,
                     ]);
                 }
             }
@@ -904,6 +906,7 @@ class OrderController extends Controller
                         'order_id' => $order->id,
                         'process_id' => $process->id,
                         'creator_name' => $process->creator_name,
+                        'approval_type' => $approvalOrder->approval_type,
                     ]);
                 }
             }

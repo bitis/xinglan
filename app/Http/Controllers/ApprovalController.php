@@ -214,6 +214,7 @@ class ApprovalController extends Controller
                             'order_id' => $checkers[0]->order_id,
                             'process_id' => $checkers[0]->id,
                             'creator_name' => $checkers[0]->creator_name,
+                            'approval_type' => $approvalOrder->approval_type,
                         ]);
                     } else {
                         $this->completeStep($checkers);
@@ -234,6 +235,7 @@ class ApprovalController extends Controller
                             'order_id' => $reviewers[0]->order_id,
                             'process_id' => $reviewers[0]->id,
                             'creator_name' => $reviewers[0]->creator_name,
+                            'approval_type' => $approvalOrder->approval_type,
                         ]);
                     } else {
                         $this->completeStep($reviewers);
@@ -273,6 +275,7 @@ class ApprovalController extends Controller
                     'order_id' => $reviewers[0]->order_id,
                     'process_id' => $reviewers[0]->id,
                     'creator_name' => $reviewers[0]->creator_name,
+                    'approval_type' => $approvalOrder->approval_type,
                 ]);
             } else {
                 foreach ($reviewers as $reviewer) {
@@ -283,6 +286,7 @@ class ApprovalController extends Controller
                         'order_id' => $reviewer->order_id,
                         'process_id' => $reviewer->id,
                         'creator_name' => $reviewer->creator_name,
+                        'approval_type' => $approvalOrder->approval_type,
                     ]);
                 }
             }
@@ -324,6 +328,7 @@ class ApprovalController extends Controller
                 'order_id' => $receiver->order_id,
                 'process_id' => $receiver->id,
                 'creator_name' => $receiver->creator_name,
+                'approval_type' => $approvalOrder->approval_type,
             ]);
         }
 
