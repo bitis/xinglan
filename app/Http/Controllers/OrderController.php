@@ -792,7 +792,7 @@ class OrderController extends Controller
                 'creator_company_id' => $user->company_id,
                 'creator_company_name' => $order->wusun_company_name,
                 'content' => $user->name . '提交施工成本修复审核，施工成本：' . $order->repair_cost . '；其他成本：'
-                    . $order->other_cost . '；总成本：' . $order->total_cost . '；备注：' . $quotation->cost_remark . '；' . $checker_text,
+                    . $order->other_cost . '；总成本：' . $order->total_cost . '；备注：' . $checker_text,
                 'platform' => \request()->header('platform'),
             ]);
             $order->save();
