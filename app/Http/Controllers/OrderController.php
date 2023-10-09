@@ -166,12 +166,14 @@ class OrderController extends Controller
             'lossPersons'
         ]);
 
-        if ($request->input('bid_type') == 1 && !$request->input('bid_end_time')) {
-            return fail('请选择报价截止时间');
-        }
+        if (!$request->input('id')) {
+            if ($request->input('bid_type') == 1 && !$request->input('bid_end_time')) {
+                return fail('请选择报价截止时间');
+            }
 
-        if ($request->input('bid_end_time') && now()->gt($request->input('bid_end_time'))) {
-            return fail('报价截止时间不能小于当前时间');
+            if ($request->input('bid_end_time') && now()->gt($request->input('bid_end_time'))) {
+                return fail('报价截止时间不能小于当前时间');
+            }
         }
 
         $user = $request->user();
