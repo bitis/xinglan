@@ -174,6 +174,9 @@ class OrderController extends Controller
             if ($request->input('bid_end_time') && now()->gt($request->input('bid_end_time'))) {
                 return fail('报价截止时间不能小于当前时间');
             }
+        } else {
+            unset($orderParams['bid_type']);
+            unset($orderParams['bid_end_time']);
         }
 
         $user = $request->user();
