@@ -69,7 +69,7 @@ class OrderRepairDispatchController extends Controller
                 $quota->win = 1;
                 $quota->save();
             } else {
-                RepairQuota::cretate([
+                RepairQuota::create([
                     'order_id' => $plan->order_id,
                     'repair_company_id' => $plan->repair_company_id,
                     'repair_company_name' => $plan->repair_company_name,
@@ -103,7 +103,7 @@ class OrderRepairDispatchController extends Controller
                     $quota->win = 1;
                     $quota->save();
                 } else {
-                    RepairQuota::cretate([
+                    RepairQuota::create([
                         'order_id' => $plan->order_id,
                         'repair_company_id' => $task['repair_company_id'],
                         'repair_company_name' => $task['repair_company_name'],
