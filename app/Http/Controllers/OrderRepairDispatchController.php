@@ -79,6 +79,8 @@ class OrderRepairDispatchController extends Controller
                     'win' => 1,
                     'quota_type' => RepairQuota::TYPE_CHOOSE,
                     'remark' => '物损公司分派时自动生成',
+                    'operator_id' => $request->user()->id,
+                    'operator_name' => $request->user()->name,
                 ]);
             }
         }
@@ -112,6 +114,8 @@ class OrderRepairDispatchController extends Controller
                         'win' => 1,
                         'quota_type' => RepairQuota::TYPE_CHOOSE,
                         'remark' => '物损公司分派时自动生成',
+                        'operator_id' => $request->user()->id,
+                        'operator_name' => $request->user()->name,
                     ]);
                 }
             }
