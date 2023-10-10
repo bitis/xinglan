@@ -163,7 +163,6 @@ class OrderController extends Controller
             'review_at',
             'bid_type',
             'bid_end_time',
-            'lossPersons'
         ]);
 
         if (!$request->input('id')) {
@@ -459,6 +458,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
+            throw $exception;
             return fail($exception->getMessage());
         }
 
