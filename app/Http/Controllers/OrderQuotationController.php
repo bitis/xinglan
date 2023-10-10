@@ -410,14 +410,18 @@ class OrderQuotationController extends Controller
         try {
             DB::beginTransaction();
 
-            if ($order->confirm_price_status == Order::CONFIRM_PRICE_STATUS_APPROVAL)
-                throw new Exception('当前状态审批中，不能进行编辑');
-            if ($order->confirm_price_status == Order::CONFIRM_PRICE_STATUS_FINISHED)
-                throw new Exception('当前状态已完成，不能进行编辑');
+//            if ($order->confirm_price_status == Order::CONFIRM_PRICE_STATUS_APPROVAL)
+//                throw new Exception('当前状态审批中，不能进行编辑');
+//            if ($order->confirm_price_status == Order::CONFIRM_PRICE_STATUS_FINISHED)
+//                throw new Exception('当前状态已完成，不能进行编辑');
 
             $order->fill($request->only([
                 'confirmed_price', 'confirmed_repair_days', 'confirmed_remark'
             ]));
+
+            $quotation = OrderQuotation::where('order_id', $order->id)->where('company_id', $user->company_id)->first();
+            $quotation->profit_margin_ratio = sprintf('%.2f', ($order->confirmed_price - $quotation->total_cost) / $order->confirmed_price);
+            $quotation->save();
 
             $order->confirm_user_id = $user->id;
             $order->confirm_price_status = Order::CONFIRM_PRICE_STATUS_APPROVAL;
@@ -435,6 +439,7 @@ class OrderQuotationController extends Controller
                     ->where('company_id', $order->wusun_company_id)
                     ->first();
                 if ($approvalOrder) ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
+                $approvalOrder->delete();
 
                 $approvalOrder = ApprovalOrder::create([
                     'order_id' => $order->id,
