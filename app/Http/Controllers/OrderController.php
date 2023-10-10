@@ -151,7 +151,6 @@ class OrderController extends Controller
             'remark',
             'customer_remark',
             'close_status',
-            'goods_types',
             'goods_name',
             'owner_name',
             'owner_phone',
