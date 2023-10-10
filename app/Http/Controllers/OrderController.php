@@ -151,6 +151,7 @@ class OrderController extends Controller
             'remark',
             'customer_remark',
             'close_status',
+            'goods_types',
             'goods_name',
             'owner_name',
             'owner_phone',
@@ -453,11 +454,14 @@ class OrderController extends Controller
             }
             $lossPersons = $request->input('lossPersons', []);
             $order->lossPersons()->delete();
-            if (!empty($lossPersons)) $order->lossPersons()->createMany($lossPersons);
+            if (!empty($lossPersons)) {
+                $order->lossPersons()->createMany($lossPersons);
+                $order->goods_types = implode(',', array_column($lossPersons, 'goods_types'));
+                $order->save();
+            }
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
-            throw $exception;
             return fail($exception->getMessage());
         }
 
