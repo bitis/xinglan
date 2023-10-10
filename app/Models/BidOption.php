@@ -36,4 +36,34 @@ class BidOption extends Model
     {
         return self::where('company_id', $id)->where('status', Status::Normal->value)->first();
     }
+
+    /**
+     * 竞价截止时间
+     *
+     * @param $order
+     * @param $bidOption
+     * @return string
+     */
+    public static function getBidEndTime($order, $bidOption): string
+    {
+        $now = date('His');
+
+        if (empty($bidOption)) return now()->addHours(12)->toDateTimeString();
+
+        if ($order->owner_price < $bidOption->min_goods_price) {
+            if ($now > '083000' && $now < '180000') $duration = $bidOption->working_time_deadline_min;
+            else $duration = $bidOption->resting_time_deadline_min;
+        } elseif ($order->owner_price < $bidOption->mid_goods_price) {
+            if ($now > '083000' && $now < '180000') $duration = $bidOption->working_time_deadline_mid;
+            else $duration = $bidOption->resting_time_deadline_mid;
+        } else {
+            if ($now > '083000' && $now < '180000') $duration = $bidOption->working_time_deadline_max;
+            else $duration = $bidOption->resting_time_deadline_max;
+        }
+
+        $hours = ceil($duration);
+        $minutes = $duration * 60 % 60;
+
+        return now()->addHours($hours)->addMinutes($minutes)->toDateTimeString();
+    }
 }

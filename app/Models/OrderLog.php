@@ -35,4 +35,6 @@ class OrderLog extends Model
 
     const TYPE_REPAIR_BID = 7; // 打开维修方报价
 
+    const TYPE_REBID = 8; // 重新竞价
+
 }

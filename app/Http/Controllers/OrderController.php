@@ -360,26 +360,10 @@ class OrderController extends Controller
                         $bidOption = BidOption::findByCompany($order->insurance_company_id);
 
                         if ($bidOption && $order->owner_price > $bidOption->bid_first_price && $order->bid_type != Order::BID_TYPE_JINGJIA) {
-                            // 竞价
-                            $now = date('His');
-
-                            if ($order->owner_price < $bidOption->min_goods_price) {
-                                if ($now > '083000' && $now < '180000') $duration = $bidOption->working_time_deadline_min;
-                                else $duration = $bidOption->resting_time_deadline_min;
-                            } elseif ($order->owner_price < $bidOption->mid_goods_price) {
-                                if ($now > '083000' && $now < '180000') $duration = $bidOption->working_time_deadline_mid;
-                                else $duration = $bidOption->resting_time_deadline_mid;
-                            } else {
-                                if ($now > '083000' && $now < '180000') $duration = $bidOption->working_time_deadline_max;
-                                else $duration = $bidOption->resting_time_deadline_max;
-                            }
-
-                            $hours = ceil($duration);
-                            $minutes = $duration * 60 % 60;
 
                             $order->bid_type = Order::BID_TYPE_JINGJIA;
                             $order->bid_status = Order::BID_STATUS_PROGRESSING;
-                            $order->bid_end_time = now()->addHours($hours)->addMinutes($minutes)->toDateTimeString();
+                            $order->bid_end_time = BidOption::getBidEndTime($order, $bidOption);
 
                             OrderLog::create([
                                 'order_id' => $order->id,
@@ -953,7 +937,7 @@ class OrderController extends Controller
         $logs = OrderLog::where('order_id', $request->input('order_id'))
             ->where(function ($query) use ($user) {
                 $query->where('creator_company_id', $user->company_id)
-                    ->orWhereIn('type', [OrderLog::TYPE_NEW_ORDER, OrderLog::TYPE_BID_OPEN]);
+                    ->orWhereIn('type', [OrderLog::TYPE_NEW_ORDER, OrderLog::TYPE_BID_OPEN, OrderLog::TYPE_REBID]);
             })
             ->orderBy('id', 'desc')
             ->get();
@@ -1011,36 +995,70 @@ class OrderController extends Controller
             ->where('id', $request->input('order_id'))
             ->first();
 
-        if (!$order) return fail('工单不存在');
+        $user = $request->user();
+        $company = $user->company;
+
+        if (!$order or $order->insurance_company_id != $user->company_id) return fail('工单不存在或无权操作');
+
+        if ($order->close_status == OrderCloseStatus::Closed) return fail('已关闭工单不可重新竞价');
 
         if ($order->bid_type != Order::BID_TYPE_JINGJIA) return fail('非竞价工单不可以重新竞价');
 
-        $quotations = OrderQuotation::where('order_id', $request->input('order_id'))->get();
 
-        foreach ($quotations as $quotation) {
-            $quotation->items()->delete();
-            $quotation->delete();
+        try {
+            DB::beginTransaction();
+
+            $quotations = OrderQuotation::where('order_id', $request->input('order_id'))->get();
+
+            foreach ($quotations as $quotation) {
+                $quotation->items()->delete();
+                $quotation->delete();
+            }
+
+            $order->check_wusun_company_id = null;
+            $order->check_wusun_company_name = null;
+            $order->dispatch_check_wusun_at = null;
+            $order->accept_check_wusun_at = null;
+            $order->dispatched = 0;
+            $order->wusun_company_id = null;
+            $order->wusun_company_name = null;
+            $order->confim_wusun_at = null;
+            $order->wusun_check_id = null;
+            $order->wusun_check_name = null;
+            $order->wusun_check_phone = null;
+            $order->wusun_check_accept_at = null;
+            $order->dispatch_check_at = null;
+
+            $order->bid_win_price = 0;
+            $order->bid_status = Order::BID_STATUS_PROGRESSING;
+            $order->bid_end_time = BidOption::getBidEndTime($order, BidOption::findByCompany($order->wusun_company_id));
+            $order->save();
+
+            OrderLog::create([
+                'order_id' => $order->id,
+                'type' => OrderLog::TYPE_REBID,
+                'creator_id' => $user->id,
+                'creator_name' => $user->name,
+                'creator_company_id' => $company->id,
+                'creator_company_name' => $company->name,
+                'remark' => $order->remark,
+                'content' => $user->name . '作废原有开标记录，重新发起竞价',
+                'platform' => $request->header('platform'),
+            ]);
+
+            ApprovalOrderProcess::where('order_id', $order->id)->where('approval_status', ApprovalStatus::Pending)->update([
+                'approval_status' => ApprovalStatus::Rejected,
+            ]);
+            ApprovalOrder::where('order_id', $order->id)->whereNull('completed_at')->update([
+                'completed_at' => now(),
+            ]);
+            BidOpeningJob::dispatch($order->id)->delay(Carbon::createFromTimeString($order->bid_end_time));
+            QuotaMessageJob::dispatch($order);
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return fail($exception->getMessage());
         }
-
-        $order->check_wusun_company_id = null;
-        $order->check_wusun_company_name = null;
-        $order->dispatch_check_wusun_at = null;
-        $order->accept_check_wusun_at = null;
-        $order->dispatched = 0;
-        $order->wusun_company_id = null;
-        $order->wusun_company_name = null;
-        $order->confim_wusun_at = null;
-        $order->wusun_check_id = null;
-        $order->wusun_check_name = null;
-        $order->wusun_check_phone = null;
-        $order->wusun_check_accept_at = null;
-        $order->dispatch_check_at = null;
-
-        $order->bid_win_price = 0;
-        $order->bid_status = Order::BID_STATUS_PROGRESSING;
-
-        $order->bid_end_time = now()->toDateTimeString();
-        $order->bid_end_time = now()->toDateTimeString();
 
         return success();
     }

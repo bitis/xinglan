@@ -126,6 +126,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('logs', 'OrderController@logs'); // 变更日志
         Route::get('export', 'OrderController@export'); // 导出 Excel
         Route::post('setQuota', 'OrderController@setQuota'); // 设置为维修方报价
+        Route::post('reQuota', 'OrderController@reQuota'); // 保险公司重新进行报价
 
 
         Route::prefix('repair')->group(function () {
