@@ -1032,6 +1032,7 @@ class OrderController extends Controller
             $order->bid_win_price = 0;
             $order->bid_status = Order::BID_STATUS_PROGRESSING;
             $order->bid_end_time = BidOption::getBidEndTime($order, BidOption::findByCompany($order->wusun_company_id));
+            $order->bid_remark = $request->input('bid_remark');
             $order->save();
 
             OrderLog::create([
