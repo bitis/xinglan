@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ApprovalOption extends Model
 {
@@ -18,11 +19,6 @@ class ApprovalOption extends Model
         'approve_mode',
         'review_mode',
         'review_conditions',
-        'add_reviewer',
-    ];
-
-    protected $casts = [
-        'add_reviewer' => 'array'
     ];
 
     public function approver(): BelongsToMany
@@ -68,5 +64,22 @@ class ApprovalOption extends Model
         }
 
         return [$checkers, $reviewers, $receivers];
+    }
+
+    public function approvalExtends(): HasMany
+    {
+        return $this->hasMany(ApprovalExtend::class, 'approval_option_id');
+    }
+
+    public function extends(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+            ApprovalExtend::class,
+            'approval_option_id',
+            'user_id',
+            'id',
+            'id'
+        )->withPivot('type');
     }
 }

@@ -21,7 +21,7 @@ class ApprovalOptionController extends Controller
         $company_id = $request->input('company_id');
         $current_company_id = $request->user()->company_id;
 
-        $options = ApprovalOption::with(['company:id,name', 'approver:id,name,mobile,avatar'])
+        $options = ApprovalOption::with(['company:id,name', 'approver:id,name,mobile,avatar', 'extends:id,name,mobile,avatar'])
             ->where(function ($query) use ($current_company_id, $company_id) {
                 if ($company_id) return $query->where('company_id', $company_id);
                 return $query->whereIn('company_id', Company::getGroupId($current_company_id));
@@ -65,6 +65,12 @@ class ApprovalOptionController extends Controller
         $merge($approvers, $request->input('receiver', []), Approver::TYPE_RECEIVER);
 
         Approver::insert($approvers);
+
+        $option->approvalExtends()->delete();
+
+        if ($extends = $request->input('extends')) {
+            $option->approvalExtends()->createMany($extends);
+        }
 
         return success();
     }
