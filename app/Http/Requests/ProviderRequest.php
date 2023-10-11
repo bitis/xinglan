@@ -24,11 +24,6 @@ class ProviderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => [
-                'exclude_with:id,provider_id',
-                'required',
-                Rule::unique('companies')->ignore($this->input('provider_id'))
-            ],
             'account' => [
                 'exclude_with:id,provider_id',
                 'required',
