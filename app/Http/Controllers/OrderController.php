@@ -286,7 +286,6 @@ class OrderController extends Controller
 
             if (!empty($lossPersons)) {
                 $order->goods_types = implode(',', array_column($lossPersons, 'goods_types'));
-                $order->save();
             }
 
             $order->save();
