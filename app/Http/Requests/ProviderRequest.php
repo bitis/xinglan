@@ -23,23 +23,7 @@ class ProviderRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'account' => [
-                'exclude_with:id,provider_id',
-                'required',
-                Rule::unique('users')->ignore($this->input('id')),
-            ],
-            'contract_name' => 'exclude_with:id,provider_id',
-            'contract_phone' => 'exclude_with:id,provider_id',
-            'province' => 'exclude_with:id,provider_id',
-            'city' => 'exclude_with:id,provider_id',
-            'area' => 'exclude_with:id,provider_id',
-            'address' => 'exclude_with:id,provider_id',
-            'bank_name' => 'required',
-            'status' => [
-                Rule::enum(Status::class)
-            ]
-        ];
+        return [];
     }
 
     public function messages()
