@@ -356,13 +356,17 @@ class OrderController extends Controller
                     $order->insurance_check_name = $user->name;
                     $order->insurance_check_phone = $user->mobile;
 
+                    $bidOption = BidOption::findByCompany($order->insurance_company_id);
+
                     if ($order->insurance_type == InsuranceType::CarPart->value) {
                         // 车件全部竞价
                         $order->bid_type = Order::BID_TYPE_JINGJIA;
+                        if (empty($order->bid_end_time)) {
+                            $order->bid_end_time = BidOption::getBidEndTime($order, $bidOption);
+                        }
+
                     } else {
                         // 车险和非车险根据配置是否竞价
-                        $bidOption = BidOption::findByCompany($order->insurance_company_id);
-
                         if ($bidOption && $order->owner_price > $bidOption->bid_first_price && $order->bid_type != Order::BID_TYPE_JINGJIA) {
 
                             $order->bid_type = Order::BID_TYPE_JINGJIA;
@@ -464,6 +468,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
+            throw $exception;
             return fail($exception->getMessage());
         }
 
