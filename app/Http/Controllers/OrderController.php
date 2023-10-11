@@ -164,6 +164,7 @@ class OrderController extends Controller
             'bid_type',
             'bid_end_time',
         ]);
+        $lossPersons = $request->input('lossPersons', []);
 
         if (!$request->input('id')) {
             if ($request->input('bid_type') == 1 && !$request->input('bid_end_time')) {
@@ -456,7 +457,6 @@ class OrderController extends Controller
                     ]);
                 }
             }
-            $lossPersons = $request->input('lossPersons', []);
             $order->lossPersons()->delete();
             if (!empty($lossPersons)) {
                 $order->lossPersons()->createMany($lossPersons);
