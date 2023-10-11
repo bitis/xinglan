@@ -18,6 +18,11 @@ class ApprovalOption extends Model
         'approve_mode',
         'review_mode',
         'review_conditions',
+        'add_reviewer',
+    ];
+
+    protected $casts = [
+        'add_reviewer' => 'array'
     ];
 
     public function approver(): BelongsToMany
