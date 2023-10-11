@@ -464,6 +464,7 @@ class OrderController extends Controller
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
+            throw $exception;
             return fail($exception->getMessage());
         }
 
