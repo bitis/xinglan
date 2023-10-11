@@ -80,6 +80,6 @@ class ApprovalOption extends Model
             'user_id',
             'id',
             'id'
-        )->withPivot('type');
+        );
     }
 }
