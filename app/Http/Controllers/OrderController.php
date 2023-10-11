@@ -192,7 +192,7 @@ class OrderController extends Controller
                 'order_number' => Order::genOrderNumber()
             ]));
 
-            if ($order->close_status == OrderCloseStatus::Closed->value) return fail('工单已关闭');
+            if ($order->close_status == OrderCloseStatus::Closed) return fail('已结案工单不可进行操作');
 
             $is_create = empty($order->id);
 
@@ -519,7 +519,7 @@ class OrderController extends Controller
 
         try {
             throw_if(!$order = Order::find($request->input('order_id')), '工单未找到');
-
+            throw_if($order->close_status == OrderCloseStatus::Closed, '已结案工单不可进行操作');
             throw_if($user->company_id != $order->check_wusun_company_id
                 and $user->company_id != $order->wusun_company_id, '非本公司订单');
 
@@ -581,6 +581,7 @@ class OrderController extends Controller
         $order = Order::find($request->input('order_id'));
 
         if (empty($order) or $order->wusun_check_id != $request->user()->id) return fail('工单不存在或不属于当前账号');
+        if ($order->close_status == OrderCloseStatus::Closed) return fail('已结案工单不可进行操作');
 
         $order->fill($request->only(['images', 'remark']));
 
@@ -616,6 +617,7 @@ class OrderController extends Controller
 
         $order = Order::find($request->input('order_id'));
         if (empty($order) or $order->wusun_check_id != $request->user()->id) return fail('工单不存在或不属于当前账号');
+        if ($order->close_status == OrderCloseStatus::Closed) return fail('已结案工单不可进行操作');
 
         $order->fill($request->only(['plan_type', 'owner_name', 'owner_phone', 'owner_price', 'negotiation_content']));
         $order->plan_confirm_at = now()->toDateTimeString();
@@ -651,6 +653,7 @@ class OrderController extends Controller
         $order = Order::where('wusun_company_id', $user->company_id)->find($request->input('id'));
 
         if (!$order) return fail('工单未找到');
+        if ($order->close_status == OrderCloseStatus::Closed) return fail('已结案工单不可进行操作');
 
         $quotation = OrderQuotation::where('order_id', $request->input('id'))
             ->where('company_id', $user->company_id)
@@ -963,6 +966,7 @@ class OrderController extends Controller
 
         $order = Order::find($request->input('order_id'));
         if (empty($order) or $order->wusun_company_id != $company->id) return fail('工单不存在');
+        if ($order->close_status == OrderCloseStatus::Closed) return fail('已结案工单不可进行操作');
 
         $order->repair_bid_type = intval($request->input('repair_bid_type'));
         $order->repair_bid_publish_at = now()->toDateTimeString();

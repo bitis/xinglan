@@ -10,6 +10,7 @@ use App\Models\Approver;
 use App\Models\Enumerations\ApprovalMode;
 use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\ApprovalType;
+use App\Models\Enumerations\OrderCloseStatus;
 use App\Models\Order;
 use App\Models\OrderLog;
 use App\Models\OrderRepairPlan;
@@ -38,6 +39,8 @@ class OrderRepairController extends Controller
         $order_id = $request->input('order_id');
 
         $order = Order::find($order_id);
+
+        if ($order->close_status == OrderCloseStatus::Closed) return fail('已关闭工单不可进行操作');
 
         $user = $request->user();
 
@@ -74,6 +77,7 @@ class OrderRepairController extends Controller
     {
         $order_id = $request->input('order_id');
         $order = Order::find($order_id);
+        if ($order->close_status == OrderCloseStatus::Closed) return fail('已关闭工单不可进行操作');
         $plan = OrderRepairPlan::with('tasks')->where('order_id', $order_id)->first();
 
         if (!$plan) return success();
