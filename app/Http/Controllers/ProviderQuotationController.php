@@ -81,7 +81,7 @@ class ProviderQuotationController extends Controller
      */
     public function detail(Request $request): JsonResponse
     {
-        $with = ['company:id,name', 'quotations:id,company_id,company_name,total_price,bid_total_price,quotation_remark', 'quotations.company:id,name'];
+        $with = ['company:id,name', 'quotations', 'quotations.company:id,name'];
 
         $order = Order::with($with)->find($request->input('order_id'));
 
