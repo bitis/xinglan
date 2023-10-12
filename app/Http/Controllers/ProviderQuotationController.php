@@ -81,7 +81,7 @@ class ProviderQuotationController extends Controller
      */
     public function detail(Request $request): JsonResponse
     {
-        $with = ['company:id,name', 'quotations', 'quotations.company:id,name'];
+        $with = ['company:id,name', 'quotations:id,company_id,company_name,items', 'quotations.company:id,name'];
 
         $order = Order::with($with)->find($request->input('order_id'));
 
@@ -89,8 +89,10 @@ class ProviderQuotationController extends Controller
 
         if($request->user()->can('ViewQuotation') && $order->quotations->count() > 0) {
             foreach ($order->quotations as $quotation) {
-                $quotation->total_price = "***元";
-                $quotation->bid_total_price = "***元";
+                if (!$quotation->win) {
+                    $quotation->total_price = "*****";
+                    $quotation->bid_total_price = "*****";
+                }
             }
         }
 
