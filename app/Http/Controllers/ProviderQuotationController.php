@@ -89,7 +89,7 @@ class ProviderQuotationController extends Controller
 
         if($request->user()->can('ViewQuotation') && $order->quotations->count() > 0) {
             foreach ($order->quotations as $quotation) {
-                if (!$quotation->win) {
+                if ($quotation->win != 1) {
                     $quotation->total_price = "*****";
                     $quotation->bid_total_price = "*****";
                 }
