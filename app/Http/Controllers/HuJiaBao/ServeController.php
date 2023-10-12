@@ -266,6 +266,9 @@ class ServeController extends Controller
 
             $client->investigation($form);
 
+            $subClaimInfo->status = 1;
+            $subClaimInfo->save();
+
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
