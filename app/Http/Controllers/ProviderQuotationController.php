@@ -81,8 +81,13 @@ class ProviderQuotationController extends Controller
      */
     public function detail(Request $request): JsonResponse
     {
+        $with = ['company:id,name', 'quotations', 'quotations.company:id,name'];
 
-        $order = Order::with(['company:id,name', 'quotations', 'quotations.company:id,name'])->find($request->input('order_id'));
+        if($request->user()->can('ViewQuotation')) {
+            $with = ['company:id,name'];
+        }
+
+        $order = Order::with($with)->find($request->input('order_id'));
 
         if (!$order) return fail('订单不存在');
 
