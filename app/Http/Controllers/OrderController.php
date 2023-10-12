@@ -751,28 +751,6 @@ class OrderController extends Controller
                     }
                 }
 
-                if ($quotation && $option->approvalExtends) {
-                    foreach ($option->approvalExtends as $approvalExtend) {
-                        if ($quotation->bid_total_price > $approvalExtend['start']
-                            && ($approvalExtend['end'] == 0 || $quotation->bid_total_price <= $approvalExtend['end'])
-                        ) {
-                            $insert[] = [
-                                'user_id' => $approvalExtend['user_id'],
-                                'name' => User::find($approvalExtend['user_id'])?->name,
-                                'creator_id' => $user->id,
-                                'creator_name' => $user->name,
-                                'order_id' => $order->id,
-                                'company_id' => $user->company_id,
-                                'step' => Approver::STEP_REVIEWER,
-                                'approval_status' => ApprovalStatus::Pending->value,
-                                'mode' => $option->review_mode,
-                                'approval_type' => $option->type,
-                                'hidden' => true,
-                            ];
-                        }
-                    }
-                }
-
                 foreach ($receivers as $receiver) {
                     $insert[] = [
                         'user_id' => $receiver['id'],

@@ -23,6 +23,7 @@ use App\Models\Enumerations\Status;
 use App\Models\Order;
 use App\Models\OrderLog;
 use App\Models\OrderQuotation;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\View\View;
@@ -262,6 +263,28 @@ class OrderQuotationController extends Controller
                             $reviewer_text .= $reviewer['name'] . ', ';
                         }
                         $checker_text .= ('复审人：(' . trim($reviewer_text, ',') . '）' . ['', '或签', '依次审批'][$option->review_mode]);
+                    }
+
+                    if ($quotation && $option->approvalExtends) {
+                        foreach ($option->approvalExtends as $approvalExtend) {
+                            if ($quotation->total_price > $approvalExtend['start']
+                                && ($approvalExtend['end'] == 0 || $quotation->total_price <= $approvalExtend['end'])
+                            ) {
+                                $insert[] = [
+                                    'user_id' => $approvalExtend['user_id'],
+                                    'name' => User::find($approvalExtend['user_id'])?->name,
+                                    'creator_id' => $user->id,
+                                    'creator_name' => $user->name,
+                                    'order_id' => $order->id,
+                                    'company_id' => $user->company_id,
+                                    'step' => Approver::STEP_REVIEWER,
+                                    'approval_status' => ApprovalStatus::Pending->value,
+                                    'mode' => $option->review_mode,
+                                    'approval_type' => $option->type,
+                                    'hidden' => true,
+                                ];
+                            }
+                        }
                     }
 
                     foreach ($receivers as $receiver) {
