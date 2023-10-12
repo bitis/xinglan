@@ -83,13 +83,16 @@ class ProviderQuotationController extends Controller
     {
         $with = ['company:id,name', 'quotations', 'quotations.company:id,name'];
 
-        if($request->user()->can('ViewQuotation')) {
-            $with = ['company:id,name'];
-        }
-
         $order = Order::with($with)->find($request->input('order_id'));
 
         if (!$order) return fail('订单不存在');
+
+        if($request->user()->can('ViewQuotation') && $order->quotations->count() > 0) {
+            foreach ($order->quotations as $quotation) {
+                $quotation->total_price = "***元";
+                $quotation->bid_total_price = "***元";
+            }
+        }
 
         return success($order);
     }
