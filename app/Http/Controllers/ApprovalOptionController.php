@@ -68,7 +68,7 @@ class ApprovalOptionController extends Controller
 
         $option->approvalExtends()->delete();
 
-        if ($extends = $request->input('add_reviewer')) {
+        if ($extends = $request->input('extends')) {
             $option->approvalExtends()->createMany($extends);
         }
 
