@@ -11,11 +11,13 @@ class AppVersionController extends Controller
     /**
      * 最新版本
      *
+     * @param Request $request
      * @return JsonResponse
      */
-    public function latest(): JsonResponse
+    public function latest(Request $request): JsonResponse
     {
-        return success(AppVersion::latest()->first());
+        $type = $request->input('type') ?? 0;
+        return success(AppVersion::where('type', $type)->latest()->first());
     }
 
     /**
@@ -27,7 +29,7 @@ class AppVersionController extends Controller
     public function form(Request $request): JsonResponse
     {
         $version = AppVersion::create($request->only(
-            'app_url', 'version', 'version_number', 'must_update', 'current_version_number', 'apk_url',
+            'type', 'app_url', 'version', 'version_number', 'must_update', 'current_version_number', 'apk_url',
             'app_url2', 'apk_url2'
         ));
         return success($version);
