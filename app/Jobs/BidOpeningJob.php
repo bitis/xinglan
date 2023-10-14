@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Common\Messages\WinBidNotify;
+use App\Models\BidOption;
 use App\Models\Company;
 use App\Models\Enumerations\MessageType;
 use App\Models\Message;
@@ -33,6 +34,10 @@ class BidOpeningJob implements ShouldQueue
     public function handle(EasySms $easySms): void
     {
         $order = Order::find($this->order_id);
+
+        $option = BidOption::findByCompany($order->insurance_company_id);
+
+        if ($option && !$option->auto) return;
 
         if (!$order or $order->bid_status != 0) return;
 
