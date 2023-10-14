@@ -42,7 +42,8 @@ class BidOptionController extends Controller
             'working_time_deadline_max',
             'resting_time_deadline_max',
             'order_dispatch_role',
-            'status'
+            'status',
+            'auto'
         ]);
 
         $bidOption = BidOption::findOr($request->input('id'), fn() => new BidOption());
