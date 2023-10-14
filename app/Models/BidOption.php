@@ -24,7 +24,8 @@ class BidOption extends Model
         'working_time_deadline_max',
         'resting_time_deadline_max',
         'order_dispatch_role',
-        'status'
+        'status',
+        'auto'
     ];
 
     public function company(): BelongsTo
