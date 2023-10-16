@@ -277,7 +277,7 @@ class OrderQuotationController extends Controller
                                     'creator_name' => $user->name,
                                     'order_id' => $order->id,
                                     'company_id' => User::find($approvalExtend['user_id'])?->company_id,
-                                    'step' => Approver::STEP_REVIEWER,
+                                    'step' => Approver::STEP_CHECKER,
                                     'approval_status' => ApprovalStatus::Pending->value,
                                     'mode' => $option->review_mode,
                                     'approval_type' => $option->type,
