@@ -442,7 +442,7 @@ class OrderQuotationController extends Controller
                 'confirmed_price', 'confirmed_repair_days', 'confirmed_remark'
             ]));
 
-            $quotation = OrderQuotation::where('order_id', $order->id)->where('company_id', $user->company_id)->first();
+            $quotation = OrderQuotation::where('order_id', $order->id)->where('win', 1)->first();
             $quotation->profit_margin_ratio = sprintf('%.2f', ($order->confirmed_price - $quotation->total_cost) / $order->confirmed_price);
             $quotation->save();
 
