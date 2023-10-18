@@ -26,6 +26,8 @@ class OrderService
 
         $role = str_replace($user->company_id . '_', '', $user->getRoleNames()->toArray()[0]);
 
+        if ($user->can('ViewAllOrder')) $role = 'admin';
+
         return Order::with($with)
             ->where(function ($query) use ($current_company, $company_id) {
                 if ($current_company->car_part == 1)
