@@ -285,7 +285,7 @@ class OrderController extends Controller
                 ]);
             }
 
-            if (!empty($lossPersons)) {
+            if (!empty($lossPersons) && $order->insurance_type != InsuranceType::CarPart->value) {
                 $order->goods_types = implode(',', array_column($lossPersons, 'goods_types'));
             }
 
@@ -462,7 +462,7 @@ class OrderController extends Controller
                 }
             }
             $order->lossPersons()->delete();
-            if (!empty($lossPersons)) {
+            if (!empty($lossPersons) && $order->insurance_type != InsuranceType::CarPart->value) {
                 $order->lossPersons()->createMany($lossPersons);
             }
             DB::commit();
