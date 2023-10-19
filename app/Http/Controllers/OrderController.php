@@ -167,7 +167,7 @@ class OrderController extends Controller
         $lossPersons = $request->input('lossPersons', []);
 
         if (!$request->input('id')) {
-            if ($request->input('bid_type') == 1 && !$request->input('bid_end_time')) {
+            if ($request->input('bid_type') == 1 && $request->input('insurance_type') != InsuranceType::CarPart->value && !$request->input('bid_end_time')) {
                 return fail('请选择报价截止时间');
             }
 
