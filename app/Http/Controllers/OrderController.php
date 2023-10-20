@@ -291,11 +291,6 @@ class OrderController extends Controller
 
             $order->save();
 
-            if ($insurers = $request->input('insurers')) {
-                $order->insurers()->delete();
-                $order->insurers()->createMany($insurers);
-            }
-
             if ($is_create) {
                 OrderLog::create([
                     'order_id' => $order->id,
@@ -360,6 +355,7 @@ class OrderController extends Controller
 
                     if ($order->insurance_type == InsuranceType::CarPart->value) {
                         // 车件全部竞价
+                        $order->dispatched = true;
                         $order->bid_type = Order::BID_TYPE_JINGJIA;
                         if (empty($order->bid_end_time)) {
                             $order->bid_end_time = BidOption::getBidEndTime($order, $bidOption);
@@ -372,6 +368,7 @@ class OrderController extends Controller
                             $order->bid_type = Order::BID_TYPE_JINGJIA;
                             $order->bid_status = Order::BID_STATUS_PROGRESSING;
                             $order->bid_end_time = BidOption::getBidEndTime($order, $bidOption);
+                            $order->dispatched = true;
 
                             OrderLog::create([
                                 'order_id' => $order->id,
@@ -461,6 +458,12 @@ class OrderController extends Controller
                     ]);
                 }
             }
+
+            if ($insurers = $request->input('insurers')) {
+                $order->insurers()->delete();
+                $order->insurers()->createMany($insurers);
+            }
+
             $order->lossPersons()->delete();
             if (!empty($lossPersons) && $order->insurance_type != InsuranceType::CarPart->value) {
                 $order->lossPersons()->createMany($lossPersons);

@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\BidOption;
 use App\Models\Company;
 use App\Models\CompanyProvider;
+use App\Models\Enumerations\InsuranceType;
 use App\Models\Enumerations\MessageType;
 use App\Models\Enumerations\OrderDispatchRole;
 use App\Models\Enumerations\Status;
@@ -40,8 +41,14 @@ class OrderDispatch implements ShouldQueue
 
         $company = Company::find($this->order->insurance_company_id);
 
+        $insuranceType = match ($this->order->insurance_type) {
+            InsuranceType::Car => ['car_insurance' => 1],
+            InsuranceType::Other => ['other_insurance' => 1],
+            InsuranceType::CarPart => ['car_part' => 1],
+        };
+
         $providers = CompanyProvider::where('company_id', $company->id)
-            ->where('status', $status)->get();
+            ->where($insuranceType)->where('status', $status)->get();
 
         // 无可用外协单位
         if (!count($providers)) return;
@@ -75,7 +82,7 @@ class OrderDispatch implements ShouldQueue
             $company->queue_index++;
             $company->save();
         } elseif ($dispatchRole == OrderDispatchRole::Area->value) {
-            $options = ProviderOption::where('company_id',  $company->id)
+            $options = ProviderOption::where('company_id', $company->id)
                 ->where('insurance_type', $this->order->insurance_type)
                 ->where('province', $this->order->province)
                 ->where('city', $this->order->city)
