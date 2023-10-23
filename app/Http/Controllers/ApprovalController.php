@@ -510,7 +510,7 @@ class ApprovalController extends Controller
         $order->save();
 
 
-        $quotation->save();
+        $quotation?->save();
 
         // Message
         $message = new Message([
