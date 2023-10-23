@@ -42,9 +42,9 @@ class OrderDispatch implements ShouldQueue
         $company = Company::find($this->order->insurance_company_id);
 
         $insuranceType = match ($this->order->insurance_type) {
-            InsuranceType::Car => ['car_insurance' => 1],
-            InsuranceType::Other => ['other_insurance' => 1],
-            InsuranceType::CarPart => ['car_part' => 1],
+            InsuranceType::Car->value => ['car_insurance' => 1],
+            InsuranceType::Other->value => ['other_insurance' => 1],
+            InsuranceType::CarPart->value => ['car_part' => 1],
         };
 
         $providers = CompanyProvider::where('company_id', $company->id)
