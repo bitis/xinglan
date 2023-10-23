@@ -509,8 +509,7 @@ class ApprovalController extends Controller
             $order->profit_margin_ratio = ($quotation->bid_total_price - $order->total_cost) / $quotation->bid_total_price;
         $order->save();
 
-
-        $quotation?->save();
+        if ($quotation) $quotation->save();
 
         // Message
         $message = new Message([
