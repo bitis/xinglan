@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ApiClient
 {
-    protected string $host = 'http://hujiabao-sandbox.hujiabao.com';
+    protected string $host = 'http://hujiabao-prod.hujiabao.com';
 
     protected string $token = 'Bearer MOATJJo0mhkNAOlOOpj6VfFq-mRJRGqJ';
 
