@@ -15,7 +15,7 @@ class ApiClient
 {
     protected string $host = 'http://hujiabao-prod.hujiabao.com';
 
-    protected string $token = 'MOATA5Dc2RotAKDLH-y58vGo9nUV0RZu';
+    protected string $token = 'Bearer MOATA5Dc2RotAKDLH-y58vGo9nUV0RZu';
 
     protected Client $client;
 
