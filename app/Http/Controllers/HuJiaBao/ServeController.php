@@ -272,6 +272,7 @@ class ServeController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
+            report($e);
             return fail($e->getMessage());
         }
 
