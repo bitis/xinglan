@@ -399,36 +399,36 @@ class ApprovalController extends Controller
          */
         $order->receivable_count = $order->confirmed_price;
 
-        FinancialOrder::createByOrder($order, [
-            'type' => FinancialOrder::TYPE_RECEIPT,
-            'opposite_company_id' => $order->insurance_company_id,
-            'opposite_company_name' => Company::find($order->insurance_company_id)?->name,
-            'total_amount' => $order->confirmed_price,
-        ]);
+//        FinancialOrder::createByOrder($order, [
+//            'type' => FinancialOrder::TYPE_RECEIPT,
+//            'opposite_company_id' => $order->insurance_company_id,
+//            'opposite_company_name' => Company::find($order->insurance_company_id)?->name,
+//            'total_amount' => $order->confirmed_price,
+//        ]);
 
         /**
          * 应付（外协修付）
          */
-        $repair_plan = $order->repair_plan;
-        if ($repair_plan) {
-            if ($repair_plan->repair_type = OrderRepairPlan::TYPE_THIRD_REPAIR) {
-                FinancialOrder::createByOrder($order, [
-                    'type' => FinancialOrder::TYPE_PAYMENT,
-                    'opposite_company_id' => $repair_plan->repair_company_id,
-                    'opposite_company_name' => $repair_plan->repair_company_name,
-                    'total_amount' => $repair_plan->repair_cost,
-                ]);
-            }
-
-            foreach ($repair_plan->tasks as $task) {
-                FinancialOrder::createByOrder($order, [
-                    'type' => FinancialOrder::TYPE_PAYMENT,
-                    'opposite_company_id' => $order->insurance_company_id,
-                    'opposite_company_name' => Company::find($order->insurance_company_id)?->name,
-                    'total_amount' => $order->confirmed_price,
-                ]);
-            }
-        }
+//        $repair_plan = $order->repair_plan;
+//        if ($repair_plan) {
+//            if ($repair_plan->repair_type = OrderRepairPlan::TYPE_THIRD_REPAIR) {
+//                FinancialOrder::createByOrder($order, [
+//                    'type' => FinancialOrder::TYPE_PAYMENT,
+//                    'opposite_company_id' => $repair_plan->repair_company_id,
+//                    'opposite_company_name' => $repair_plan->repair_company_name,
+//                    'total_amount' => $repair_plan->repair_cost,
+//                ]);
+//            }
+//
+//            foreach ($repair_plan->tasks as $task) {
+//                FinancialOrder::createByOrder($order, [
+//                    'type' => FinancialOrder::TYPE_PAYMENT,
+//                    'opposite_company_id' => $order->insurance_company_id,
+//                    'opposite_company_name' => Company::find($order->insurance_company_id)?->name,
+//                    'total_amount' => $order->confirmed_price,
+//                ]);
+//            }
+//        }
 
         /**
          * 报销 TODO
