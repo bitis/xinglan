@@ -26,7 +26,7 @@ class CommentController extends Controller
     {
         $user = $request->user();
 
-        $comment = Comment::findOr($request->input('id'), new Comment);
+        $comment = Comment::findOr($request->input('id'), fn() => new Comment);
 
         if (!empty($comment->user_id) and $comment->user_id !== $user->id) return fail('不可修改他人留言');
 
