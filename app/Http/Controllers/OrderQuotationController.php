@@ -136,6 +136,8 @@ class OrderQuotationController extends Controller
             'repair_days',
             'repair_cost',
             'other_cost',
+            'labor_costs',
+            'material_cost',
             'total_cost',
             'profit_margin',
             'profit_margin_ratio',
@@ -147,6 +149,7 @@ class OrderQuotationController extends Controller
             'images',
             'submit',
             'quotation_remark',
+            'approve_remark',
             'modify_quotation_remark'
         ]));
 
