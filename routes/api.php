@@ -127,6 +127,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('export', 'OrderController@export'); // 导出 Excel
         Route::post('setQuota', 'OrderController@setQuota'); // 设置为维修方报价
         Route::post('reQuota', 'OrderController@reQuota'); // 保险公司重新进行报价
+        Route::post('applyPayment', 'OrderController@applyPayment'); // 提交付款申请
 
 
         Route::prefix('repair')->group(function () {
@@ -202,6 +203,10 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('payment', 'InvoiceController@payment');
             Route::post('express', 'InvoiceController@express');
         });
+    });
+
+    Route::prefix('paymentAccount')->group(function () {
+        Route::get('list', 'PaymentAccountController@index');
     });
 });
 

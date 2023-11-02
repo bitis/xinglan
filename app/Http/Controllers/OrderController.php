@@ -22,10 +22,12 @@ use App\Models\Enumerations\InsuranceType;
 use App\Models\Enumerations\MessageType;
 use App\Models\Enumerations\OrderCloseStatus;
 use App\Models\Enumerations\Status;
+use App\Models\FinancialOrder;
 use App\Models\Message;
 use App\Models\Order;
 use App\Models\OrderLog;
 use App\Models\OrderQuotation;
+use App\Models\PaymentAccount;
 use App\Models\User;
 use App\Services\OrderService;
 use Carbon\Carbon;
@@ -583,7 +585,6 @@ class OrderController extends Controller
      */
     public function check(Request $request): JsonResponse
     {
-
         $user = $request->user();
         $company = $user->company;
         $order = Order::find($request->input('order_id'));
@@ -1080,4 +1081,25 @@ class OrderController extends Controller
 
         return success();
     }
+
+    /**
+     * 申请付款
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function applyPayment(Request $request): JsonResponse
+    {
+        $order = Order::find($request->input('order_id'));
+
+        if ($order->cost_check_status != Order::COST_CHECK_STATUS_PASS) return fail('没有成本核算时不能申请支付');
+
+        $ext = $request->only('type', 'payment_name', 'payment_bank', 'payment_account', 'apply_payment_reason',
+            'apply_payment_images', 'total_amount');
+
+        FinancialOrder::createByOrder($order, $ext);
+
+        return success();
+    }
+
 }
