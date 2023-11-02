@@ -208,6 +208,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('paymentAccount')->group(function () {
         Route::get('list', 'PaymentAccountController@index');
     });
+
+    Route::prefix('comment')->group(function () {
+        Route::get('list', 'CommentController@index');
+        Route::post('form', 'CommentController@form');
+        Route::delete('delete', 'CommentController@delete');
+    });
 });
 
 Route::post('upload_', 'UploadController@form');
