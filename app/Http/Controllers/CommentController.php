@@ -15,7 +15,8 @@ class CommentController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $comments = Comment::where('order_id', $request->integer('order_id'))
+        $comments = Comment::with('user:id,name,avatar')
+            ->where('order_id', $request->integer('order_id'))
             ->orderBy('id', 'desc')
             ->paginate(getPerPage());
 
