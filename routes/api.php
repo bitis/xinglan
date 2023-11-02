@@ -212,7 +212,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('comment')->group(function () {
         Route::get('list', 'CommentController@index');
         Route::post('form', 'CommentController@form');
-        Route::delete('delete', 'CommentController@delete');
+        Route::post('delete', 'CommentController@delete');
     });
 });
 
