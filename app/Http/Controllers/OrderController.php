@@ -23,6 +23,7 @@ use App\Models\Enumerations\MessageType;
 use App\Models\Enumerations\OrderCloseStatus;
 use App\Models\Enumerations\Status;
 use App\Models\FinancialOrder;
+use App\Models\FinancialPaymentRecord;
 use App\Models\Message;
 use App\Models\Order;
 use App\Models\OrderLog;
@@ -1112,6 +1113,17 @@ class OrderController extends Controller
         }
 
         return success();
+    }
+
+    public function paymentLog(Request $request): JsonResponse
+    {
+        $records = FinancialPaymentRecord::with('financialOrder:id,baoxiao')
+            ->when($order_id = $request->input('order_id'), function ($query) use ($order_id) {
+                $query->where('order_id', $order_id);
+            })
+            ->get();
+
+        return success($records);
     }
 
 }

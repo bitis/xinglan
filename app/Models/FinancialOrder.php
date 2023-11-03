@@ -34,9 +34,21 @@ class FinancialOrder extends Model
         'wusun_check_name',
         'order_number',
         'order_id',
+        'type',
+        'baoxiao',
         'opposite_company_id',
         'opposite_company_name',
+        'payment_name',
+        'payment_bank',
+        'payment_account',
+        'apply_payment_reason',
+        'apply_payment_images',
         'total_amount',
+        'paid_amount',
+        'invoiced_amount',
+        'payment_status',
+        'invoice_status',
+        'paid_at',
     ];
 
     const TYPE_RECEIPT = 1; // 收

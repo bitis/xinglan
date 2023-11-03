@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Traits\DefaultDatetimeFormat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class FinancialPaymentRecord extends Model
 {
@@ -35,4 +36,9 @@ class FinancialPaymentRecord extends Model
         'operator_name',
         'remark',
     ];
+
+    public function financialOrder(): BelongsTo
+    {
+        return $this->belongsTo(FinancialOrder::class);
+    }
 }
