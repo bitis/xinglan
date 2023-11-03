@@ -678,6 +678,8 @@ class OrderController extends Controller
             $order->fill($request->only([
                 'repair_cost',
                 'other_cost',
+                'labor_costs',
+                'material cost',
                 'total_cost',
                 'cost_remark',
             ]));
@@ -1090,14 +1092,24 @@ class OrderController extends Controller
      */
     public function applyPayment(Request $request): JsonResponse
     {
+        $user = $request->user();
+
         $order = Order::find($request->input('order_id'));
 
-        if ($order->cost_check_status != Order::COST_CHECK_STATUS_PASS) return fail('没有成本核算时不能申请支付');
+//        if ($order->cost_check_status != Order::COST_CHECK_STATUS_PASS) return fail('没有成本核算时不能申请支付');
 
-        $ext = $request->only('type', 'payment_name', 'payment_bank', 'payment_account', 'apply_payment_reason',
+        $ext = $request->only('type', 'baoxiao', 'payment_name', 'payment_bank', 'payment_account', 'apply_payment_reason',
             'apply_payment_images', 'total_amount');
 
         FinancialOrder::createByOrder($order, $ext);
+
+        $account = array_merge(Arr::only($ext, ['payment_name', 'payment_bank', 'payment_account']), [
+            'company_id' => $user->company_id, 'user_id' => $user->id
+        ]);
+
+        if (PaymentAccount::where($account)->doesntExist()) {
+            PaymentAccount::create($account);
+        }
 
         return success();
     }
