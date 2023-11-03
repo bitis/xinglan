@@ -91,6 +91,8 @@ class Order extends Model
         'close_status',
         'repair_company_ids',
         'repair_cost',
+        'labor_costs',
+        'material_cost',
         'other_cost',
         'total_cost',
         'cost_remark',
