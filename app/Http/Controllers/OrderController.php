@@ -679,7 +679,7 @@ class OrderController extends Controller
                 'repair_cost',
                 'other_cost',
                 'labor_costs',
-                'material cost',
+                'material_cost',
                 'total_cost',
                 'cost_remark',
             ]));
