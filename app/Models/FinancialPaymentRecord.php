@@ -35,6 +35,7 @@ class FinancialPaymentRecord extends Model
         'baoxiao',
         'operator_id',
         'operator_name',
+        'payment_time',
         'remark',
     ];
 

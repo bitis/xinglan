@@ -1117,10 +1117,10 @@ class OrderController extends Controller
 
     public function paymentLog(Request $request): JsonResponse
     {
-        $records = FinancialPaymentRecord::with('financialOrder:id,baoxiao')
-            ->when($order_id = $request->input('order_id'), function ($query) use ($order_id) {
+        $records = FinancialPaymentRecord::when($order_id = $request->input('order_id'), function ($query) use ($order_id) {
                 $query->where('order_id', $order_id);
             })
+            ->orderBy('id', 'desc')
             ->get();
 
         return success($records);
