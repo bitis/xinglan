@@ -32,6 +32,7 @@ class FinancialPaymentRecord extends Model
         'invoice_amount',
         'invoice_company_id',
         'invoice_company_name',
+        'baoxiao',
         'operator_id',
         'operator_name',
         'remark',
