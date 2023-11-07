@@ -178,6 +178,7 @@ class InvoiceController extends Controller
             'operator_id' => $user->id,
             'operator_name' => $user->name,
             'remark' => $invoiceRecord->payment_remark,
+            'payment_images' => $invoiceRecord->payment_images,
             'payment_time' => $invoiceRecord->payment_time,
             'baoxiao' => $order->baoxiao
         ]);
