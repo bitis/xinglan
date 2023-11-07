@@ -399,12 +399,12 @@ class ApprovalController extends Controller
          */
         $order->receivable_count = $order->confirmed_price;
 
-//        FinancialOrder::createByOrder($order, [
-//            'type' => FinancialOrder::TYPE_RECEIPT,
-//            'opposite_company_id' => $order->insurance_company_id,
-//            'opposite_company_name' => Company::find($order->insurance_company_id)?->name,
-//            'total_amount' => $order->confirmed_price,
-//        ]);
+        FinancialOrder::createByOrder($order, [
+            'type' => FinancialOrder::TYPE_RECEIPT,
+            'opposite_company_id' => $order->insurance_company_id,
+            'opposite_company_name' => Company::find($order->insurance_company_id)?->name,
+            'total_amount' => $order->confirmed_price,
+        ]);
 
         /**
          * 应付（外协修付）
