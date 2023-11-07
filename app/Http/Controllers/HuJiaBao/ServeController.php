@@ -197,6 +197,7 @@ class ServeController extends Controller
             'property.coverageList.benefitList',
             'claimInfo',
             'claimInfo.subClaimInfo',
+            'claimInfo.subClaimInfo.taskInfo',
             'claimInfo.subClaimInfo.files',
             'claimInfo.subClaimInfo.investigationInfo',
             'claimInfo.subClaimInfo.investigationInfo.lossItemList',
