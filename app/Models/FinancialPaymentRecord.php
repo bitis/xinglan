@@ -37,6 +37,7 @@ class FinancialPaymentRecord extends Model
         'operator_name',
         'payment_time',
         'remark',
+        'payment_images'
     ];
 
     public function financialOrder(): BelongsTo
