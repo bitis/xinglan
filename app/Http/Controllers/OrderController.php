@@ -125,8 +125,9 @@ class OrderController extends Controller
     /**
      * 新增、编辑
      *
-     * @param Request $request
+     * @param OrderRequest $request
      * @return JsonResponse
+     * @throws \Exception
      */
     public function form(OrderRequest $request): JsonResponse
     {
@@ -1099,17 +1100,17 @@ class OrderController extends Controller
 
 //        if ($order->cost_check_status != Order::COST_CHECK_STATUS_PASS) return fail('没有成本核算时不能申请支付');
 
-        $ext = $request->only('type', 'baoxiao', 'payment_name', 'payment_bank', 'payment_account', 'apply_payment_reason',
-            'apply_payment_images', 'total_amount');
+        $payees = $request->input('payees');
 
-        FinancialOrder::createByOrder($order, $ext);
+        foreach ($payees as $payee) {
+            FinancialOrder::createByOrder($order, $payee);
+            $account = array_merge(Arr::only($payee, ['payment_name', 'payment_bank', 'payment_account']), [
+                'company_id' => $user->company_id, 'user_id' => $user->id
+            ]);
 
-        $account = array_merge(Arr::only($ext, ['payment_name', 'payment_bank', 'payment_account']), [
-            'company_id' => $user->company_id, 'user_id' => $user->id
-        ]);
-
-        if (PaymentAccount::where($account)->doesntExist()) {
-            PaymentAccount::create($account);
+            if (PaymentAccount::where($account)->doesntExist()) {
+                PaymentAccount::create($account);
+            }
         }
 
         return success();

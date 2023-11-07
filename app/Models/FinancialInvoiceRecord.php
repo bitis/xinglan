@@ -45,6 +45,7 @@ class FinancialInvoiceRecord extends Model
         'express_operater_name',
         'express_time',
         'payment_remark',
+        'payment_images',
         'invoice_remark',
     ];
 
