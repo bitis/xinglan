@@ -40,6 +40,10 @@ class FinancialPaymentRecord extends Model
         'payment_images'
     ];
 
+    protected $casts = [
+        'payment_images' => 'array'
+    ];
+
     public function financialOrder(): BelongsTo
     {
         return $this->belongsTo(FinancialOrder::class);
