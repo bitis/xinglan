@@ -270,6 +270,10 @@ class ServeController extends Controller
             $subClaimInfo->status = 1;
             $subClaimInfo->save();
 
+            $claimInfo = $subClaimInfo->claimInfo;
+            $claimInfo->status = 1;
+            $claimInfo->save();
+
             DB::commit();
         } catch (Exception $e) {
             DB::commit();
