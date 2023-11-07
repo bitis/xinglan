@@ -1104,10 +1104,7 @@ class OrderController extends Controller
 
         foreach ($payees as $payee) {
             FinancialOrder::createByOrder($order, $payee);
-            $account = array_merge(Arr::only($payee, [
-                'type', 'baoxiao', 'payment_name', 'payment_bank', 'payment_account', 'apply_payment_reason',
-                'apply_payment_images', 'total_amount'
-            ]), [
+            $account = array_merge(Arr::only($payee, ['payment_name', 'payment_bank', 'payment_account']), [
                 'company_id' => $user->company_id, 'user_id' => $user->id
             ]);
 
@@ -1125,8 +1122,8 @@ class OrderController extends Controller
     public function paymentLog(Request $request): JsonResponse
     {
         $records = FinancialPaymentRecord::when($order_id = $request->input('order_id'), function ($query) use ($order_id) {
-                $query->where('order_id', $order_id);
-            })
+            $query->where('order_id', $order_id);
+        })
             ->orderBy('id', 'desc')
             ->get();
 
