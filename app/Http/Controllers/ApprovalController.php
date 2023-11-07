@@ -430,10 +430,6 @@ class ApprovalController extends Controller
 //            }
 //        }
 
-        /**
-         * 报销 TODO
-         */
-
         $order->confirm_price_status = $accept ? Order::CONFIRM_PRICE_STATUS_FINISHED : Order::CONFIRM_PRICE_STATUS_WAIT;
         $order->confirmed_at = now()->toDateTimeString();
         $order->save();

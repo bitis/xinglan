@@ -58,6 +58,10 @@ class FinancialOrder extends Model
     const STATUS_PART = 2; // 部分..
     const STATUS_DONE = 3; // 已..
 
+    protected $casts = [
+        'apply_payment_images' => 'array'
+    ];
+
     public static function findAndGetAttrs(int $id, array $attrKeys = []): array
     {
         return Arr::only(static::find($id)->toArray(), $attrKeys);
