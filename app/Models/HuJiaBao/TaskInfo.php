@@ -17,6 +17,8 @@ class TaskInfo extends Model
 
     protected $fillable = [
         'sub_claim_info_id',
+        'DispatcherName',
+        'DispatcherTel',
         'TaskType',
         'TaskID',
         'DueDate',
