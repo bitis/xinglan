@@ -1124,6 +1124,9 @@ class OrderController extends Controller
         $records = FinancialPaymentRecord::when($order_id = $request->input('order_id'), function ($query) use ($order_id) {
             $query->where('order_id', $order_id);
         })
+            ->when($type = $request->input('financial_type'), function ($query) use ($type) {
+                $query->where('financial_type', $type);
+            })
             ->orderBy('id', 'desc')
             ->get();
 
