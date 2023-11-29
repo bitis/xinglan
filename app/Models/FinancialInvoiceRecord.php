@@ -17,6 +17,7 @@ class FinancialInvoiceRecord extends Model
         'company_id',
         'company_name',
         'order_id',
+        'order_post_time',
         'order_number',
         'customer_id',
         'customer_name',

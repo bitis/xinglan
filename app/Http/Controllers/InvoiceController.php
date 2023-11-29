@@ -165,8 +165,10 @@ class InvoiceController extends Controller
             'opposite_company_id' => $invoiceRecord->opposite_company_id,
             'opposite_company_name' => $invoiceRecord->opposite_company_name,
             'order_id' => $invoiceRecord->order_id,
+            'order_post_time' => $invoiceRecord->order_post_time,
             'order_number' => $invoiceRecord->order_number,
             'case_number' => $invoiceRecord->case_number,
+            'license_plate' => $invoiceRecord->license_plate,
             'bank_account_id' => $request->input('bank_account_id'),
             'bank_name' => $bank_account->bank_name,
             'bank_account_number' => $bank_account->number,
@@ -234,6 +236,7 @@ class InvoiceController extends Controller
                 'opposite_company_id',
                 'opposite_company_name',
                 'case_number',
+                'order_post_time',
                 'license_plate',
             ])
         ));
