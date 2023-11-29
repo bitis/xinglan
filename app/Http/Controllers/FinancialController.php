@@ -74,7 +74,12 @@ class FinancialController extends Controller
             ->when($accountId = $request->input('bank_account_id'), function ($query) use ($accountId) {
                 $query->where('bank_account_id', $accountId);
             })
-
+            ->when($order_post_time_start = $request->input('order_post_time_start'), function ($query) use ($order_post_time_start) {
+                $query->where('order_post_time', '>=', $order_post_time_start . ' 00:00:00');
+            })
+            ->when($order_post_time_end = $request->input('order_post_time_end'), function ($query) use ($order_post_time_end) {
+                $query->where('order_post_time', '<=', $order_post_time_end . ' 23:59:59');
+            })
             ->when($search = $request->input('search'), function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
                     $query->where('order_number', 'like', "%$search%")
