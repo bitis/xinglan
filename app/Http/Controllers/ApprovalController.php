@@ -147,7 +147,8 @@ class ApprovalController extends Controller
                 ApprovalType::ApprovalAssessment->value => '核价（定损）审核',
                 ApprovalType::ApprovalClose->value => '关闭工单审核',
                 ApprovalType::ApprovalRepairCost->value => '施工修复成本审核',
-                ApprovalType::ApprovalRepaired->value => '已修复资料审核',
+                ApprovalType::ApprovalRepaired->value => '付款审核',
+                ApprovalType::ApprovalPayment->value => '已修复资料审核',
             };
 
             OrderLog::create([
