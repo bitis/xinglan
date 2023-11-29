@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use App\Models\FinancialOrder;
+use App\Models\FinancialPaymentRecord;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -50,5 +51,29 @@ class FinancialController extends Controller
             ->paginate(getPerPage());
 
         return success($orders);
+    }
+
+    /**
+     * 付款记录
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function paymemtLog(Request $request)
+    {
+        $records = FinancialPaymentRecord::where('company_id', $request->user()->company_id)
+            ->when($order_id = $request->input('order_id'), function ($query) use ($order_id) {
+                $query->where('order_id', $order_id);
+            })
+            ->when($type = $request->input('financial_type'), function ($query) use ($type) {
+                $query->where('financial_type', $type);
+            })
+            ->when($baoxiao = $request->input('baoxiao'), function ($query) use ($baoxiao) {
+                $query->where('baoxiao', $baoxiao);
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(getPerPage());
+
+        return success($records);
     }
 }

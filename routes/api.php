@@ -198,6 +198,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('financial')->group(function () {
         Route::get('list', 'FinancialController@index');
+        Route::get('paymemtLog', 'FinancialController@paymemtLog');
         Route::prefix('invoice')->group(function () {
             Route::get('list', 'InvoiceController@index');
             Route::post('invoice', 'InvoiceController@invoice');
