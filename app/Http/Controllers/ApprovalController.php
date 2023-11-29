@@ -574,6 +574,7 @@ class ApprovalController extends Controller
             ->get();
         foreach ($financialOrders as $financialOrder) {
             $financialOrder->check_status = $accept ? 1 : 2;
+            $financialOrder->checked_at = now()->toDateTimeString();
             $financialOrder->save();
             if ($accept) {
                 $order->payable_count += $financialOrder['total_amount'];
