@@ -71,6 +71,14 @@ class FinancialController extends Controller
             ->when($baoxiao = $request->input('baoxiao'), function ($query) use ($baoxiao) {
                 $query->where('baoxiao', $baoxiao);
             })
+            ->when($search = $request->input('search'), function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('order_number', 'like', "%$search%")
+                        ->orWhere('case_number', 'like', "%$search%")
+                        ->orWhere('license_plate', 'like', "%$search%")
+                        ->orWhere('vin', 'like', "%$search%");
+                });
+            })
             ->orderBy('id', 'desc')
             ->paginate(getPerPage());
 

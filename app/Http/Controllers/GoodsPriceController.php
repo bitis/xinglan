@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing;
@@ -88,6 +89,8 @@ class GoodsPriceController extends Controller
      *
      * @param Request $request
      * @return JsonResponse
+     * @throws Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
      */
     public function import(Request $request): JsonResponse
     {

@@ -166,6 +166,7 @@ class InvoiceController extends Controller
             'opposite_company_name' => $invoiceRecord->opposite_company_name,
             'order_id' => $invoiceRecord->order_id,
             'order_number' => $invoiceRecord->order_number,
+            'case_number' => $invoiceRecord->case_number,
             'bank_account_id' => $request->input('bank_account_id'),
             'bank_name' => $bank_account->bank_name,
             'bank_account_number' => $bank_account->number,
