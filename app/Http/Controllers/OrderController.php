@@ -1227,6 +1227,9 @@ class OrderController extends Controller
             ->when($type = $request->input('financial_type'), function ($query) use ($type) {
                 $query->where('financial_type', $type);
             })
+            ->when($baoxiao = $request->input('baoxiao'), function ($query) use ($baoxiao) {
+                $query->where('baoxiao', $baoxiao);
+            })
             ->orderBy('id', 'desc')
             ->get();
 
