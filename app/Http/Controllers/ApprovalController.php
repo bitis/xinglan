@@ -574,6 +574,11 @@ class ApprovalController extends Controller
         foreach ($financialOrders as $financialOrder) {
             $financialOrder->check_status = $accept ? 1 : 2;
             $financialOrder->save();
+            if ($accept) {
+                $order->payable_count += $financialOrder['total_amount'];
+            }
         }
+
+        if ($order->isDirty('payable_count')) $order->save();
     }
 }

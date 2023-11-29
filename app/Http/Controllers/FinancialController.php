@@ -45,6 +45,7 @@ class FinancialController extends Controller
             ->when($request->get('post_time_end'), function ($query, $post_time_end) {
                 $query->where('post_time', '<=', $post_time_end . ' 23:59:59');
             })
+            ->where('check_status', 1)
             ->orderBy('id', 'desc')
             ->paginate(getPerPage());
 
