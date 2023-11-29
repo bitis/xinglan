@@ -49,6 +49,8 @@ class FinancialOrder extends Model
         'payment_status',
         'invoice_status',
         'paid_at',
+        'check_status',
+        'checked_at',
     ];
 
     const TYPE_RECEIPT = 1; // 收
@@ -71,10 +73,10 @@ class FinancialOrder extends Model
      * 根据工单创建记录
      *
      * @param Order $order
-     * @param $append
-     * @return void
+     * @param array $append
+     * @return FinancialOrder
      */
-    public static function createByOrder(Order $order, $append = []): void
+    public static function createByOrder(Order $order, $append = []): FinancialOrder
     {
         $financialOrder = static::create(array_merge([
             'company_id' => $order->wusun_company_id,
@@ -98,5 +100,7 @@ class FinancialOrder extends Model
         ], $append));
 
         $financialOrder->save();
+
+        return $financialOrder;
     }
 }

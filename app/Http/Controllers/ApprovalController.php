@@ -353,6 +353,7 @@ class ApprovalController extends Controller
             ApprovalType::ApprovalClose->value => $this->approvalClose($approvalOrder, $accept),
             ApprovalType::ApprovalRepairCost->value => $this->approvalRepairCost($approvalOrder, $accept),
             ApprovalType::ApprovalRepaired->value => $this->approvalRepaired($approvalOrder, $accept),
+            ApprovalType::ApprovalPayment->value => $this->approvalPayment($approvalOrder, $accept),
 
         };
     }
@@ -404,6 +405,8 @@ class ApprovalController extends Controller
             'opposite_company_id' => $order->insurance_company_id,
             'opposite_company_name' => Company::find($order->insurance_company_id)?->name,
             'total_amount' => $order->confirmed_price,
+            'check_status' => 1,
+            'checked_at' => now()->toDateTimeString(),
         ]);
 
         /**
@@ -534,7 +537,6 @@ class ApprovalController extends Controller
     {
         $order = $approvalOrder->order;
 
-
         if (!$accept) {
             $order->review_at = null;
             $order->save();
@@ -554,5 +556,24 @@ class ApprovalController extends Controller
         ]);
 
         $message->save();
+    }
+
+    /**
+     * 报销支付审核
+     *
+     * @param ApprovalOrder $approvalOrder
+     * @param bool $accept
+     * @return void
+     */
+    private function approvalPayment(ApprovalOrder $approvalOrder, bool $accept): void
+    {
+        $order = $approvalOrder->order;
+        $financialOrders = FinancialOrder::where('order_id', $order->id)
+            ->where('company_id', $approvalOrder->company_id)
+            ->get();
+        foreach ($financialOrders as $financialOrder) {
+            $financialOrder->check_status = $accept ? 1 : 2;
+            $financialOrder->save();
+        }
     }
 }

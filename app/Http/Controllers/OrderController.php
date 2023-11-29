@@ -1102,18 +1102,118 @@ class OrderController extends Controller
 
         $payees = $request->input('payees');
 
+        $option = ApprovalOption::findByType($user->company_id, ApprovalType::ApprovalPayment->value);
+
+        $add_amount = 0;
+
         foreach ($payees as $payee) {
             FinancialOrder::createByOrder($order, $payee);
             $account = array_merge(Arr::only($payee, ['payment_name', 'payment_bank', 'payment_account']), [
                 'company_id' => $user->company_id, 'user_id' => $user->id
             ]);
 
-            $order->payable_count += $payee['total_amount'];
+            $add_amount += $payee['total_amount'];
+
+            if (!$option) $order->payable_count += $payee['total_amount'];
 
             if (PaymentAccount::where($account)->doesntExist()) {
                 PaymentAccount::create($account);
             }
         }
+        $checker_text = $reviewer_text = '';
+
+        if ($option) {
+            $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
+            if ($approvalOrder) {
+                ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
+                $approvalOrder->delete();
+            }
+
+            $approvalOrder = ApprovalOrder::create([
+                'order_id' => $order->id,
+                'company_id' => $user->company_id,
+                'approval_type' => $option->type,
+            ]);
+
+            list($checkers, $reviewers, $receivers) = ApprovalOption::groupByType($option->approver);
+
+            $insert = [];
+            foreach ($checkers as $index => $checker) {
+                $insert[] = [
+                    'user_id' => $checker['id'],
+                    'name' => $checker['name'],
+                    'creator_id' => $user->id,
+                    'creator_name' => $user->name,
+                    'order_id' => $order->id,
+                    'company_id' => $user->company_id,
+                    'step' => Approver::STEP_CHECKER,
+                    'approval_status' => ApprovalStatus::Pending->value,
+                    'mode' => $option->approve_mode,
+                    'approval_type' => $option->type,
+                    'hidden' => $index > 0 && $option->approve_mode == ApprovalMode::QUEUE->value,
+                ];
+            }
+
+            if ($order->profit_margin_ratio < $option->review_conditions) {
+                foreach ($reviewers as $reviewer) {
+                    $insert[] = [
+                        'user_id' => $reviewer['id'],
+                        'name' => $reviewer['name'],
+                        'creator_id' => $user->id,
+                        'creator_name' => $user->name,
+                        'order_id' => $order->id,
+                        'company_id' => $user->company_id,
+                        'step' => Approver::STEP_REVIEWER,
+                        'approval_status' => ApprovalStatus::Pending->value,
+                        'mode' => $option->review_mode,
+                        'approval_type' => $option->type,
+                        'hidden' => true,
+                    ];
+                    $reviewer_text .= $reviewer['name'] . ', ';
+                }
+                $checker_text .= ('复审人：(' . trim($reviewer_text, ',') . '）' . ['', '或签', '依次审批'][$option->review_mode]);
+            }
+
+            foreach ($receivers as $receiver) {
+                $insert[] = [
+                    'user_id' => $receiver['id'],
+                    'name' => $receiver['name'],
+                    'creator_id' => $user->id,
+                    'creator_name' => $user->name,
+                    'order_id' => $order->id,
+                    'company_id' => $user->company_id,
+                    'step' => Approver::STEP_RECEIVER,
+                    'approval_status' => ApprovalStatus::Pending->value,
+                    'mode' => ApprovalMode::QUEUE->value,
+                    'approval_type' => $option->type,
+                    'hidden' => true,
+                ];
+            }
+
+            $approvalOrder->process()->delete();
+            if ($insert) $approvalOrder->process()->createMany($insert);
+
+            foreach ($approvalOrder->process as $process) {
+                if (!$process->hidden) ApprovalNotifyJob::dispatch($process['user_id'], [
+                    'type' => 'approval',
+                    'order_id' => $order->id,
+                    'process_id' => $process->id,
+                    'creator_name' => $process->creator_name,
+                    'approval_type' => $approvalOrder->approval_type,
+                ]);
+            }
+        }
+
+        OrderLog::create([
+            'order_id' => $order->id,
+            'type' => OrderLog::TYPE_FINANCIAL,
+            'creator_id' => $user->id,
+            'creator_name' => $user->name,
+            'creator_company_id' => $user->company_id,
+            'creator_company_name' => $order->wusun_company_name,
+            'content' => $user->name . '提交付款审核，增加应付款：' . $add_amount . '，备注：' . $checker_text,
+            'platform' => \request()->header('platform'),
+        ]);
 
         $order->save();
         return success();

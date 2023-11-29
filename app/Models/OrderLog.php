@@ -37,4 +37,6 @@ class OrderLog extends Model
 
     const TYPE_REBID = 8; // 重新竞价
 
+    const TYPE_FINANCIAL = 9; // 财务
+
 }
