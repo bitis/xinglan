@@ -101,7 +101,7 @@ class ApprovalController extends Controller
         $process->order = Order::with(array_merge(['company:id,name'], $withs))->find($process->order_id);
 
         $process->financial_orders = FinancialOrder::where('order_id', $process->order_id)
-            ->where('type', 2)->whereIn('status', [0, 1])->get();
+            ->where('type', 2)->whereIn('check_status', [0, 1])->get();
 
         $process->approval_list = ApprovalOrderProcess::where('approval_order_id', $process->approval_order_id)->get();
 
