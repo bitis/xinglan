@@ -56,7 +56,7 @@
             <div style="width: 60%;position: absolute;
                 left:120px;
                 top: 40px;">
-                <div style="font-size: 22px;margin-top: 10px;">{{ $quotation->company->name }}</div>
+                <div style="font-size: 25px;margin-top: 10px;">{{ $quotation->company->name }}</div>
                 <div style="font-size: 30px;margin-top: 16px;">损失清单</div>
             </div>
         </div>
