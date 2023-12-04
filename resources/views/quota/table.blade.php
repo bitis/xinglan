@@ -36,6 +36,10 @@
             border: 1px solid #000;
             color: #0274fe;
         }
+
+        * {
+            font-weight: 800;
+        }
     </style>
 </head>
 
