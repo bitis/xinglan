@@ -268,7 +268,7 @@ class OrderQuotationController extends Controller
                         $checker_text .= ('复审人：(' . trim($reviewer_text, ',') . '）' . ['', '或签', '依次审批'][$option->review_mode]);
                     }
 
-                    if ($quotation && $option->approvalExtends) {
+                    if ($option->approvalExtends) {
                         foreach ($option->approvalExtends as $approvalExtend) {
                             if ($quotation->total_price > $approvalExtend['start']
                                 && ($approvalExtend['end'] == 0 || $quotation->total_price <= $approvalExtend['end'])
@@ -280,7 +280,7 @@ class OrderQuotationController extends Controller
                                     'creator_name' => $user->name,
                                     'order_id' => $order->id,
                                     'company_id' => User::find($approvalExtend['user_id'])?->company_id,
-                                    'step' => Approver::STEP_CHECKER,
+                                    'step' => Approver::STEP_REVIEWER,
                                     'approval_status' => ApprovalStatus::Pending->value,
                                     'mode' => $option->review_mode,
                                     'approval_type' => $option->type,
