@@ -356,7 +356,8 @@ class OrderController extends Controller
                     OrderDailyStats::updateOrCreate([
                         'company_id' => $company->id,
                         'date' => now()->toDateString(),
-                        'order_count' => 1,
+                    ], [
+                        'order_count' => DB::raw('order_count + 1')
                     ]);
                 } else {
                     $order->insurance_check_name = $user->name;
