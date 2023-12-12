@@ -644,12 +644,12 @@ class OrderController extends Controller
 
             if (empty($order->plan_type)) $update = false;
 
-            $stats_update = $order->plan_type == Order::PLAN_TYPE_REPAIR
+            $stats_update = $request->input('plan_type') == Order::PLAN_TYPE_REPAIR
                 ? ['order_repair_count' => DB::raw('order_repair_count + 1')]
                 : ['order_mediate_count' => DB::raw('order_mediate_count + 1')];
 
             if ($update) {
-                if ($request->input('plan_type') == Order::PLAN_TYPE_REPAIR) {
+                if ($order->plan_type == Order::PLAN_TYPE_REPAIR) {
                     $stats_update['order_repair_count'] = DB::raw('order_repair_count - 1');
                 } else {
                     $stats_update['order_mediate_count'] = DB::raw('order_mediate_count - 1');
