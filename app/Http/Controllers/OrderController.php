@@ -655,6 +655,15 @@ class OrderController extends Controller
             'platform' => $request->header('platform'),
         ]);
 
+        $update = $order->plan_type == Order::PLAN_TYPE_REPAIR
+            ? ['order_repair_count' => DB::raw('order_repair_count + 1')]
+            : ['order_mediate_count' => DB::raw('order_mediate_count + 1')];
+
+        OrderDailyStats::updateOrCreate([
+            'company_id' => $company->id,
+            'date' => $order->created_at->format('Y-m-d'),
+        ], $update);
+
         return success($order);
     }
 
