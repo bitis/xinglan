@@ -638,6 +638,10 @@ class OrderController extends Controller
         if (empty($order) or $order->wusun_check_id != $request->user()->id) return fail('工单不存在或不属于当前账号');
         if ($order->close_status == OrderCloseStatus::Closed) return fail('已结案工单不可进行操作');
 
+        $update = true;
+
+        if (empty($order->plan_type)) $update = false;
+
         $order->fill($request->only(['plan_type', 'owner_name', 'owner_phone', 'owner_price', 'negotiation_content']));
         $order->plan_confirm_at = now()->toDateTimeString();
 
@@ -655,14 +659,22 @@ class OrderController extends Controller
             'platform' => $request->header('platform'),
         ]);
 
-        $update = $order->plan_type == Order::PLAN_TYPE_REPAIR
+        $stats_update = $order->plan_type == Order::PLAN_TYPE_REPAIR
             ? ['order_repair_count' => DB::raw('order_repair_count + 1')]
             : ['order_mediate_count' => DB::raw('order_mediate_count + 1')];
+
+        if ($update) {
+            if ($order->plan_type == Order::PLAN_TYPE_REPAIR) {
+                $stats_update['order_mediate_count'] = DB::raw('order_mediate_count - 1');
+            } else {
+                $stats_update['order_repair_count'] = DB::raw('order_repair_count - 1');
+            }
+        }
 
         OrderDailyStats::updateOrCreate([
             'company_id' => $company->id,
             'date' => $order->created_at->format('Y-m-d'),
-        ], $update);
+        ], $stats_update);
 
         return success($order);
     }
