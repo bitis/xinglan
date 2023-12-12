@@ -26,6 +26,7 @@ use App\Models\FinancialOrder;
 use App\Models\FinancialPaymentRecord;
 use App\Models\Message;
 use App\Models\Order;
+use App\Models\OrderDailyStats;
 use App\Models\OrderLog;
 use App\Models\OrderQuotation;
 use App\Models\PaymentAccount;
@@ -351,6 +352,12 @@ class OrderController extends Controller
                         'status' => 0,
                     ]);
                     $message->save();
+
+                    OrderDailyStats::updateOrCreate([
+                        'company_id' => $company->id,
+                        'date' => now()->toDateString(),
+                        'order_count' => 1,
+                    ]);
                 } else {
                     $order->insurance_check_name = $user->name;
                     $order->insurance_check_phone = $user->mobile;
