@@ -655,6 +655,11 @@ class OrderController extends Controller
                     $stats_update['order_mediate_count'] = DB::raw('order_mediate_count - 1');
                 }
             }
+
+            OrderDailyStats::updateOrCreate([
+                'company_id' => $company->id,
+                'date' => $order->created_at->format('Y-m-d'),
+            ], $stats_update);
         }
 
         $order->fill($request->only(['plan_type', 'owner_name', 'owner_phone', 'owner_price', 'negotiation_content']));
@@ -673,11 +678,6 @@ class OrderController extends Controller
             'content' => $user->name . '确认维修方案',
             'platform' => $request->header('platform'),
         ]);
-
-        OrderDailyStats::updateOrCreate([
-            'company_id' => $company->id,
-            'date' => $order->created_at->format('Y-m-d'),
-        ], $stats_update);
 
         return success($order);
     }
