@@ -642,6 +642,20 @@ class OrderController extends Controller
 
         if (empty($order->plan_type)) $update = false;
 
+        if ($order->plan_type != $request->input('plan_type')) {
+            $stats_update = $order->plan_type == Order::PLAN_TYPE_REPAIR
+                ? ['order_repair_count' => DB::raw('order_repair_count + 1')]
+                : ['order_mediate_count' => DB::raw('order_mediate_count + 1')];
+
+            if ($update) {
+                if ($order->plan_type == Order::PLAN_TYPE_REPAIR) {
+                    $stats_update['order_repair_count'] = DB::raw('order_repair_count - 1');
+                } else {
+                    $stats_update['order_mediate_count'] = DB::raw('order_mediate_count - 1');
+                }
+            }
+        }
+
         $order->fill($request->only(['plan_type', 'owner_name', 'owner_phone', 'owner_price', 'negotiation_content']));
         $order->plan_confirm_at = now()->toDateTimeString();
 
@@ -658,18 +672,6 @@ class OrderController extends Controller
             'content' => $user->name . '确认维修方案',
             'platform' => $request->header('platform'),
         ]);
-
-        $stats_update = $order->plan_type == Order::PLAN_TYPE_REPAIR
-            ? ['order_repair_count' => DB::raw('order_repair_count + 1')]
-            : ['order_mediate_count' => DB::raw('order_mediate_count + 1')];
-
-        if ($update) {
-            if ($order->plan_type == Order::PLAN_TYPE_REPAIR) {
-                $stats_update['order_mediate_count'] = DB::raw('order_mediate_count - 1');
-            } else {
-                $stats_update['order_repair_count'] = DB::raw('order_repair_count - 1');
-            }
-        }
 
         OrderDailyStats::updateOrCreate([
             'company_id' => $company->id,
