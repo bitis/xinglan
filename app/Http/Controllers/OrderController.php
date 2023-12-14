@@ -1139,14 +1139,17 @@ class OrderController extends Controller
         $add_amount = 0;
 
         foreach ($payees as $payee) {
+            $add_amount += $payee['total_amount'];
+
+            if (!$option) {
+                $order->payable_count += $payee['total_amount'];
+                $payee['check_status'] = 1;
+            }
+
             FinancialOrder::createByOrder($order, $payee);
             $account = array_merge(Arr::only($payee, ['payment_name', 'payment_bank', 'payment_account']), [
                 'company_id' => $user->company_id, 'user_id' => $user->id
             ]);
-
-            $add_amount += $payee['total_amount'];
-
-            if (!$option) $order->payable_count += $payee['total_amount'];
 
             if (PaymentAccount::where($account)->doesntExist()) {
                 PaymentAccount::create($account);
