@@ -20,6 +20,7 @@ use App\Models\Enumerations\ApprovalType;
 use App\Models\Enumerations\CheckStatus;
 use App\Models\Enumerations\InsuranceType;
 use App\Models\Enumerations\Status;
+use App\Models\FinancialOrder;
 use App\Models\Order;
 use App\Models\OrderLog;
 use App\Models\OrderQuotation;
@@ -458,7 +459,20 @@ class OrderQuotationController extends Controller
             if (!$option) {
                 $order->confirm_price_status = Order::CONFIRM_PRICE_STATUS_FINISHED;
                 $order->confirmed_at = now()->toDateTimeString();
+                /**
+                 * 应收
+                 */
+                $order->receivable_count = $order->confirmed_price;
                 $order->save();
+
+                FinancialOrder::createByOrder($order, [
+                    'type' => FinancialOrder::TYPE_RECEIPT,
+                    'opposite_company_id' => $order->insurance_company_id,
+                    'opposite_company_name' => Company::find($order->insurance_company_id)?->name,
+                    'total_amount' => $order->confirmed_price,
+                    'check_status' => 1,
+                    'checked_at' => now()->toDateTimeString(),
+                ]);
             } else {
                 $approvalOrder = ApprovalOrder::where('order_id', $order->id)
                     ->where('approval_type', $option->type)
