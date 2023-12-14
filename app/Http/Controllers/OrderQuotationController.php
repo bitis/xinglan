@@ -262,7 +262,7 @@ class OrderQuotationController extends Controller
                                 'approval_status' => ApprovalStatus::Pending->value,
                                 'mode' => $option->review_mode,
                                 'approval_type' => $option->type,
-                                'hidden' => true,
+                                'hidden' => !empty($checkers),
                             ];
                             $reviewer_text .= $reviewer['name'] . ', ';
                         }
