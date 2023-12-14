@@ -20,8 +20,9 @@ enum OrderStatus: int
     case WaitRepair = 7;
     case Repairing = 8;
     case Repaired = 9;
-    case Paid = 11;
     case Closed = 10;
+    case Paid = 11;
+    case Closing = 12;
     case Mediate = 99;
 
 
@@ -38,6 +39,7 @@ enum OrderStatus: int
             OrderStatus::Repairing => '施工中',
             OrderStatus::Repaired => '已修复未结案',
             OrderStatus::Closed => '已结案',
+            OrderStatus::Closing => '结案审核中',
             OrderStatus::Mediate => '协调处理',
             OrderStatus::Paid => '已付款',
         };
@@ -90,6 +92,7 @@ enum OrderStatus: int
             OrderStatus::Repaired => $query
                 ->where('close_status', '<>', OrderCloseStatus::Closed->value)
                 ->where('repair_status', Order::REPAIR_STATUS_FINISHED),
+            OrderStatus::Closing => $query->where('close_status', OrderCloseStatus::Check->value),
             OrderStatus::Closed => $query->where('close_status', OrderCloseStatus::Closed->value),
             OrderStatus::Paid => $query->where('paid_status', Status::Normal),
             OrderStatus::Mediate => $query->where('close_status', '<>', OrderCloseStatus::Closed->value)

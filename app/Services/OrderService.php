@@ -16,9 +16,11 @@ class OrderService
     /**
      * @param User $user
      * @param Collection $params
+     * @param array $with
+     * @param array $groupId
      * @return Builder
      */
-    public static function list(User $user, Collection $params, array $with = []): Builder
+    public static function list(User $user, Collection $params, array $with = [], array $groupId = []): Builder
     {
         $current_company = $user->company;
 
@@ -29,7 +31,7 @@ class OrderService
         if ($user->can('ViewAllOrder')) $role = 'admin';
 
         return Order::with($with)
-            ->where(function ($query) use ($current_company, $company_id) {
+            ->where(function ($query) use ($current_company, $company_id, $groupId) {
                 if ($current_company->car_part == 1)
                     $query->where('insurance_type', InsuranceType::CarPart->value);
 
@@ -41,7 +43,7 @@ class OrderService
                         CompanyType::WeiXiu->value => $query->whereRaw("find_in_set($company_id, repair_company_ids)"),
                     };
 
-                $groupId = Company::getGroupId($current_company->id);
+                if (empty($groupId)) $groupId = Company::getGroupId($current_company->id);
 
                 return match ($current_company->getRawOriginal('type')) {
                     CompanyType::BaoXian->value => $query->whereIn('insurance_company_id', $groupId),
