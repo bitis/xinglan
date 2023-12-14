@@ -436,10 +436,10 @@ class OrderQuotationController extends Controller
         try {
             DB::beginTransaction();
 
-//            if ($order->confirm_price_status == Order::CONFIRM_PRICE_STATUS_APPROVAL)
-//                throw new Exception('当前状态审批中，不能进行编辑');
-//            if ($order->confirm_price_status == Order::CONFIRM_PRICE_STATUS_FINISHED)
-//                throw new Exception('当前状态已完成，不能进行编辑');
+            if ($order->confirm_price_status == Order::CONFIRM_PRICE_STATUS_APPROVAL)
+                throw new Exception('当前状态审批中，不能进行编辑');
+            if ($order->confirm_price_status == Order::CONFIRM_PRICE_STATUS_FINISHED)
+                throw new Exception('当前状态已完成，不能进行编辑');
 
             $order->fill($request->only([
                 'confirmed_price', 'confirmed_repair_days', 'confirmed_remark'
