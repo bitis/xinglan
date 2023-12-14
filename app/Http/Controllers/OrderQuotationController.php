@@ -249,7 +249,7 @@ class OrderQuotationController extends Controller
 
                     $checker_text = '审核人：（' . trim($checker_text, ',') . '）' . ['', '或签', '依次审批'][$option->approve_mode];
 
-                    if ($quotation->profit_margin_ratio < $option->review_conditions) {
+                    if ($option->review_conditions && $quotation->profit_margin_ratio < $option->review_conditions) {
                         foreach ($reviewers as $reviewer) {
                             $insert[] = [
                                 'user_id' => $reviewer['id'],
