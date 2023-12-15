@@ -42,6 +42,11 @@ class StatsController extends Controller
         return success();
     }
 
+    /**
+     * 根据案件状态统计
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function byStatus(Request $request): JsonResponse
     {
         $params = $request->collect();
@@ -66,26 +71,50 @@ class StatsController extends Controller
 
         $user = $request->user();
 
-        $company = $user->company;
+        $current_company = $user->company;
 
-        $second = Company::where('parent_id', $company->id)->select('id', 'name')->get()->toArray();
-        $three = Company::whereIn('parent_id', $second)->select('id', 'name')->get()->toArray();
+        $second = Company::where('parent_id', $current_company->id)->select('id', 'name')->get()->toArray();
+        $second_id = [];
+        $three = [];
+        $three_id = [];
+        if (!empty($second)) {
+            $second_id = array_column($second, 'id');
+            $three = Company::whereIn('parent_id', $second_id)->select('id', 'name')->get()->toArray();
+            if (!empty($three)) $three_id = array_column($three, 'id');
+        }
 
-        $group = array_merge([$company->id], array_column($second, 'id'), array_column($three, 'id'));
+        $group = array_merge([$current_company->id], $second_id, $three_id);
+
+        $companies = array_merge([['id' => $current_company->id, 'name' => $current_company->name]], $second, $three);
 
         foreach ($order_status as $item) {
             $collect = $params->merge(['order_status' => $item->value]);
             $result[$item->name] = OrderService::list($request->user(), $collect, [], $group)
                 ->without('lossPersons')
                 ->groupBy('wusun_company_id')
-                ->selectRaw('wusun_company_id, count(*) as aggregate')->get();
+                ->selectRaw('wusun_company_id, count(*) as aggregate')->get()->toArray();
         }
 
         $result['all'] = OrderService::list($request->user(), $params, [], $group)
             ->without('lossPersons')
             ->groupBy('wusun_company_id')
-            ->selectRaw('wusun_company_id, count(*) as aggregate')->get();
+            ->selectRaw('wusun_company_id, count(*) as aggregate')->get()->toArray();
 
-        return success($result);
+        foreach ($companies as &$company) {
+            $company['all'] = 0;
+            foreach ($order_status as $status) $company[$status->name] = 0;
+
+            foreach ($result as $key => $value) {
+                foreach ($value as $_item) {
+                    if ($_item['wusun_company_id'] == $company['id']) {
+                        $company[$key] = $_item['aggregate'];
+                        break;
+                    }
+                }
+            }
+        }
+
+        return success($companies);
     }
+
 }
