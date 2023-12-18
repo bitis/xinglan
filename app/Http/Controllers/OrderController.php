@@ -214,6 +214,7 @@ class OrderController extends Controller
                 $checker_text = '';
 
                 if ($option) {
+                    $order->review_at = null;
                     $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
                     if ($approvalOrder) {
                         ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
