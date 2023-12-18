@@ -541,8 +541,8 @@ class ApprovalController extends Controller
     {
         $order = $approvalOrder->order;
 
-        if (!$accept) {
-            $order->review_at = null;
+        if ($accept) {
+            $order->review_at = now()->toDateTimeString();
             $order->save();
         }
 
