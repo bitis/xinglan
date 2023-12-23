@@ -108,13 +108,10 @@ class InvoiceController extends Controller
         $financialOrder->invoice_status = ($financialOrder->invoiced_amount >= $financialOrder->total_amount
             ? FinancialOrder::STATUS_DONE : FinancialOrder::STATUS_PART);
 
-        if ($financialOrder->invoiced_status == FinancialOrder::STATUS_DONE) {
-            $order = Order::find($financialOrder->order_id);
+        $order = Order::find($financialOrder->order_id);
+        $order->invoiced_amount += $invoiceRecord->invoice_amount;
 
-            $order->invoice_count += $financialOrder->invoiced_amount;
-            $order->save();
-        }
-
+        $order->save();
         $financialOrder->save();
         $invoiceRecord->save();
 
