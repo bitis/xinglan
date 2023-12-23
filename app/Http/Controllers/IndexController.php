@@ -42,10 +42,10 @@ class IndexController extends Controller
 
         foreach ($order_status as $item) {
             $collect = $params->merge(['order_status' => $item->value]);
-            $result[$item->name] = OrderService::list($request->user(), $collect)->count();
+            $result[$item->name] = OrderService::list($request->user(), $collect)->without('lossPersons')->count();
         }
 
-        $result['all'] = OrderService::list($request->user(), $params)->count();
+        $result['all'] = OrderService::list($request->user(), $params)->without('lossPersons')->count();
         return success($result);
     }
 
