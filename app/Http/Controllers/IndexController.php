@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ApprovalOrderProcess;
+use App\Models\Company;
 use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\OrderStatus;
@@ -40,9 +41,11 @@ class IndexController extends Controller
             ];
         }
 
+        $groupId = Company::getGroupId($company->id);
+
         foreach ($order_status as $item) {
             $collect = $params->merge(['order_status' => $item->value]);
-            $result[$item->name] = OrderService::list($request->user(), $collect)->without('lossPersons')->count();
+            $result[$item->name] = OrderService::list($request->user(), $collect, [], $groupId)->without('lossPersons')->count();
         }
 
         $result['all'] = OrderService::list($request->user(), $params)->without('lossPersons')->count();
