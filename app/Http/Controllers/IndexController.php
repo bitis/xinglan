@@ -48,7 +48,7 @@ class IndexController extends Controller
             $result[$item->name] = OrderService::list($request->user(), $collect, [], $groupId)->without('lossPersons')->count();
         }
 
-        $result['all'] = OrderService::list($request->user(), $params)->without('lossPersons')->count();
+        $result['all'] = OrderService::list($request->user(), $params, [], $groupId)->without('lossPersons')->count();
         return success($result);
     }
 
