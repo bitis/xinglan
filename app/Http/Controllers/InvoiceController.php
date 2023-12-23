@@ -132,7 +132,7 @@ class InvoiceController extends Controller
 
         $invoiceRecord = $this->initRecord($request);
 
-        $order = FinancialOrder::find($request->input('financial_order_id'));
+        $financialOrder = FinancialOrder::find($request->input('financial_order_id'));
 
         $invoiceRecord->fill($request->only([
             'financial_order_id',
@@ -144,7 +144,7 @@ class InvoiceController extends Controller
 
         if (!$bank_account) return fail('请选择银行账户');
 
-        $invoiceRecord->financial_type = $order->type;
+        $invoiceRecord->financial_type = $financialOrder->type;
         $invoiceRecord->payment_operator_id = $user->id;
         $invoiceRecord->payment_operator_name = $user->name;
         $invoiceRecord->payment_time = $request->input('payment_time');
@@ -152,11 +152,19 @@ class InvoiceController extends Controller
         $invoiceRecord->payment_status = ($invoiceRecord->paid_amount >= $invoiceRecord->total_amount
             ? FinancialOrder::STATUS_DONE : FinancialOrder::STATUS_PART);
 
-        $order->paid_amount += $payment_amount;
-        $order->payment_status = ($order->paid_amount >= $order->total_amount
+        $financialOrder->paid_amount += $payment_amount;
+        $financialOrder->payment_status = ($financialOrder->paid_amount >= $financialOrder->total_amount
             ? FinancialOrder::STATUS_DONE : FinancialOrder::STATUS_PART);
 
+        $order = Order::find($financialOrder->order_id);
+        if ($financialOrder->type == FinancialOrder::TYPE_PAYMENT) {
+            $order->paid_amount += $payment_amount;
+        } else {
+            $order->received_amount += $payment_amount;
+        }
+
         $order->save();
+        $financialOrder->save();
         $invoiceRecord->save();
 
         FinancialPaymentRecord::create([
@@ -177,9 +185,9 @@ class InvoiceController extends Controller
             'bank_account_id' => $request->input('bank_account_id'),
             'bank_name' => $bank_account->bank_name,
             'bank_account_number' => $bank_account->number,
-            'his_name' => $order->payment_name,
-            'his_bank_name' => $order->payment_bank,
-            'his_bank_number' => $order->payment_account,
+            'his_name' => $financialOrder->payment_name,
+            'his_bank_name' => $financialOrder->payment_bank,
+            'his_bank_number' => $financialOrder->payment_account,
             'amount' => $request->input('amount'),
             'invoice_type' => $invoiceRecord->invoice_type,
             'invoice_number' => $invoiceRecord->invoice_number,
@@ -191,7 +199,7 @@ class InvoiceController extends Controller
             'remark' => $invoiceRecord->payment_remark,
             'payment_images' => $invoiceRecord->payment_images,
             'payment_time' => $invoiceRecord->payment_time,
-            'baoxiao' => $order->baoxiao
+            'baoxiao' => $financialOrder->baoxiao
         ]);
 
         return success();
