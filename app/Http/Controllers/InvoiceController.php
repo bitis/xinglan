@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\FinancialInvoiceRecord;
 use App\Models\FinancialOrder;
 use App\Models\FinancialPaymentRecord;
+use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -79,7 +80,7 @@ class InvoiceController extends Controller
 
         $invoiceRecord = $this->initRecord($request);
 
-        $order = FinancialOrder::find($request->input('financial_order_id'));
+        $financialOrder = FinancialOrder::find($request->input('financial_order_id'));
 
         $invoiceRecord->fill($request->only([
             'financial_order_id',
@@ -94,7 +95,7 @@ class InvoiceController extends Controller
             'invoice_remark',
         ]));
 
-        $invoiceRecord->financial_type = $order->type;
+        $invoiceRecord->financial_type = $financialOrder->type;
         $invoiceRecord->invoice_operator_id = $user->id;
         $invoiceRecord->invoice_operator_name = $user->name;
         $invoiceRecord->invoice_status = FinancialOrder::STATUS_DONE;
@@ -103,11 +104,18 @@ class InvoiceController extends Controller
         else $invoiceRecord->payment_status = ($invoiceRecord->paid_amount >= $invoiceRecord->total_amount
             ? FinancialOrder::STATUS_DONE : FinancialOrder::STATUS_PART);
 
-        $order->invoiced_amount += $invoiceRecord->invoice_amount;
-        $order->invoice_status = ($order->invoiced_amount >= $order->total_amount
+        $financialOrder->invoiced_amount += $invoiceRecord->invoice_amount;
+        $financialOrder->invoice_status = ($financialOrder->invoiced_amount >= $financialOrder->total_amount
             ? FinancialOrder::STATUS_DONE : FinancialOrder::STATUS_PART);
 
-        $order->save();
+        if ($financialOrder->invoiced_status == FinancialOrder::STATUS_DONE) {
+            $order = Order::find($financialOrder->order_id);
+
+            $order->invoice_count += $financialOrder->invoiced_amount;
+            $order->save();
+        }
+
+        $financialOrder->save();
         $invoiceRecord->save();
 
         return success();
