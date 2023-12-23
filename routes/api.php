@@ -37,6 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('stats')->group(function () {
         Route::get('byStatus', 'StatsController@byStatus');
+        Route::get('cost', 'StatsController@cost');
     });
 
     Route::prefix('enum')->group(function () {

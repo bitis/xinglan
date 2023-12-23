@@ -117,4 +117,37 @@ class StatsController extends Controller
         return success($companies);
     }
 
+
+    public function cost(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $current_company = $user->company;
+
+        $second = Company::where('parent_id', $current_company->id)->select('id', 'name')->get()->toArray();
+        $second_id = [];
+        $three_id = [];
+        if (!empty($second)) {
+            $second_id = array_column($second, 'id');
+            $three = Company::whereIn('parent_id', $second_id)->select('id', 'name')->get()->toArray();
+            if (!empty($three)) $three_id = array_column($three, 'id');
+        }
+
+        $group = array_merge([$current_company->id], $second_id, $three_id);
+
+        $result = Order::with('wusun:id,name')
+            ->without('lossPersons')
+            ->whereIn('wusun_company_id', $group)
+            ->selectRaw(
+                'wusun_company_id,'
+                . 'sum(receivable_count) as receivable_total,' // 预算收入
+                . 'sum(total_cost) as cost_total,' // 预算总成本
+                . 'sum(paid_amount) as paid_total,' // 已付款
+                . 'sum(received_amount) as received_total,' // 已收款金额
+                . 'sum(invoiced_amount) as invoiced_total' // 已开票金额
+            )
+            ->groupBy('wusun_company_id')->get();
+
+        return success($result);
+    }
 }
