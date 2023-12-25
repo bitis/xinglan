@@ -14,6 +14,7 @@ use App\Models\Approver;
 use App\Models\BidOption;
 use App\Models\Company;
 use App\Models\CompanyProvider;
+use App\Models\ConsumerOrderDailyStats;
 use App\Models\Enumerations\ApprovalMode;
 use App\Models\Enumerations\ApprovalStatus;
 use App\Models\Enumerations\ApprovalType;
@@ -360,6 +361,14 @@ class OrderController extends Controller
                     ], [
                         'order_count' => DB::raw('order_count + 1')
                     ]);
+
+                    ConsumerOrderDailyStats::updateOrCreate([
+                        'company_id' => $company->id,
+                        'date' => now()->toDateString(),
+                        'insurance_company_id' => $order->insurance_company_id
+                    ], [
+                        'order_count' => DB::raw('order_count + 1')
+                    ]);
                 } else {
                     $order->insurance_check_name = $user->name;
                     $order->insurance_check_phone = $user->mobile;
@@ -660,6 +669,12 @@ class OrderController extends Controller
             OrderDailyStats::updateOrCreate([
                 'company_id' => $company->id,
                 'date' => $order->created_at->format('Y-m-d'),
+            ], $stats_update);
+
+            ConsumerOrderDailyStats::updateOrCreate([
+                'company_id' => $company->id,
+                'date' => $order->created_at->format('Y-m-d'),
+                'insurance_company_id' => $order->insurance_company_id
             ], $stats_update);
         }
 
