@@ -36,9 +36,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('config', 'ConfigController@index');
 
     Route::prefix('stats')->group(function () {
+        Route::get('caseStats', 'StatsController@caseStats');
         Route::get('byStatus', 'StatsController@byStatus');
         Route::get('cost', 'StatsController@cost');
         Route::get('consumerCost', 'StatsController@consumerCost');
+        Route::get('consumerCaseStats', 'StatsController@consumerCaseStats');
     });
 
     Route::prefix('enum')->group(function () {
