@@ -295,7 +295,7 @@ class StatsController extends Controller
 
         $current_company = $user->company;
 
-        $result = Order::with('wusun:id,name')
+        $stats = Order::with('wusun:id,name,parent_id')
             ->without('lossPersons')
             ->where(function ($query) use ($request, $current_company) {
                 if ($request->input('company_id')) {
@@ -310,16 +310,49 @@ class StatsController extends Controller
                 return $query->whereDate('created_at', '<', $end_at . ' 23:59:59');
             })
             ->selectRaw(
-                'wusun_company_id,'
+                'wusun_company_id, count(*) as case_total,'
                 . 'sum(receivable_count) as receivable_total,' // 预算收入
                 . 'sum(total_cost) as cost_total,' // 预算总成本
                 . 'sum(paid_amount) as paid_total,' // 已付款
                 . 'sum(received_amount) as received_total,' // 已收款金额
                 . 'sum(invoiced_amount) as invoiced_total' // 已开票金额
             )
-            ->groupBy('wusun_company_id')->get();
+            ->groupBy('wusun_company_id')->get()->toArray();
 
-        return success($result);
+        $firstCompany = ['id' => $current_company->id, 'name' => $current_company->name, 'parent_id' => $current_company->parent_id,
+           'case_total' => 0, 'receivable_total' => 0, 'cost_total' => 0, 'paid_total' => 0, 'received_total' => 0, 'invoiced_total' => 0];
+
+        foreach ($stats as $company) {
+            $firstCompany['case_total'] += $company['case_total'];
+            $firstCompany['receivable_total'] += $company['receivable_total'];
+            $firstCompany['cost_total'] += $company['cost_total'];
+            $firstCompany['paid_total'] += $company['paid_total'];
+            $firstCompany['received_total'] += $company['received_total'];
+            $firstCompany['invoiced_total'] += $company['invoiced_total'];
+
+            if ($company['wusun']['parent_id'] == $firstCompany['id']) {
+                $firstCompany['children'][] = $company;
+            }
+        }
+
+        foreach ($firstCompany['children'] as &$child) {
+            foreach ($stats as $company) {
+                $child['children'] = [];
+
+                if ($company['wusun']['parent_id'] == $child['wusun_company_id']) {
+                    $child['children'][] = $company;
+                    $firstCompany['case_total'] += $company['case_total'];
+                    $firstCompany['receivable_total'] += $company['receivable_total'];
+                    $firstCompany['cost_total'] += $company['cost_total'];
+                    $firstCompany['paid_total'] += $company['paid_total'];
+                    $firstCompany['received_total'] += $company['received_total'];
+                    $firstCompany['invoiced_total'] += $company['invoiced_total'];
+                    break;
+                }
+            }
+        }
+
+        return success($firstCompany);
     }
 
     /**
