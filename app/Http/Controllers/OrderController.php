@@ -706,12 +706,10 @@ class OrderController extends Controller
                 $parentCompany = Company::find($company->parent_id);
 
                 OrderDailyStats::updateOrCreate([
-                    'company_id' => $company->parent_id,
-                    'parent_id' => $parentCompany->parent_id,
-                    'date' => now()->toDateString(),
-                ], [
-                    'order_count' => DB::raw('order_count + 1')
-                ]);
+                    'company_id' => $company->id,
+                    'parent_id' => $company->parent_id,
+                    'date' => $order->created_at->format('Y-m-d'),
+                ], $stats_update);
 
                 if ($parentCompany->parent_id) {
                     $_parentCompany = Company::find($parentCompany->parent_id);
@@ -719,9 +717,7 @@ class OrderController extends Controller
                         'company_id' => $parentCompany->parent_id,
                         'parent_id' => $_parentCompany->parent_id,
                         'date' => now()->toDateString(),
-                    ], [
-                        'order_count' => DB::raw('order_count + 1')
-                    ]);
+                    ], $stats_update);
                 }
             }
         }
