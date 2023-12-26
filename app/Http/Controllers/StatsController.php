@@ -217,19 +217,19 @@ class StatsController extends Controller
 
         $current_company = $user->company;
 
-        $second = Company::where('parent_id', $current_company->id)->select('id', 'name')->get()->toArray();
+        $second = Company::where('parent_id', $current_company->id)->select('id', 'name', 'parent_id')->get()->toArray();
         $second_id = [];
         $three = [];
         $three_id = [];
         if (!empty($second)) {
             $second_id = array_column($second, 'id');
-            $three = Company::whereIn('parent_id', $second_id)->select('id', 'name')->get()->toArray();
+            $three = Company::whereIn('parent_id', $second_id)->select('id', 'name', 'parent_id')->get()->toArray();
             if (!empty($three)) $three_id = array_column($three, 'id');
         }
 
         $group = array_merge([$current_company->id], $second_id, $three_id);
 
-        $companies = array_merge([['id' => $current_company->id, 'name' => $current_company->name]], $second, $three);
+        $companies = array_merge([['id' => $current_company->id, 'name' => $current_company->name, 'parent_id' => $current_company->parent_id]], $second, $three);
 
         foreach ($order_status as $item) {
             $collect = $params->merge(['order_status' => $item->value]);
@@ -244,6 +244,10 @@ class StatsController extends Controller
             ->groupBy('wusun_company_id')
             ->selectRaw('wusun_company_id, count(*) as aggregate')->get()->toArray();
 
+        $firstCompany = ['id' => $current_company->id, 'name' => $current_company->name, 'parent_id' => $current_company->parent_id,
+            'all' => 0, 'WaitCheck' => 0, 'Checking' => 0, 'WaitPlan' => 0, 'WaitRepair' => 0, 'Repairing' => 0,
+            'Repaired' => 0, 'Closed' => 0, 'Closing' => 0, 'Mediate' => 0];
+
         foreach ($companies as &$company) {
             $company['all'] = 0;
             foreach ($order_status as $status) $company[$status->name] = 0;
@@ -252,13 +256,36 @@ class StatsController extends Controller
                 foreach ($value as $_item) {
                     if ($_item['wusun_company_id'] == $company['id']) {
                         $company[$key] = $_item['aggregate'];
+                        $firstCompany[$key] += $_item['aggregate'];
                         break;
                     }
                 }
             }
-        }
 
-        return success($companies);
+            if ($company['parent_id'] == $firstCompany['id']) {
+                $firstCompany['children'][] = $company;
+            }
+        }
+        foreach ($firstCompany['children'] as &$child) {
+            foreach ($companies as $company) {
+                $child['children'] = [];
+                if ($company['parent_id'] == $child['id']) {
+                    $child['children'][] = $company;
+                    $child['all'] += $company['all'];
+                    $child['WaitCheck'] += $company['WaitCheck'];
+                    $child['Checking'] += $company['Checking'];
+                    $child['WaitPlan'] += $company['WaitPlan'];
+                    $child['WaitRepair'] += $company['WaitRepair'];
+                    $child['Repairing'] += $company['Repairing'];
+                    $child['Repaired'] += $company['Repaired'];
+                    $child['Closed'] += $company['Closed'];
+                    $child['Closing'] += $company['Closing'];
+                    $child['Mediate'] += $company['Mediate'];
+                    break;
+                }
+            }
+        }
+        return success($firstCompany);
     }
 
 
