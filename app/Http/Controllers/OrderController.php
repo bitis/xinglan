@@ -706,7 +706,7 @@ class OrderController extends Controller
                 $parentCompany = Company::find($company->parent_id);
 
                 OrderDailyStats::updateOrCreate([
-                    'company_id' => $company->id,
+                    'company_id' => $company->parent_id,
                     'parent_id' => $company->parent_id,
                     'date' => $order->created_at->format('Y-m-d'),
                 ], $stats_update);
