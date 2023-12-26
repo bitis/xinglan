@@ -375,7 +375,7 @@ class OrderController extends Controller
                         $parentCompany = Company::find($company->parent_id);
 
                         OrderDailyStats::updateOrCreate([
-                            'company_id' => $company->parent_id,
+                            'company_id' => $parentCompany->id,
                             'parent_id' => $parentCompany->parent_id,
                             'date' => now()->toDateString(),
                         ], [
@@ -385,7 +385,7 @@ class OrderController extends Controller
                         if ($parentCompany->parent_id) {
                             $_parentCompany = Company::find($parentCompany->parent_id);
                             OrderDailyStats::updateOrCreate([
-                                'company_id' => $parentCompany->parent_id,
+                                'company_id' => $_parentCompany->id,
                                 'parent_id' => $_parentCompany->parent_id,
                                 'date' => now()->toDateString(),
                             ], [
@@ -706,15 +706,15 @@ class OrderController extends Controller
                 $parentCompany = Company::find($company->parent_id);
 
                 OrderDailyStats::updateOrCreate([
-                    'company_id' => $company->parent_id,
-                    'parent_id' => $company->parent_id,
+                    'company_id' => $parentCompany->id,
+                    'parent_id' => $parentCompany->parent_id,
                     'date' => $order->created_at->format('Y-m-d'),
                 ], $stats_update);
 
                 if ($parentCompany->parent_id) {
                     $_parentCompany = Company::find($parentCompany->parent_id);
                     OrderDailyStats::updateOrCreate([
-                        'company_id' => $parentCompany->parent_id,
+                        'company_id' => $_parentCompany->parent_id,
                         'parent_id' => $_parentCompany->parent_id,
                         'date' => now()->toDateString(),
                     ], $stats_update);
