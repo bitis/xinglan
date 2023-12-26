@@ -11,6 +11,7 @@ use App\Models\OrderDailyStats;
 use App\Services\OrderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class StatsController extends Controller
 {
@@ -53,18 +54,112 @@ class StatsController extends Controller
      */
     public function caseStats(Request $request): JsonResponse
     {
-        $result = OrderDailyStats::with('company:id,name')
-            ->when($start_at = $request->input('start_at'), function ($query) use ($start_at) {
-                $query->whereDate('date', '>=', $start_at);
-            })->when($end_at = $request->input('end_at'), function ($query) use ($end_at) {
-                $query->whereDate('date', '<=', $end_at);
-            })
-            ->when($company_id = $request->input('company_id'), function ($query) use ($company_id) {
-                $query->where('company_id', $company_id);
-            })
-            ->get();
+        $user = $request->user();
 
-        return success($result);
+        $company_id = $request->input('company_id') ?? $user->company_id;
+
+        $company = Company::find($company_id);
+
+        $group = Company::getGroupId($company_id);
+
+        $start_at = $request->input('start_at') ?? now()->addDays(-7)->toDateString();
+        $end_at = $request->input('end_at') ?? now()->toDateString();
+
+        $result = OrderDailyStats::with('company:id,name')
+            ->whereDate('date', '>=', $start_at)
+            ->whereDate('date', '<=', $end_at)
+            ->whereIn('company_id', $group)
+            ->select(['company_id', 'parent_id', 'order_count', 'order_repair_count', 'order_mediate_count', 'date'])
+            ->get()->toArray();
+
+        $firstItem = [
+            'company_id' => $company->id,
+            'name' => $company->name,
+            'order_count' => 0,
+            'order_repair_count' => 0,
+            'order_mediate_count' => 0,
+            'children' => [],
+            'stats' => [],
+        ];
+
+        foreach ($result as $item) {
+            if ($item['company_id'] == $firstItem['company_id']) {
+                $firstItem['order_count'] += $item['order_count'];
+                $firstItem['order_repair_count'] += $item['order_repair_count'];
+                $firstItem['order_mediate_count'] += $item['order_mediate_count'];
+                $firstItem['stats'][] = Arr::only($item, ['date', 'order_count', 'order_repair_count', 'order_mediate_count']);
+            }
+
+            if ($item['parent_id'] == $firstItem['company_id']) {
+                if (!isset($firstItem['children'][$item['company_id']]))
+                    $firstItem['children'][$item['company_id']] = [
+                        'company_id' => $item['company']['id'],
+                        'name' => $item['company']['name'],
+                        'order_count' => 0,
+                        'order_repair_count' => 0,
+                        'order_mediate_count' => 0,
+                        'children' => [],
+                        'stats' => [],
+                    ];
+            }
+        }
+
+        foreach ($firstItem['children'] as &$child) {
+            foreach ($result as $item) {
+                if ($item['company_id'] == $child['company_id']) {
+                    $child['order_count'] += $item['order_count'];
+                    $child['order_repair_count'] += $item['order_repair_count'];
+                    $child['order_mediate_count'] += $item['order_mediate_count'];
+                    $child['stats'][] = Arr::only($item, ['date', 'order_count', 'order_repair_count', 'order_mediate_count']);
+                }
+
+                if ($item['parent_id'] == $child['company_id']) {
+                    if (!isset($child['children'][$item['company_id']]))
+                        $child['children'][$item['company_id']] = [
+                            'company_id' => $item['company']['id'],
+                            'name' => $item['company']['name'],
+                            'order_count' => 0,
+                            'order_repair_count' => 0,
+                            'order_mediate_count' => 0,
+                            'children' => [],
+                            'stats' => [],
+                        ];
+                }
+            }
+        }
+
+        foreach ($firstItem['children'] as &$children) {
+            foreach ($children['children'] as &$child) {
+                foreach ($result as $item) {
+                    if ($item['company_id'] == $child['company_id']) {
+                        $child['order_count'] += $item['order_count'];
+                        $child['order_repair_count'] += $item['order_repair_count'];
+                        $child['order_mediate_count'] += $item['order_mediate_count'];
+                        $child['stats'][] = Arr::only($item, ['date', 'order_count', 'order_repair_count', 'order_mediate_count']);
+                    }
+
+                    if ($item['parent_id'] == $child['company_id']) {
+                        if (!isset($child['children'][$item['company_id']]))
+                            $child['children'][$item['company_id']] = [
+                                'company_id' => $item['company']['id'],
+                                'name' => $item['company']['name'],
+                                'order_count' => 0,
+                                'order_repair_count' => 0,
+                                'order_mediate_count' => 0,
+                                'children' => [],
+                                'stats' => [],
+                            ];
+                    }
+                }
+            }
+        }
+
+        foreach ($firstItem['children'] as &$children) {
+            $children['children'] = array_values($children['children']);
+        }
+
+        $firstItem['children'] = array_values($firstItem['children']);
+        return success($firstItem);
     }
 
 
@@ -87,8 +182,8 @@ class StatsController extends Controller
             })
             ->get();
 
-            return success($result);
-        }
+        return success($result);
+    }
 
     /**
      * 根据案件状态统计
