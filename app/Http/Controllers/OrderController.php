@@ -357,6 +357,7 @@ class OrderController extends Controller
 
                     OrderDailyStats::updateOrCreate([
                         'company_id' => $company->id,
+                        'parent_id' => $company->parent_id,
                         'date' => now()->toDateString(),
                     ], [
                         'order_count' => DB::raw('order_count + 1')
@@ -370,19 +371,22 @@ class OrderController extends Controller
                         'order_count' => DB::raw('order_count + 1')
                     ]);
 
-                    if ($company->parent_id) {
+                    if ($company->parent_id) { // 同时更新上级工单数量
+                        $parentCompany = Company::find($company->parent_id);
+
                         OrderDailyStats::updateOrCreate([
                             'company_id' => $company->parent_id,
+                            'parent_id' => $parentCompany->parent_id,
                             'date' => now()->toDateString(),
                         ], [
                             'order_count' => DB::raw('order_count + 1')
                         ]);
 
-                        $parentCompany = Company::find($company->parent_id);
-
                         if ($parentCompany->parent_id) {
+                            $_parentCompany = Company::find($parentCompany->parent_id);
                             OrderDailyStats::updateOrCreate([
                                 'company_id' => $parentCompany->parent_id,
+                                'parent_id' => $_parentCompany->parent_id,
                                 'date' => now()->toDateString(),
                             ], [
                                 'order_count' => DB::raw('order_count + 1')
