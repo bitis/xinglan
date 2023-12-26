@@ -13,6 +13,7 @@ class OrderDailyStats extends Model
 
     protected $fillable = [
         'company_id',
+        'parent_id',
         'order_count',
         'order_repair_count',
         'order_mediate_count',

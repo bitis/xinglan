@@ -369,6 +369,26 @@ class OrderController extends Controller
                     ], [
                         'order_count' => DB::raw('order_count + 1')
                     ]);
+
+                    if ($company->parent_id) {
+                        OrderDailyStats::updateOrCreate([
+                            'company_id' => $company->parent_id,
+                            'date' => now()->toDateString(),
+                        ], [
+                            'order_count' => DB::raw('order_count + 1')
+                        ]);
+
+                        $parentCompany = Company::find($company->parent_id);
+
+                        if ($parentCompany->parent_id) {
+                            OrderDailyStats::updateOrCreate([
+                                'company_id' => $parentCompany->parent_id,
+                                'date' => now()->toDateString(),
+                            ], [
+                                'order_count' => DB::raw('order_count + 1')
+                            ]);
+                        }
+                    }
                 } else {
                     $order->insurance_check_name = $user->name;
                     $order->insurance_check_phone = $user->mobile;
@@ -668,6 +688,7 @@ class OrderController extends Controller
 
             OrderDailyStats::updateOrCreate([
                 'company_id' => $company->id,
+                'parent_id' => $company->parent_id,
                 'date' => $order->created_at->format('Y-m-d'),
             ], $stats_update);
 
@@ -676,6 +697,29 @@ class OrderController extends Controller
                 'date' => $order->created_at->format('Y-m-d'),
                 'insurance_company_id' => $order->insurance_company_id
             ], $stats_update);
+
+            if ($company->parent_id) { // 同时更新上级工单数量
+                $parentCompany = Company::find($company->parent_id);
+
+                OrderDailyStats::updateOrCreate([
+                    'company_id' => $company->parent_id,
+                    'parent_id' => $parentCompany->parent_id,
+                    'date' => now()->toDateString(),
+                ], [
+                    'order_count' => DB::raw('order_count + 1')
+                ]);
+
+                if ($parentCompany->parent_id) {
+                    $_parentCompany = Company::find($parentCompany->parent_id);
+                    OrderDailyStats::updateOrCreate([
+                        'company_id' => $parentCompany->parent_id,
+                        'parent_id' => $_parentCompany->parent_id,
+                        'date' => now()->toDateString(),
+                    ], [
+                        'order_count' => DB::raw('order_count + 1')
+                    ]);
+                }
+            }
         }
 
         $order->fill($request->only(['plan_type', 'owner_name', 'owner_phone', 'owner_price', 'negotiation_content']));
