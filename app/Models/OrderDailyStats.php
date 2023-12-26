@@ -17,13 +17,18 @@ class OrderDailyStats extends Model
         'order_count',
         'order_repair_count',
         'order_mediate_count',
-        'order_budget_income',
-        'order_real_income',
         'date',
     ];
+
+    protected $with = ['company:id,name', 'children'];
 
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class, 'company_id', 'id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(OrderDailyStats::class, 'parent_id', 'company_id');
     }
 }
