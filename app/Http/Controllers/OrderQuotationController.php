@@ -49,16 +49,17 @@ class OrderQuotationController extends Controller
         if ($request->user()->hasRole('admin')) return success('超级管理员无法查看');
 
         $company_id = $request->user()->company_id;
+        $childrenCompany = Company::getGroupId($company_id);
         $company = $request->user()->company;
-        $customersId = CompanyProvider::where('provider_id', $company_id)->pluck('company_id');
+        $customersId = CompanyProvider::whereIn('provider_id', $company_id)->pluck('company_id');
 
         $orders = Order::with('company:id,name')
-            ->leftJoin('order_quotations as quotation', function ($join) use ($company_id) {
-                $join->on('orders.id', '=', 'quotation.order_id')->where('quotation.company_id', $company_id);
+            ->leftJoin('order_quotations as quotation', function ($join) use ($childrenCompany) {
+                $join->on('orders.id', '=', 'quotation.order_id')->whereIn('quotation.company_id', $childrenCompany);
             })
-            ->where(function ($query) use ($company_id) {
+            ->where(function ($query) use ($childrenCompany) {
                 $query->where('bid_type', 1)
-                    ->orWhere('check_wusun_company_id', $company_id);
+                    ->orWhereIn('check_wusun_company_id', $childrenCompany);
             })
             ->when($request->input('status'), function ($query, $status) {
                 // 1 待报价 2 报价超时 3 未中标 4 已中标
