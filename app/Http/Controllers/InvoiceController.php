@@ -111,6 +111,15 @@ class InvoiceController extends Controller
         $order = Order::find($financialOrder->order_id);
         $order->invoiced_amount += $invoiceRecord->invoice_amount;
 
+        FinancialPaymentRecord::where('invoice_id', $invoiceRecord->id)->update([
+            'invoice_type' => $invoiceRecord->invoice_type,
+            'invoice_number' => $invoiceRecord->invoice_number,
+            'invoice_amount' => $invoiceRecord->invoice_amount,
+            'invoice_company_id' => $invoiceRecord->invoice_company_id,
+            'invoice_company_name' => $invoiceRecord->invoice_company_name,
+            'invoice_created_at' => now()->toDateTimeString(),
+        ]);
+
         $order->save();
         $financialOrder->save();
         $invoiceRecord->save();
@@ -189,11 +198,13 @@ class InvoiceController extends Controller
             'his_bank_name' => $financialOrder->payment_bank,
             'his_bank_number' => $financialOrder->payment_account,
             'amount' => $request->input('amount'),
+            'invoice_id' => $invoiceRecord->id,
             'invoice_type' => $invoiceRecord->invoice_type,
             'invoice_number' => $invoiceRecord->invoice_number,
             'invoice_amount' => $invoiceRecord->invoice_amount,
             'invoice_company_id' => $invoiceRecord->invoice_company_id,
             'invoice_company_name' => $invoiceRecord->invoice_company_name,
+            'invoice_created_at' => $invoiceRecord->created_at,
             'operator_id' => $user->id,
             'operator_name' => $user->name,
             'remark' => $invoiceRecord->payment_remark,

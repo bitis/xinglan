@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Company;
 use App\Models\FinancialOrder;
 use App\Models\FinancialPaymentRecord;
+use App\Services\ExportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -57,11 +58,12 @@ class FinancialController extends Controller
      * 付款记录
      *
      * @param Request $request
-     * @return JsonResponse
+     * @return JsonResponse|void
      */
     public function paymemtLog(Request $request)
     {
-        $records = FinancialPaymentRecord::where('company_id', $request->user()->company_id)
+        $records = FinancialPaymentRecord::with('order:id,insurance_company_name')->without('order:loss_persons')
+            ->where('company_id', $request->user()->company_id)
             ->when($order_id = $request->input('order_id'), function ($query) use ($order_id) {
                 $query->where('order_id', $order_id);
             })
@@ -87,9 +89,40 @@ class FinancialController extends Controller
                         ->orWhere('license_plate', 'like', "%$search%");
                 });
             })
-            ->orderBy('id', 'desc')
-            ->paginate(getPerPage());
+            ->orderBy('id', 'desc');
 
-        return success($records);
+        if (!$request->input('export')) {
+            return success($records->paginate(getPerPage()));
+        }
+
+        $headers = ['所属公司', '外协单位', '客户', '客户经理', '付款时间', '付款金额', '付款备注', '对账内勤', '结算单号', '付款类型',
+            '发票号', '发票类型', '开票金额', '开票单位', '开票时间', '收款账号', '收款凭证'];
+
+        $rows = $records->get()->toArray();
+
+        $result = [];
+        foreach ($rows as $row) {
+            $result[] = [
+                $row['company_name'],
+                '',
+                $row['order']['insurance_company_name'],
+                '',
+                $row['payment_time'],
+                $row['amount'],
+                $row['remark'],
+                '', // 对账内勤
+                $row['order_number'], // 结算单号
+                '', // 付款类型
+                $row['invoice_number'], // 发票号
+                ['', '专票', '普票'][(int)$row['invoice_type']], // 发票类型
+                $row['invoice_amount'],
+                $row['invoice_company_name'], // 开票单位
+                $row[''],
+                $row['bank_name'] . "\n" . $row['bank_account_number'],
+                implode(',', $row['payment_images'])
+            ];
+        }
+
+        (new ExportService)->excel($headers, $result, '付款记录');
     }
 }

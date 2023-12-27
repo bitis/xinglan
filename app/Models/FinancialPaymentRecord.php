@@ -33,11 +33,13 @@ class FinancialPaymentRecord extends Model
         'his_bank_name',
         'his_bank_number',
         'amount',
+        'invoice_id',
         'invoice_type',
         'invoice_number',
         'invoice_amount',
         'invoice_company_id',
         'invoice_company_name',
+        'invoice_created_at',
         'baoxiao',
         'operator_id',
         'operator_name',
@@ -53,5 +55,10 @@ class FinancialPaymentRecord extends Model
     public function financialOrder(): BelongsTo
     {
         return $this->belongsTo(FinancialOrder::class);
+    }
+
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class)->without('lossPersons');
     }
 }
