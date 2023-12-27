@@ -51,7 +51,7 @@ class OrderQuotationController extends Controller
         $company_id = $request->user()->company_id;
         $childrenCompany = Company::getGroupId($company_id);
         $company = $request->user()->company;
-        $customersId = CompanyProvider::whereIn('provider_id', $company_id)->pluck('company_id');
+        $customersId = CompanyProvider::whereIn('provider_id', $childrenCompany)->pluck('company_id');
 
         $orders = Order::with('company:id,name')
             ->leftJoin('order_quotations as quotation', function ($join) use ($childrenCompany) {
