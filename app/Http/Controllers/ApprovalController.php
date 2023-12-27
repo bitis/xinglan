@@ -95,7 +95,9 @@ class ApprovalController extends Controller
         $withs['quotation'] = function ($query) use ($company) {
             if ($company->getRawOriginal('type') == CompanyType::BaoXian->value)
                 return $query->where('win', 1);
-            return $query->where('company_id', $company->id);
+            $children = Company::getGroupId($company->id);
+
+            return $query->whereIn('company_id', $children);
         };
 
         $process->order = Order::with(array_merge(['company:id,name'], $withs))->find($process->order_id);
