@@ -22,24 +22,24 @@ class ExportService
 
         $filePath = $fileObject->header($headers)
             ->data($rows)->output();
-echo $filePath;
-//        // Set Header
-//        header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-//        header('Content-Disposition: attachment;filename="' . $fileName . '"');
-//        header('Content-Length: ' . filesize($filePath));
-//        header('Content-Transfer-Encoding: binary');
-//        header('Cache-Control: must-revalidate');
-//        header('Cache-Control: max-age=0');
-//        header('Pragma: public');
-//
-//        ob_clean();
-//        flush();
-//
-//        if (copy($filePath, 'php://output') === false) {
-//            // Throw exception
-//        }
-//
-//        // Delete temporary file
-//        @unlink($filePath);
+
+        // Set Header
+        header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        header('Content-Disposition: attachment;filename="' . $fileName . '"');
+        header('Content-Length: ' . filesize($filePath));
+        header('Content-Transfer-Encoding: binary');
+        header('Cache-Control: must-revalidate');
+        header('Cache-Control: max-age=0');
+        header('Pragma: public');
+
+        ob_clean();
+        flush();
+
+        if (copy($filePath, 'php://output') === false) {
+            // Throw exception
+        }
+
+        // Delete temporary file
+        @unlink($filePath);
     }
 }
