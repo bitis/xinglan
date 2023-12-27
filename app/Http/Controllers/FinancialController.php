@@ -62,7 +62,7 @@ class FinancialController extends Controller
      */
     public function paymemtLog(Request $request)
     {
-        $records = FinancialPaymentRecord::with('order:id,insurance_company_name')->without('order:loss_persons')
+        $records = FinancialPaymentRecord::with('order:id,insurance_company_name')
             ->where('company_id', $request->user()->company_id)
             ->when($order_id = $request->input('order_id'), function ($query) use ($order_id) {
                 $query->where('order_id', $order_id);
@@ -123,6 +123,8 @@ class FinancialController extends Controller
             ];
         }
 
-        (new ExportService)->excel($headers, $result, '付款记录');
+        $fileName = $request->input('financial_type') == 1 ? '收款记录' : '付款记录';
+
+        (new ExportService)->excel($headers, $result, $fileName);
     }
 }
