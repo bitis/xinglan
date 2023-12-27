@@ -123,7 +123,7 @@ class FinancialController extends Controller
             ];
         }
 
-        $fileName = $request->input('financial_type') == 1 ? '收款记录' : '付款记录';
+        $fileName = $request->input('financial_type') == 1 ? '回款记录表' : '付款记录表';
 
         (new ExportService)->excel($headers, $result, $fileName);
     }
