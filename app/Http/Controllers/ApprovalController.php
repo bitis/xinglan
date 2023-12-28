@@ -22,6 +22,7 @@ use App\Models\Order;
 use App\Models\OrderLog;
 use App\Models\OrderQuotation;
 use App\Models\OrderRepairPlan;
+use App\Services\ExportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -32,13 +33,13 @@ class ApprovalController extends Controller
      * 我的审批列表
      *
      * @param Request $request
-     * @return JsonResponse
+     * @return JsonResponse|void
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
         $name = $request->input('name');
 
-        $process = ApprovalOrderProcess::with(['company:id,name', 'order.company:id,name'])
+        $result = ApprovalOrderProcess::with(['company:id,name','order:id,insurance_type,order_number,case_number,license_plate,vin', 'order.company:id,name'])
             ->withWhereHas('order', function ($query) use ($name) {
                 if ($name) $query->where('order_number', 'like', '%' . $name . '%')
                     ->orWhere('case_number', 'like', '%' . $name . '%')
@@ -58,22 +59,56 @@ class ApprovalController extends Controller
                 if ($step) $query->whereIn('step', explode(',', $step));
             })
             ->where('hidden', false)
-            ->orderBy('id', 'desc')
-            ->paginate(getPerPage())->toArray();
+            ->orderBy('id', 'desc');
 
-        $process['count']['All'] = 0;
+        if (empty($request->input('export'))) {
+            $result = $result->paginate(getPerPage())->toArray();
+            $result['count']['All'] = 0;
 
-        foreach (ApprovalType::cases() as $item) {
-            $process['count'][$item->name] = ApprovalOrderProcess::where('approval_type', $item->value)
-                ->where('user_id', $request->user()->id)
-                ->where('approval_status', ApprovalStatus::Pending->value)
-                ->whereIn('step', [1, 2])
-                ->where('hidden', false)
-                ->count();
-            $process['count']['All'] += $process['count'][$item->name];
+            foreach (ApprovalType::cases() as $item) {
+                $result['count'][$item->name] = ApprovalOrderProcess::where('approval_type', $item->value)
+                    ->where('user_id', $request->user()->id)
+                    ->where('approval_status', ApprovalStatus::Pending->value)
+                    ->whereIn('step', [1, 2])
+                    ->where('hidden', false)
+                    ->count();
+                $result['count']['All'] += $result['count'][$item->name];
+            }
+            return success($result);
         }
 
-        return success($process);
+        $headers = ['序号', '地州名称', '提交日期', '报案号', '报价金额', '审核金额', '审减率', '保险公司名称', '提报人', '期间',
+            '期间1', '受损物品名称', '受损物品类别', '车牌号', '报价结果'];
+
+        $rows = $result->get()->toArray();
+
+        $result = [];
+        foreach ($rows as $index => $row) {
+            $result[] = [
+                $row[$index],
+                $row['company_name'],
+                '',
+                $row['order']['insurance_company_name'],
+                '',
+                $row['payment_time'],
+                $row['amount'],
+                $row['remark'],
+                '', // 对账内勤
+                $row['order_number'], // 结算单号
+                '', // 付款类型
+                $row['invoice_number'], // 发票号
+                ['', '专票', '普票'][(int)$row['invoice_type']], // 发票类型
+                $row['invoice_amount'],
+                $row['invoice_company_name'], // 开票单位
+                $row[''],
+                $row['bank_name'] . "\n" . $row['bank_account_number'],
+                implode(',', $row['payment_images'])
+            ];
+        }
+
+        $fileName = $request->input('financial_type') == 1 ? '回款记录表' : '付款记录表';
+
+        (new ExportService)->excel($headers, $result, $fileName);
     }
 
     /**
