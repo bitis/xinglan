@@ -41,6 +41,8 @@ class ApprovalOrderProcess extends Model
 
     public function order(): BelongsTo
     {
-        return $this->belongsTo(Order::class, 'order_id', 'id');
+        return $this->belongsTo(Order::class, 'order_id', 'id')
+            ->select('id', 'insurance_type','order_number','case_number','license_plate','vin','city')
+            ->without('lossPersons');
     }
 }

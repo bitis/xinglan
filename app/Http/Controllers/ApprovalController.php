@@ -39,7 +39,11 @@ class ApprovalController extends Controller
     {
         $name = $request->input('name');
 
-        $result = ApprovalOrderProcess::with(['company:id,name','order:id,insurance_type,order_number,case_number,license_plate,vin', 'order.company:id,name'])
+        $result = ApprovalOrderProcess::with([
+            'company:id,name',
+            'order',
+            'order.company:id,name'
+        ])
             ->withWhereHas('order', function ($query) use ($name) {
                 if ($name) $query->where('order_number', 'like', '%' . $name . '%')
                     ->orWhere('case_number', 'like', '%' . $name . '%')
@@ -84,25 +88,11 @@ class ApprovalController extends Controller
 
         $result = [];
         foreach ($rows as $index => $row) {
+            dd($row);
             $result[] = [
-                $row[$index],
-                $row['company_name'],
-                '',
-                $row['order']['insurance_company_name'],
-                '',
-                $row['payment_time'],
-                $row['amount'],
-                $row['remark'],
-                '', // 对账内勤
-                $row['order_number'], // 结算单号
-                '', // 付款类型
-                $row['invoice_number'], // 发票号
-                ['', '专票', '普票'][(int)$row['invoice_type']], // 发票类型
-                $row['invoice_amount'],
-                $row['invoice_company_name'], // 开票单位
-                $row[''],
-                $row['bank_name'] . "\n" . $row['bank_account_number'],
-                implode(',', $row['payment_images'])
+                $index,
+                $row['order']['city'],
+                $row['order'],
             ];
         }
 
