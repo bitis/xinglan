@@ -87,16 +87,38 @@ class ApprovalController extends Controller
         $rows = $result->get()->toArray();
 
         $result = [];
+
+        $week = function ($date) {
+
+            $timestamp = strtotime($date);
+
+            $firstDayOfMonth = strtotime(date('Y-m-01', $timestamp));
+
+            $firstDayOfWeek = date('N', $firstDayOfMonth);
+
+            return date('Y年m月', strtotime($date)) . '第' . ceil(($timestamp - $firstDayOfMonth + $firstDayOfWeek) / (7)) . '周';
+        };
         foreach ($rows as $index => $row) {
-            dd($row);
             $result[] = [
                 $index,
                 $row['order']['city'],
-                $row['order'],
+                $row['created_at'],
+                $row['order']['case_number'], // 报案号
+                '', // 报价金额
+                '', // 审核金额
+                '', // 审减率
+                $row['order']['insurance_company_name'], // 保险公司名称
+                $row['creator_name'], // 提报人,
+                $week($row['created_at']), // 2022年8月第4周
+                substr($row['created_at'], '0', '10'), // 期间1
+                $row['order']['goods_name'],
+                $row['order']['goods_types'],
+                $row['order']['license_plate'],
+                ['', '施工修复', '协调处理'][(int)$row['order']['plan_type']]
             ];
         }
 
-        $fileName = $request->input('financial_type') == 1 ? '回款记录表' : '付款记录表';
+        $fileName = 'OA已处理';
 
         (new ExportService)->excel($headers, $result, $fileName);
     }
