@@ -312,8 +312,8 @@ class StatsController extends Controller
             ->selectRaw(
                 'wusun_company_id, count(*) as case_total,'
                 . 'sum(receivable_count) as receivable_total,' // 预算收入
-                . 'sum(other_cost) as other_cost_total,' // 预算总成本
-                . 'sum(paid_amount) as paid_total,' // 已付款
+                . 'sum(total_cost) as cost_total,' // 预算总成本
+                . 'sum(other_cost) as other_cost_total,' // 其他成本
                 . 'sum(received_amount) as received_total,' // 已收款金额
                 . 'sum(invoiced_amount) as invoiced_total' // 已开票金额
             )
