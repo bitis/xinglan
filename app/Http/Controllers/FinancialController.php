@@ -15,14 +15,15 @@ class FinancialController extends Controller
      * 财务列表
      *
      * @param Request $request
-     * @return JsonResponse
+     * @return JsonResponse|void
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
         $company = $request->user()->company;
         $company_id = $request->input('company_id');
 
-        $orders = FinancialOrder::when($request->get('type'), fn($query, $type) => $query->where('type', $type))
+        $orders = FinancialOrder::with('order:id,insurance_company_name,case_number,province,city,area,address,post_time,license_plate,insurance_check_name,insurance_check_phone,wusun_check_name,order_number')
+            ->when($request->get('type'), fn($query, $type) => $query->where('type', $type))
             ->where(function ($query) use ($company, $company_id) {
                 if ($company_id) return $query->where('company_id', $company_id);
 
@@ -48,10 +49,46 @@ class FinancialController extends Controller
                 $query->where('post_time', '<=', $post_time_end . ' 23:59:59');
             })
             ->where('check_status', 1)
-            ->orderBy('id', 'desc')
-            ->paginate(getPerPage());
+            ->orderBy('id', 'desc');
 
-        return success($orders);
+        if (!$request->input('export')) {
+            return success($orders->paginate(getPerPage()));
+        }
+
+        $fileName = '结算明细表';
+
+        $headers = ['所属公司', '客户', '报案号', '物损地点', '接案时间', '标的车车牌', '保险查勘人员', '电话', '审核人员',
+            '物损查勘人员', '审核时间', '工单号', '审核金额', '结算金额', '已开票金额', '已收款金额', '结算备注', '开票状态', '收款状态'];
+
+        $result = [];
+
+        $rows = $orders->get()->toArray();
+
+        foreach ($rows as $item) {
+            $result[] = [
+                $item['company_name'],
+                $item['order']['insurance_company_name'],
+                $item['order']['case_number'],
+                $item['order']['province'] . $item['order']['city'] . $item['order']['area'] . $item['order']['address'],
+                $item['order']['post_time'],
+                $item['order']['license_plate'], // 标的车车牌
+                $item['order']['insurance_check_name'], // 保险查勘人员
+                $item['order']['insurance_check_phone'], // 电话
+                '', // 审核人员
+                $item['wusun_check_name'], // 物损查勘人员
+                '', // 审核时间
+                $item['order_number'], // 工单号
+                $item['total_amount'], // 审核金额
+                $item['total_amount'], // 结算金额
+                $item['invoiced_amount'], // 已开票金额
+                $item['paid_amount'], // 已收款金额
+                '', // 结算备注
+                ['', '未收款', '部分收款', '已收款'][(int)$item['invoice_status']], // 开票状态
+                ['', '未开票', '部分开票', '已开票'][(int)$item['payment_status']], // 收款状态
+            ];
+        }
+
+        (new ExportService)->excel($headers, $result, $fileName);
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Traits\DefaultDatetimeFormat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Arr;
 
 class FinancialOrder extends Model
@@ -102,5 +103,10 @@ class FinancialOrder extends Model
         $financialOrder->save();
 
         return $financialOrder;
+    }
+
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class)->without('lossPersons');
     }
 }
