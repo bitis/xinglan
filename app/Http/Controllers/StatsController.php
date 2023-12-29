@@ -320,7 +320,8 @@ class StatsController extends Controller
             ->groupBy('wusun_company_id')->get()->toArray();
 
         $firstCompany = ['id' => $current_company->id, 'name' => $current_company->name, 'parent_id' => $current_company->parent_id,
-           'case_total' => 0, 'receivable_total' => 0, 'cost_total' => 0, 'other_cost_total' => 0, 'received_total' => 0, 'invoiced_total' => 0];
+           'case_total' => 0, 'receivable_total' => 0, 'cost_total' => 0, 'other_cost_total' => 0, 'received_total' => 0,
+            'invoiced_total' => 0, 'children' => []];
 
         foreach ($stats as $company) {
             $firstCompany['case_total'] += $company['case_total'];
