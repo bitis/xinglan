@@ -325,8 +325,8 @@ class StatsController extends Controller
         foreach ($stats as $company) {
             $firstCompany['case_total'] += $company['case_total'];
             $firstCompany['receivable_total'] += $company['receivable_total'];
+            $firstCompany['cost_total'] += $company['cost_total'];
             $firstCompany['other_cost_total'] += $company['other_cost_total'];
-            $firstCompany['paid_total'] += $company['paid_total'];
             $firstCompany['received_total'] += $company['received_total'];
             $firstCompany['invoiced_total'] += $company['invoiced_total'];
 
@@ -343,8 +343,8 @@ class StatsController extends Controller
                     $child['children'][] = $company;
                     $firstCompany['case_total'] += $company['case_total'];
                     $firstCompany['receivable_total'] += $company['receivable_total'];
+                    $firstCompany['cost_total'] += $company['cost_total'];
                     $firstCompany['other_cost_total'] += $company['other_cost_total'];
-                    $firstCompany['paid_total'] += $company['paid_total'];
                     $firstCompany['received_total'] += $company['received_total'];
                     $firstCompany['invoiced_total'] += $company['invoiced_total'];
                     break;
