@@ -312,7 +312,7 @@ class StatsController extends Controller
             ->selectRaw(
                 'wusun_company_id, count(*) as case_total,'
                 . 'sum(receivable_count) as receivable_total,' // 预算收入
-                . 'sum(total_cost) as cost_total,' // 预算总成本
+                . 'sum(other_cost) as other_cost_total,' // 预算总成本
                 . 'sum(paid_amount) as paid_total,' // 已付款
                 . 'sum(received_amount) as received_total,' // 已收款金额
                 . 'sum(invoiced_amount) as invoiced_total' // 已开票金额
@@ -320,12 +320,12 @@ class StatsController extends Controller
             ->groupBy('wusun_company_id')->get()->toArray();
 
         $firstCompany = ['id' => $current_company->id, 'name' => $current_company->name, 'parent_id' => $current_company->parent_id,
-           'case_total' => 0, 'receivable_total' => 0, 'cost_total' => 0, 'paid_total' => 0, 'received_total' => 0, 'invoiced_total' => 0];
+           'case_total' => 0, 'receivable_total' => 0, 'cost_total' => 0, 'other_cost_total' => 0, 'received_total' => 0, 'invoiced_total' => 0];
 
         foreach ($stats as $company) {
             $firstCompany['case_total'] += $company['case_total'];
             $firstCompany['receivable_total'] += $company['receivable_total'];
-            $firstCompany['cost_total'] += $company['cost_total'];
+            $firstCompany['other_cost_total'] += $company['other_cost_total'];
             $firstCompany['paid_total'] += $company['paid_total'];
             $firstCompany['received_total'] += $company['received_total'];
             $firstCompany['invoiced_total'] += $company['invoiced_total'];
@@ -343,7 +343,7 @@ class StatsController extends Controller
                     $child['children'][] = $company;
                     $firstCompany['case_total'] += $company['case_total'];
                     $firstCompany['receivable_total'] += $company['receivable_total'];
-                    $firstCompany['cost_total'] += $company['cost_total'];
+                    $firstCompany['other_cost_total'] += $company['other_cost_total'];
                     $firstCompany['paid_total'] += $company['paid_total'];
                     $firstCompany['received_total'] += $company['received_total'];
                     $firstCompany['invoiced_total'] += $company['invoiced_total'];
@@ -385,7 +385,7 @@ class StatsController extends Controller
                 'insurance_company_id,'
                 . 'sum(receivable_count) as receivable_total,' // 预算收入
                 . 'sum(total_cost) as cost_total,' // 预算总成本
-                . 'sum(paid_amount) as paid_total,' // 已付款
+                . 'sum(other_cost) as other_cost_total,' // 其他成本
                 . 'sum(received_amount) as received_total,' // 已收款金额
                 . 'sum(invoiced_amount) as invoiced_total' // 已开票金额
             )
