@@ -8,6 +8,7 @@ use App\Models\FinancialInvoiceRecord;
 use App\Models\FinancialOrder;
 use App\Models\FinancialPaymentRecord;
 use App\Models\Order;
+use App\Services\ExportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -17,14 +18,15 @@ class InvoiceController extends Controller
      * 财务列表
      *
      * @param Request $request
-     * @return JsonResponse
+     * @return JsonResponse|void
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
         $company = $request->user()->company;
         $company_id = $request->input('company_id');
 
-        $orders = FinancialInvoiceRecord::when($request->get('invoice_type'), fn($query, $type) => $query->where('type', $type))
+        $orders = FinancialInvoiceRecord::with('order:id,insurance_company_name')
+            ->when($request->get('invoice_type'), fn($query, $type) => $query->where('type', $type))
             ->where(function ($query) use ($company, $company_id) {
                 if ($company_id) return $query->where('company_id', $company_id);
 
@@ -63,10 +65,45 @@ class InvoiceController extends Controller
             ->when($request->get('financial_type'), function ($query, $value) {
                 $query->where('financial_type', $value);
             })
-            ->orderBy('id', 'desc')
-            ->paginate(getPerPage());
+            ->orderBy('id', 'desc');
 
-        return success($orders);
+        if (!$request->input('export')) {
+            return success($orders->paginate(getPerPage()));
+        }
+
+        $rows = $orders->get()->toArray();
+
+        $headers = ['所属公司', '客户名称', '客户经理', '结算编号', '发票类型', '发票号', '发票金额', '已收款金额', '待收款金额',
+            '开票人', '开票时间', '收款人', '收款时间', '开票单位', '物流单位', '快递单号', '开票备注', '收款状态'];
+
+        $result = [];
+
+        foreach ($rows as $row) {
+            $result[] = [
+                $row['company_name'],
+                $row['order']['insurance_company_name'],
+                '',
+                '',
+                ['', '专票', '普票'][(int)$row['invoice_type']], // 发票类型
+                $row['invoice_number'], // 发票号
+                $row['invoice_amount'], // 发票金额
+                $row['paid_amount'], // 已收款金额
+                $row['total_amount'] - $row['paid_amount'], // 待收款金额
+                $row['invoice_operator_name'], // 开票人
+                $row['invoice_time'], // 开票时间
+                $row['payment_operator_name'], // 收款人 (收款操作人)
+                $row['payment_time'], // 收款时间
+                $row['invoice_company_name'], // 开票单位
+                $row['express_company_name'], // 物流单位
+                $row['express_order_number'], // 快递单号
+                $row['invoice_remark'], // 开票备注
+                ['', '未收款', '部分收款', '已收款'][(int)$row['payment_status']], // 收款状态
+            ];
+        }
+
+        $fileName = '开票收款明细表';
+
+        (new ExportService)->excel($headers, $result, $fileName);
     }
 
     /**

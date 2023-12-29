@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Traits\DefaultDatetimeFormat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class FinancialInvoiceRecord extends Model
 {
@@ -54,4 +55,9 @@ class FinancialInvoiceRecord extends Model
         'payment_images' => 'array',
         'invoice_images' => 'array',
     ];
+
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class)->without('lossPersons');
+    }
 }
