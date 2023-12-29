@@ -246,7 +246,7 @@ class StatsController extends Controller
 
         $firstCompany = ['id' => $current_company->id, 'name' => $current_company->name, 'parent_id' => $current_company->parent_id,
             'all' => 0, 'WaitCheck' => 0, 'Checking' => 0, 'WaitPlan' => 0, 'WaitRepair' => 0, 'Repairing' => 0,
-            'Repaired' => 0, 'Closed' => 0, 'Closing' => 0, 'Mediate' => 0];
+            'Repaired' => 0, 'Closed' => 0, 'Closing' => 0, 'Mediate' => 0, 'children' => []];
 
         foreach ($companies as &$company) {
             $company['all'] = 0;
