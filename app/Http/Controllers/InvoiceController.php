@@ -205,6 +205,7 @@ class InvoiceController extends Controller
         $order = Order::find($financialOrder->order_id);
         if ($financialOrder->type == FinancialOrder::TYPE_PAYMENT) {
             $order->paid_amount += $payment_amount;
+            if($financialOrder->baoxiao == 1) $order->baoxiao += $payment_amount;
         } else {
             $order->received_amount += $payment_amount;
         }
