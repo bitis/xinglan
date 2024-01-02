@@ -171,14 +171,14 @@ class StatsController extends Controller
      */
     public function consumerCaseStats(Request $request): JsonResponse
     {
+        $start_at = $request->input('start_at') ?? now()->addDays(-7)->toDateString();
+        $end_at = $request->input('end_at') ?? now()->toDateString();
+
         $result = ConsumerOrderDailyStats::with('insurance_company:id,name')
-            ->when($start_at = $request->input('start_at'), function ($query) use ($start_at) {
-                $query->whereDate('date', '>=', $start_at);
-            })->when($end_at = $request->input('end_at'), function ($query) use ($end_at) {
-                $query->whereDate('date', '<=', $end_at);
-            })
-            ->when($insurance_company_id = $request->input('insurance_company_id'), function ($query) use ($insurance_company_id) {
-                $query->where('insurance_company_id', $insurance_company_id);
+            ->whereDate('date', '>=', $start_at)
+            ->whereDate('date', '<=', $end_at)
+            ->when($company_id = $request->input('company_id'), function ($query) use ($company_id) {
+                $query->where('company_id', $company_id);
             })
             ->get();
 
@@ -320,7 +320,7 @@ class StatsController extends Controller
             ->groupBy('wusun_company_id')->get()->toArray();
 
         $firstCompany = ['id' => $current_company->id, 'name' => $current_company->name, 'parent_id' => $current_company->parent_id,
-           'case_total' => 0, 'receivable_total' => 0, 'cost_total' => 0, 'other_cost_total' => 0, 'received_total' => 0,
+            'case_total' => 0, 'receivable_total' => 0, 'cost_total' => 0, 'other_cost_total' => 0, 'received_total' => 0,
             'invoiced_total' => 0, 'children' => []];
 
         foreach ($stats as $company) {
