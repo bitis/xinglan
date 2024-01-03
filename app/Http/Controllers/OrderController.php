@@ -107,11 +107,7 @@ class OrderController extends Controller
             'repair_plan',
             'quotation:id,total_price',
             'payment_records:order_id,company_id,payment_time,amount,baoxiao,financial_type'
-        ])
-//            ->leftJoin('order_quotations as quotation', function ($join) {
-//                $join->on('orders.id', '=', 'quotation.order_id')->whereIn('quotation.company_id', 'orders.wusun_company_id');
-//            })->selectRaw("orders.*, quotation.total_price")
-            ->get()->toArray();
+        ])->get()->toArray();
 
         $recordToStr = function ($records) {
             $str = '';
