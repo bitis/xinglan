@@ -67,7 +67,7 @@ class UserController extends Controller
             $user->password = bcrypt(config('default.password'));
         }
 
-        $user->fill($request->only(['name', 'account', 'mobile', 'company_id', 'status', 'identity_id', 'employee_id', 'remark']));
+        $user->fill($request->only(['name', 'account', 'mobile', 'status', 'identity_id', 'employee_id', 'remark']));
 
         $user->save();
 
@@ -92,9 +92,13 @@ class UserController extends Controller
 
         if ($request->user()->hasRole('admin')) return success();
 
-        $company_id = $request->input('company_id') ?: $request->user()->company_id;
+        $currentCompanyId = $request->input('company_id') ?: $request->user()->company_id;
 
-        $roleNames = array_map(fn($role) => $company_id . '_' . $role, explode(',', $roleStr));
+        $roleNames = [];
+
+        foreach (Company::getGroupId($currentCompanyId) as $company_id) {
+            $roleNames = array_merge($roleNames, array_map(fn($role) => $company_id . '_' . $role, explode(',', $roleStr)));
+        }
 
         $wantWith = $withStr ? explode(',', $withStr) : false;
 
@@ -107,7 +111,7 @@ class UserController extends Controller
             $query->role($roleNames);
         })
             ->when($withs, fn($query, $withs) => $query->with($withs))
-            ->where('company_id', $company_id)
+//            ->where('company_id', $company_id)
             ->when(strlen($status = $request->input('status')), function ($query) use ($status) {
                 $query->where('status', $status);
             })
