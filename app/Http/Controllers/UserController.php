@@ -95,7 +95,7 @@ class UserController extends Controller
         $currentCompanyId = $request->input('company_id') ?: $request->user()->company_id;
 
         $roleNames = [];
-        $group =  Company::getGroupId($currentCompanyId);
+        $group = Company::getGroupId($currentCompanyId);
         foreach ($group as $company_id) {
             $roleNames = array_merge($roleNames, array_map(fn($role) => $company_id . '_' . $role, explode(',', $roleStr)));
         }
