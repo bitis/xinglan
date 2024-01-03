@@ -91,23 +91,7 @@ class OrderController extends Controller
             return success($orders->paginate(getPerPage()));
         }
 
-        $headers = ['订单来源', '工单号', '所属公司', '出险日期', '报案号', '车牌号', '客户名称', '保险查勘员', '保险查勘员电话',
-            '物损地点', '省', '市', '区', '工单状态', '结案状态', '车险险种', '结案时间', '物损查勘员', '物损查勘员电话', '物损项目',
-            '物损任务名称', '谈判经过', '物损备注', '受损方姓名', '受损方电话', '修复单位', '修复单位编码', '施工人员', '施工开始时间',
-            '施工结束时间', '施工备注', '施工成本', '已付成本金额', '成本审核人', '成本审核时间', '物损方要价合计', '对外报价金额',
-            '核价（定损）金额', '减损金额', '已收款金额', '已收款明细', '其他成本', '预估成本合计', '报销金额合计', '报销金额明细',
-            '已付款金额合计（含报销金额）', '已开票金额', '税金合计', '毛利率', '实际毛利额', '对账内勤', '险种', '保单号', '车架号',
-            '被保险人', '被保险电话', '驾驶人', '驾驶人电话', '服务评分', '服务评价'];
-
-        $fileName = '工单明细';
-
         $result = [];
-
-        $rows = $orders->with([
-            'repair_plan',
-            'quotation:id,total_price',
-            'payment_records:order_id,company_id,payment_time,amount,baoxiao,financial_type'
-        ])->get()->toArray();
 
         $recordToStr = function ($records) {
             $str = '';
@@ -117,77 +101,145 @@ class OrderController extends Controller
             return $str;
         };
 
-        foreach ($rows as $item) {
+        if ($request->input('export_type') == 'gdmx') {
 
-            $result[] = [
-                $item['creator_company_type'] == CompanyType::WuSun->value ? '自建订单' : '保险公司订单',
-                $item['order_number'],
-                $item['wusun_company_name'],
-                date('Y-m-d', strtotime($item['post_time'])), // 出险日期
-                $item['case_number'],
-                $item['license_plate'],
-                $item['insurance_company_name'], // 客户名称
-                $item['insurance_check_name'], // 保险查勘员
-                $item['insurance_check_phone'], // 保险查勘员电话
-                $item['province'] . $item['city'] . $item['area'] . $item['address'], // 物损地点
-                $item['province'],
-                $item['city'],
-                $item['area'],
-                '', // 工单状态
-                ($item['close_status'] == OrderCloseStatus::Closed ? '已结案' : '未结案'), // 结案状态
-                InsuranceType::from($item['insurance_type'])->name(),
-                $item['close_at'], // 结案时间
-                $item['wusun_check_name'], // 物损查勘员
-                $item['wusun_check_phone'], // 物损查勘员电话
-                $item['goods_name'], // 物损项目
-                $item['goods_types'], // 物损任务名称
-                $item['negotiation_content'], // 谈判经过
-                $item['goods_remark'], // 物损备注
-                implode(',', array_column($item['loss_persons'], 'owner_name')), // 受损方姓名
-                implode(',', array_column($item['loss_persons'], 'owner_phone')), // 受损方电话
-                $item['repair_plan'] ? $item['repair_plan']['repair_company_name'] : '', // 修复单位
-                '', // 修复单位编码
-                $item['repair_plan'] ? $item['repair_plan']['repair_user_name'] : '', // 施工人员
-                $item['repair_plan'] ? $item['repair_plan']['repair_start_at'] : '', // 施工开始时间
-                $item['repair_plan'] ? $item['repair_plan']['repair_end_at'] : '', // 施工结束时间
-                $item['repair_plan'] ? $item['repair_plan']['repair_remark'] : '', // 施工备注
-                $item['repair_plan'] ? $item['repair_plan']['repair_cost'] : '', // 施工成本
-                $recordToStr(Arr::where($item['payment_records'],function ($record) {
-                    return $record['financial_type'] == 2 && $record['baoxiao'] == 0;
-                })), // 已付成本金额
-                '', // 成本审核人
-                '', // 成本审核时间
-                $item['owner_price'], // 物损方要价合计
-                $item['quotation'] ? $item['quotation']['total_price'] : '', // 对外报价金额
-                $item['confirm_price_status'] == Order::CONFIRM_PRICE_STATUS_FINISHED ? $item['confirmed_price'] : '', // 核价（定损）金额
-                '', // 减损金额
-                $item['received_amount'], // 已收款金额
-                $recordToStr(Arr::where($item['payment_records'],function ($record) {
-                    return $record['financial_type'] == 1;
-                })), // 已收款明细
-                $item['other_cost'], // 其他成本
-                $item['total_cost'], // 预估成本合计
-                $item['baoxiao_amount'], // 报销金额合计
-                $recordToStr(Arr::where($item['payment_records'],function ($record) {
-                    return $record['financial_type'] == 2 && $record['baoxiao'] == 1;
-                })), // 报销金额明细
-                $item['paid_amount'], // 已付款金额合计（含报销金额）
-                $item['invoiced_amount'], // 已开票金额
-                '', // 税金合计
-                $item['profit_margin_ratio'], // 毛利率
-                '', // 实际毛利额
-                '', // 对账内勤
-                '', // 险种
-                '', // 保单号
-                $item['vin'], // 车架号
-                $item['insurance_people'], // 被保险人
-                $item['insurance_phone'], // 被保险电话
-                $item['driver_name'], // 驾驶人
-                $item['driver_phone'], // 驾驶人电话
-                '',
-                ''
-            ];
+            $headers = ['订单来源', '工单号', '所属公司', '出险日期', '报案号', '车牌号', '客户名称', '保险查勘员', '保险查勘员电话',
+                '物损地点', '省', '市', '区', '工单状态', '结案状态', '车险险种', '结案时间', '物损查勘员', '物损查勘员电话', '物损项目',
+                '物损任务名称', '谈判经过', '物损备注', '受损方姓名', '受损方电话', '修复单位', '修复单位编码', '施工人员', '施工开始时间',
+                '施工结束时间', '施工备注', '施工成本', '已付成本金额', '成本审核人', '成本审核时间', '物损方要价合计', '对外报价金额',
+                '核价（定损）金额', '减损金额', '已收款金额', '已收款明细', '其他成本', '预估成本合计', '报销金额合计', '报销金额明细',
+                '已付款金额合计（含报销金额）', '已开票金额', '税金合计', '毛利率', '实际毛利额', '对账内勤', '险种', '保单号', '车架号',
+                '被保险人', '被保险电话', '驾驶人', '驾驶人电话', '服务评分', '服务评价'];
+
+            $fileName = '工单明细';
+
+            $rows = $orders->with([
+                'repair_plan',
+                'quotation:id,total_price',
+                'payment_records:order_id,company_id,payment_time,amount,baoxiao,financial_type'
+            ])->get()->toArray();
+
+            foreach ($rows as $item) {
+                $result[] = [
+                    $item['creator_company_type'] == CompanyType::WuSun->value ? '自建订单' : '保险公司订单',
+                    $item['order_number'],
+                    $item['wusun_company_name'],
+                    date('Y-m-d', strtotime($item['post_time'])), // 出险日期
+                    $item['case_number'],
+                    $item['license_plate'],
+                    $item['insurance_company_name'], // 客户名称
+                    $item['insurance_check_name'], // 保险查勘员
+                    $item['insurance_check_phone'], // 保险查勘员电话
+                    $item['province'] . $item['city'] . $item['area'] . $item['address'], // 物损地点
+                    $item['province'],
+                    $item['city'],
+                    $item['area'],
+                    '', // 工单状态
+                    ($item['close_status'] == OrderCloseStatus::Closed ? '已结案' : '未结案'), // 结案状态
+                    InsuranceType::from($item['insurance_type'])->name(),
+                    $item['close_at'], // 结案时间
+                    $item['wusun_check_name'], // 物损查勘员
+                    $item['wusun_check_phone'], // 物损查勘员电话
+                    $item['goods_name'], // 物损项目
+                    $item['goods_types'], // 物损任务名称
+                    $item['negotiation_content'], // 谈判经过
+                    $item['goods_remark'], // 物损备注
+                    implode(',', array_column($item['loss_persons'], 'owner_name')), // 受损方姓名
+                    implode(',', array_column($item['loss_persons'], 'owner_phone')), // 受损方电话
+                    $item['repair_plan'] ? $item['repair_plan']['repair_company_name'] : '', // 修复单位
+                    '', // 修复单位编码
+                    $item['repair_plan'] ? $item['repair_plan']['repair_user_name'] : '', // 施工人员
+                    $item['repair_plan'] ? $item['repair_plan']['repair_start_at'] : '', // 施工开始时间
+                    $item['repair_plan'] ? $item['repair_plan']['repair_end_at'] : '', // 施工结束时间
+                    $item['repair_plan'] ? $item['repair_plan']['repair_remark'] : '', // 施工备注
+                    $item['repair_plan'] ? $item['repair_plan']['repair_cost'] : '', // 施工成本
+                    $recordToStr(Arr::where($item['payment_records'], function ($record) {
+                        return $record['financial_type'] == 2 && $record['baoxiao'] == 0;
+                    })), // 已付成本金额
+                    '', // 成本审核人
+                    '', // 成本审核时间
+                    $item['owner_price'], // 物损方要价合计
+                    $item['quotation'] ? $item['quotation']['total_price'] : '', // 对外报价金额
+                    $item['confirm_price_status'] == Order::CONFIRM_PRICE_STATUS_FINISHED ? $item['confirmed_price'] : '', // 核价（定损）金额
+                    '', // 减损金额
+                    $item['received_amount'], // 已收款金额
+                    $recordToStr(Arr::where($item['payment_records'], function ($record) {
+                        return $record['financial_type'] == 1;
+                    })), // 已收款明细
+                    $item['other_cost'], // 其他成本
+                    $item['total_cost'], // 预估成本合计
+                    $item['baoxiao_amount'], // 报销金额合计
+                    $recordToStr(Arr::where($item['payment_records'], function ($record) {
+                        return $record['financial_type'] == 2 && $record['baoxiao'] == 1;
+                    })), // 报销金额明细
+                    $item['paid_amount'], // 已付款金额合计（含报销金额）
+                    $item['invoiced_amount'], // 已开票金额
+                    '', // 税金合计
+                    $item['profit_margin_ratio'], // 毛利率
+                    '', // 实际毛利额
+                    '', // 对账内勤
+                    '', // 险种
+                    '', // 保单号
+                    $item['vin'], // 车架号
+                    $item['insurance_people'], // 被保险人
+                    $item['insurance_phone'], // 被保险电话
+                    $item['driver_name'], // 驾驶人
+                    $item['driver_phone'], // 驾驶人电话
+                    '',
+                    ''
+                ];
+            }
+        } else {
+            $headers = ['工单号', '报案号', '保险公司', '车牌号', '所属公司', '物损类别', '险种类型', '预估损失', '定损金额',
+                '减损金额', '受损方姓名', '受损方电话', '物损地点', '省', '市', '区', '工单状态', '保险查勘人', '保险查勘人电话',
+                '推修时间', '首次联系物损方时间', '联系时效(分钟数)', '完成查勘时间', '处理方案', '查勘备注', '施工单位', '物损查勘人',
+                '物损查勘人电话', '施工开始时间', '修复时间', '服务评分', '服务评价'];
+
+            $fileName = '工单明细表';
+
+            $rows = $orders->with([
+                'repair_plan'
+            ])->get()->toArray();
+
+            foreach ($rows as $item) {
+                $result[] = [
+                    $item['order_number'],
+                    $item['case_number'],
+                    $item['insurance_company_name'],
+                    $item['license_plate'],
+                    $item['wusun_company_name'],
+                    $item['goods_types'], // 物损类别
+                    InsuranceType::from($item['insurance_type'])->name(), // 险种类型
+                    '', // 预估损失
+                    $item['confirm_price_status'] == Order::CONFIRM_PRICE_STATUS_FINISHED ? $item['confirmed_price'] : '', // 定损金额
+                    '', // 减损金额
+                    implode(',', array_column($item['loss_persons'], 'owner_name')), // 受损方姓名
+                    implode(',', array_column($item['loss_persons'], 'owner_phone')), // 受损方电话
+                    $item['province'] . $item['city'] . $item['area'] . $item['address'], // 物损地点
+                    $item['province'],
+                    $item['city'],
+                    $item['area'],
+                    '', // 工单状态
+                    $item['insurance_check_name'], // 保险查勘人
+                    $item['insurance_check_phone'], // 保险查勘人电话
+                    '', // 推修时间
+                    '', // 首次联系物损方时间
+                    '', // 联系时效(分钟数)
+                    $item['wusun_checked_at'], // 完成查勘时间
+                    ['', '施工修复', '协调处理'][$item['plan_type']], // 处理方案
+                    $item['remark'], // 查勘备注
+                    $item['repair_plan'] ? $item['repair_plan']['repair_company_name'] : '', // 修复单位, // 施工单位
+                    $item['wusun_check_name'], // 物损查勘人
+                    $item['wusun_check_phone'], // 物损查勘人电话
+                    $item['repair_plan'] ? $item['repair_plan']['repair_start_at'] : '', // 施工开始时间
+                    $item['repair_plan'] ? $item['repair_plan']['repair_end_at'] : '', // 施工结束时间
+                    '',
+                    ''
+                ];
+            }
         }
+//        '首次联系物损方时间', '联系时效(分钟数)', '完成查勘时间', '处理方案', '查勘备注', '施工单位', '物损查勘人',
+//                '物损查勘人电话', '施工开始时间', '修复时间', '服务评分', '服务评价'
 
         (new ExportService)->excel($headers, $result, $fileName);
     }
