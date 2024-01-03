@@ -95,8 +95,8 @@ class UserController extends Controller
         $currentCompanyId = $request->input('company_id') ?: $request->user()->company_id;
 
         $roleNames = [];
-
-        foreach (Company::getGroupId($currentCompanyId) as $company_id) {
+        $group =  Company::getGroupId($currentCompanyId);
+        foreach ($group as $company_id) {
             $roleNames = array_merge($roleNames, array_map(fn($role) => $company_id . '_' . $role, explode(',', $roleStr)));
         }
 
@@ -111,7 +111,7 @@ class UserController extends Controller
             $query->role($roleNames);
         })
             ->when($withs, fn($query, $withs) => $query->with($withs))
-//            ->where('company_id', $company_id)
+            ->whereIn('company_id', $group)
             ->when(strlen($status = $request->input('status')), function ($query) use ($status) {
                 $query->where('status', $status);
             })
