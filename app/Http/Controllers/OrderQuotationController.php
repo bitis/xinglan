@@ -98,7 +98,7 @@ class OrderQuotationController extends Controller
      */
     public function getByOrderId(Request $request): JsonResponse
     {
-        $quotation = OrderQuotation::where('company_id', $request->user()->company_id)
+        $quotation = OrderQuotation::whereIn('company_id', Company::getGroupId($request->user()->company_id))
             ->where('order_id', $request->input('order_id'))->first();
 
         return success($quotation);
