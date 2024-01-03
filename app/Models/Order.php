@@ -175,7 +175,7 @@ class Order extends Model
 
     public function quotation(): HasOne
     {
-        return $this->hasOne(OrderQuotation::class);
+        return $this->hasOne(OrderQuotation::class)->where('win', 1);
     }
 
     public function wusun(): BelongsTo
@@ -206,5 +206,15 @@ class Order extends Model
     public function lossPersons(): HasMany
     {
         return $this->hasMany(LossPerson::class, 'order_id', 'id');
+    }
+
+    /**
+     * 工单收款、支付记录
+     *
+     * @return HasMany
+     */
+    public function payment_records(): HasMany
+    {
+        return $this->hasMany(FinancialPaymentRecord::class, 'order_id', 'id');
     }
 }
