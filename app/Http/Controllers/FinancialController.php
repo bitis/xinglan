@@ -156,7 +156,7 @@ class FinancialController extends Controller
                 $row['invoice_company_name'], // 开票单位
                 $row['invoice_created_at'],
                 $row['bank_name'] . "\n" . $row['bank_account_number'],
-                implode(',', $row['payment_images'])
+                'https://xinglan-1319638065.cos.ap-shanghai.myqcloud.com' . implode('https://xinglan-1319638065.cos.ap-shanghai.myqcloud.com', $row['payment_images'])
             ];
         }
 
