@@ -25,7 +25,7 @@ class FinancialController extends Controller
         $orders = FinancialOrder::with('order:id,insurance_company_name,case_number,province,city,area,address,post_time,license_plate,insurance_check_name,insurance_check_phone,wusun_check_name,order_number')
             ->when($request->get('type'), fn($query, $type) => $query->where('type', $type))
             ->where(function ($query) use ($company, $company_id) {
-                if ($company_id) return $query->where('company_id', $company_id);
+                if ($company_id) return $query->whereIn('company_id', explode(',', $company_id));
 
                 return $query->whereIn('company_id', Company::getGroupId($company->id));
             })
@@ -37,11 +37,11 @@ class FinancialController extends Controller
                         ->orWhere('vin', 'like', "%$name%");
                 });
             })
-            ->when($request->get('insurance_company_id'), fn($query, $value) => $query->where('insurance_company_id', $value))
+            ->when($request->get('insurance_company_id'), fn($query, $value) => $query->whereIn('insurance_company_id', explode(',', $value)))
             ->when($request->get('opposite_company_id'), fn($query, $value) => $query->where('opposite_company_id', $value))
             ->when($request->get('wusun_check_id'), fn($query, $value) => $query->where('wusun_check_id', $value))
-            ->when($request->get('payment_status'), fn($query, $value) => $query->where('payment_status', $value))
-            ->when($request->get('invoice_status'), fn($query, $value) => $query->where('invoice_status', $value))
+            ->when($request->get('payment_status'), fn($query, $value) => $query->whereIn('payment_status', explode(',', $value)))
+            ->when($request->get('invoice_status'), fn($query, $value) => $query->whereIn('invoice_status', explode(',', $value)))
             ->when($request->get('post_time_start'), function ($query, $post_time_start) {
                 $query->where('post_time', '>', $post_time_start);
             })
