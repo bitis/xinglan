@@ -30,6 +30,7 @@ class ExportService
         header('Content-Transfer-Encoding: binary');
         header('Cache-Control: must-revalidate');
         header('Cache-Control: max-age=0');
+        header('access-control-allow-origin: *');
         header('Pragma: public');
 
         ob_clean();
