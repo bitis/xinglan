@@ -154,7 +154,7 @@ class FinancialController extends Controller
                 ['', '专票', '普票'][(int)$row['invoice_type']], // 发票类型
                 $row['invoice_amount'],
                 $row['invoice_company_name'], // 开票单位
-                $row[''],
+                $row['invoice_created_at'],
                 $row['bank_name'] . "\n" . $row['bank_account_number'],
                 implode(',', $row['payment_images'])
             ];
