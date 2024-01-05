@@ -62,7 +62,7 @@ class StatsController extends Controller
 
         $group = Company::getGroupId($company_id);
 
-        $start_at = $request->input('start_at') ?? '2023-01-01';
+        $start_at = $request->input('start_at') ?? now()->firstOfMonth()->toDateString();
         $end_at = $request->input('end_at') ?? now()->toDateString();
 
         $result = OrderDailyStats::with('company:id,name')
