@@ -32,7 +32,7 @@ class InitStats extends Command
     public function handle()
     {
 
-        Order::chunk(100, function ($orders) {
+        Order::select('wusun_company_id', 'post_time', 'plan_type')->chunk(100, function ($orders) {
             $bar = $this->output->createProgressBar(count($orders));
             $bar->start();
             foreach ($orders as $order) {
