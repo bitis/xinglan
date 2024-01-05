@@ -31,58 +31,56 @@ class InitStats extends Command
      */
     public function handle()
     {
-        Order::without('lossPersons')->where('id', '=', 1122)
-            ->select('id', 'wusun_company_id', 'post_time', 'plan_type')->each(function ($order) {
+        $orders = Order::without('lossPersons')->where('id', '=', 1122)
+            ->select('id', 'wusun_company_id', 'post_time', 'plan_type')->get();
 
-//            $bar = $this->output->createProgressBar(count($orders));
-//            $bar->start();
-//                $bar->advance();
-                $this->info($order->id);
+        foreach ($orders as $order) {
 
-                if ($order->wusun_company_id) {
+            $this->info($order->id);
 
-                    $company = Company::find($order->wusun_company_id);
+            if ($order->wusun_company_id) {
 
-                    $stats_update = [];
+                $company = Company::find($order->wusun_company_id);
 
-                    if ($order->plan_type == Order::PLAN_TYPE_REPAIR)
-                        $stats_update = ['order_repair_count' => DB::raw('order_repair_count + 1')];
-                    elseif ($order->plan_type == Order::PLAN_TYPE_MEDIATE)
-                        $stats_update = ['order_mediate_count' => DB::raw('order_mediate_count + 1')];
+                $stats_update = [];
+
+                if ($order->plan_type == Order::PLAN_TYPE_REPAIR)
+                    $stats_update = ['order_repair_count' => DB::raw('order_repair_count + 1')];
+                elseif ($order->plan_type == Order::PLAN_TYPE_MEDIATE)
+                    $stats_update = ['order_mediate_count' => DB::raw('order_mediate_count + 1')];
+
+                OrderDailyStats::updateOrCreate([
+                    'company_id' => $order->wusun_company_id,
+                    'parent_id' => $company->parent_id,
+                    'date' => substr($order->post_time, 0, 10),
+                ], array_merge($stats_update, [
+                    'order_count' => DB::raw('order_count + 1'),
+                ]));
+
+                if ($company->parent_id) { // 同时更新上级工单数量
+                    $parentCompany = Company::find($company->parent_id);
 
                     OrderDailyStats::updateOrCreate([
-                        'company_id' => $order->wusun_company_id,
-                        'parent_id' => $company->parent_id,
+                        'company_id' => $parentCompany->id,
+                        'parent_id' => $parentCompany->parent_id,
                         'date' => substr($order->post_time, 0, 10),
                     ], array_merge($stats_update, [
                         'order_count' => DB::raw('order_count + 1'),
                     ]));
 
-                    if ($company->parent_id) { // 同时更新上级工单数量
-                        $parentCompany = Company::find($company->parent_id);
-
+                    if ($parentCompany->parent_id) {
+                        $_parentCompany = Company::find($parentCompany->parent_id);
                         OrderDailyStats::updateOrCreate([
-                            'company_id' => $parentCompany->id,
-                            'parent_id' => $parentCompany->parent_id,
+                            'company_id' => $_parentCompany->parent_id,
+                            'parent_id' => $_parentCompany->parent_id,
                             'date' => substr($order->post_time, 0, 10),
                         ], array_merge($stats_update, [
                             'order_count' => DB::raw('order_count + 1'),
                         ]));
-
-                        if ($parentCompany->parent_id) {
-                            $_parentCompany = Company::find($parentCompany->parent_id);
-                            OrderDailyStats::updateOrCreate([
-                                'company_id' => $_parentCompany->parent_id,
-                                'parent_id' => $_parentCompany->parent_id,
-                                'date' => substr($order->post_time, 0, 10),
-                            ], array_merge($stats_update, [
-                                'order_count' => DB::raw('order_count + 1'),
-                            ]));
-                        }
                     }
                 }
-                dd(1);
-//            $bar->finish();
-            });
+            }
+            dd(1);
+        }
     }
 }
