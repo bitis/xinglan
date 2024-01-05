@@ -79,7 +79,6 @@ class InitStats extends Command
                     }
                 }
             }
-            dd(1);
         }
     }
 }
