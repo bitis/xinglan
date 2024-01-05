@@ -31,8 +31,7 @@ class InitStats extends Command
      */
     public function handle()
     {
-        $orders = Order::without('lossPersons')->where('id', '=', 1122)
-            ->select('id', 'wusun_company_id', 'post_time', 'plan_type')->get();
+        $orders = Order::without('lossPersons')->select('id', 'wusun_company_id', 'post_time', 'plan_type')->get();
 
         foreach ($orders as $order) {
 
@@ -71,7 +70,7 @@ class InitStats extends Command
                     if ($parentCompany->parent_id) {
                         $_parentCompany = Company::find($parentCompany->parent_id);
                         OrderDailyStats::updateOrCreate([
-                            'company_id' => $_parentCompany->parent_id,
+                            'company_id' => $_parentCompany->id,
                             'parent_id' => $_parentCompany->parent_id,
                             'date' => substr($order->post_time, 0, 10),
                         ], array_merge($stats_update, [
