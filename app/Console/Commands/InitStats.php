@@ -49,7 +49,7 @@ class InitStats extends Command
                     $stats_update = ['order_mediate_count' => DB::raw('order_mediate_count + 1')];
 
                 OrderDailyStats::updateOrCreate([
-                    'company_id' => $order->wusun_company_id,
+                    'company_id' => $company->id,
                     'parent_id' => $company->parent_id,
                     'date' => substr($order->post_time, 0, 10),
                 ], array_merge($stats_update, [
