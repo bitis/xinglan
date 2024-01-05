@@ -814,12 +814,12 @@ class OrderController extends Controller
             OrderDailyStats::updateOrCreate([
                 'company_id' => $company->id,
                 'parent_id' => $company->parent_id,
-                'date' => Carbon::parse($order->post_time)->format('Y-m-d'),
+                'date' => substr($order->post_time, 0, 10),
             ], $stats_update);
 
             ConsumerOrderDailyStats::updateOrCreate([
                 'company_id' => $company->id,
-                'date' => Carbon::parse($order->post_time)->format('Y-m-d'),
+                'date' => substr($order->post_time, 0, 10),
                 'insurance_company_id' => $order->insurance_company_id
             ], $stats_update);
 
@@ -829,7 +829,7 @@ class OrderController extends Controller
                 OrderDailyStats::updateOrCreate([
                     'company_id' => $parentCompany->id,
                     'parent_id' => $parentCompany->parent_id,
-                    'date' => Carbon::parse($order->post_time)->format('Y-m-d'),
+                    'date' => substr($order->post_time, 0, 10),
                 ], $stats_update);
 
                 if ($parentCompany->parent_id) {
@@ -837,7 +837,7 @@ class OrderController extends Controller
                     OrderDailyStats::updateOrCreate([
                         'company_id' => $_parentCompany->parent_id,
                         'parent_id' => $_parentCompany->parent_id,
-                        'date' => Carbon::parse($order->post_time)->format('Y-m-d'),
+                        'date' => substr($order->post_time, 0, 10),
                     ], $stats_update);
                 }
             }
@@ -1248,6 +1248,54 @@ class OrderController extends Controller
             foreach ($quotations as $quotation) {
                 $quotation->items()->delete();
                 $quotation->delete();
+            }
+
+            if ($order->wusun_company_id) {
+                $company = Company::find($order->wusun_company_id);
+
+                if ($order->plan_type == Order::PLAN_TYPE_REPAIR)
+                    $stats_update = ['order_repair_count' => DB::raw('order_repair_count - 1')];
+                elseif ($order->plan_type == Order::PLAN_TYPE_MEDIATE)
+                    $stats_update = ['order_mediate_count' => DB::raw('order_mediate_count - 1')];
+
+                OrderDailyStats::updateOrCreate([
+                    'company_id' => $company->id,
+                    'parent_id' => $company->parent_id,
+                    'date' => substr($order->post_time, 0, 10),
+                ], array_merge($stats_update, [
+                    'order_count' => DB::raw('order_count - 1')
+                ]));
+
+                ConsumerOrderDailyStats::updateOrCreate([
+                    'company_id' => $company->id,
+                    'date' => substr($order->post_time, 0, 10),
+                    'insurance_company_id' => $order->insurance_company_id
+                ], array_merge($stats_update, [
+                    'order_count' => DB::raw('order_count - 1')
+                ]));
+
+                if ($company->parent_id) { // 同时更新上级工单数量
+                    $parentCompany = Company::find($company->parent_id);
+
+                    OrderDailyStats::updateOrCreate([
+                        'company_id' => $parentCompany->id,
+                        'parent_id' => $parentCompany->parent_id,
+                        'date' => substr($order->post_time, 0, 10),
+                    ], array_merge($stats_update, [
+                        'order_count' => DB::raw('order_count - 1')
+                    ]));
+
+                    if ($parentCompany->parent_id) {
+                        $_parentCompany = Company::find($parentCompany->parent_id);
+                        OrderDailyStats::updateOrCreate([
+                            'company_id' => $_parentCompany->id,
+                            'parent_id' => $_parentCompany->parent_id,
+                            'date' => substr($order->post_time, 0, 10),
+                        ], array_merge($stats_update, [
+                            'order_count' => DB::raw('order_count - 1')
+                        ]));
+                    }
+                }
             }
 
             $order->check_wusun_company_id = null;
