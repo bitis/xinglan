@@ -77,9 +77,15 @@ class InitStats extends Command
                         ], array_merge($stats_update, [
                             'order_count' => DB::raw('order_count + 1'),
                         ]));
+                        unset($_parentCompany);
                     }
                 }
+
+                unset($company);
+                unset($parentCompany);
             }
+
+            unset($orders);
 
             $bar->finish();
         });
