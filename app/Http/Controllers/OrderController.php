@@ -814,12 +814,12 @@ class OrderController extends Controller
             OrderDailyStats::updateOrCreate([
                 'company_id' => $company->id,
                 'parent_id' => $company->parent_id,
-                'date' => $order->post_time->format('Y-m-d'),
+                'date' => Carbon::parse($order->post_time)->format('Y-m-d'),
             ], $stats_update);
 
             ConsumerOrderDailyStats::updateOrCreate([
                 'company_id' => $company->id,
-                'date' => $order->post_time->format('Y-m-d'),
+                'date' => Carbon::parse($order->post_time)->format('Y-m-d'),
                 'insurance_company_id' => $order->insurance_company_id
             ], $stats_update);
 
@@ -829,7 +829,7 @@ class OrderController extends Controller
                 OrderDailyStats::updateOrCreate([
                     'company_id' => $parentCompany->id,
                     'parent_id' => $parentCompany->parent_id,
-                    'date' => $order->post_time->format('Y-m-d'),
+                    'date' => Carbon::parse($order->post_time)->format('Y-m-d'),
                 ], $stats_update);
 
                 if ($parentCompany->parent_id) {
@@ -837,7 +837,7 @@ class OrderController extends Controller
                     OrderDailyStats::updateOrCreate([
                         'company_id' => $_parentCompany->parent_id,
                         'parent_id' => $_parentCompany->parent_id,
-                        'date' => $order->post_time->format('Y-m-d'),
+                        'date' => Carbon::parse($order->post_time)->format('Y-m-d'),
                     ], $stats_update);
                 }
             }
