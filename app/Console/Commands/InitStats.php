@@ -31,7 +31,6 @@ class InitStats extends Command
      */
     public function handle()
     {
-
         Order::select('wusun_company_id', 'post_time', 'plan_type')->chunk(100, function ($orders) {
             $bar = $this->output->createProgressBar(count($orders));
             $bar->start();
@@ -52,7 +51,7 @@ class InitStats extends Command
                 OrderDailyStats::updateOrCreate([
                     'company_id' => $order->wusun_company_id,
                     'parent_id' => $company->parent_id,
-                    'date' => Carbon::parse($order->post_time)->format('Y-m-d'),
+                    'date' => substr($order->post_time, 0, 10),
                 ], array_merge($stats_update, [
                     'order_count' => DB::raw('order_count + 1'),
                 ]));
@@ -63,7 +62,7 @@ class InitStats extends Command
                     OrderDailyStats::updateOrCreate([
                         'company_id' => $parentCompany->id,
                         'parent_id' => $parentCompany->parent_id,
-                        'date' => Carbon::parse($order->post_time)->format('Y-m-d'),
+                        'date' => substr($order->post_time, 0, 10),
                     ], array_merge($stats_update, [
                         'order_count' => DB::raw('order_count + 1'),
                     ]));
@@ -73,7 +72,7 @@ class InitStats extends Command
                         OrderDailyStats::updateOrCreate([
                             'company_id' => $_parentCompany->parent_id,
                             'parent_id' => $_parentCompany->parent_id,
-                            'date' => Carbon::parse($order->post_time)->format('Y-m-d'),
+                            'date' => substr($order->post_time, 0, 10),
                         ], array_merge($stats_update, [
                             'order_count' => DB::raw('order_count + 1'),
                         ]));
