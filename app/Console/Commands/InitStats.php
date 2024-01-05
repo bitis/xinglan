@@ -31,12 +31,12 @@ class InitStats extends Command
      */
     public function handle()
     {
-        Order::where('id', '>=', 1100)->select('wusun_company_id', 'post_time', 'plan_type')->chunk(100, function ($orders) {
-            $bar = $this->output->createProgressBar(count($orders));
-            $bar->start();
+        Order::where('id', '>=', 1100)->select('id', 'wusun_company_id', 'post_time', 'plan_type')->chunk(100, function ($orders) {
+//            $bar = $this->output->createProgressBar(count($orders));
+//            $bar->start();
             foreach ($orders as $order) {
-                $bar->advance();
-
+//                $bar->advance();
+                $this->info($order->id);
                 if (empty($order->wusun_company_id)) continue;
 
                 $company = Company::find($order->wusun_company_id);
@@ -86,7 +86,7 @@ class InitStats extends Command
 
             unset($orders);
 
-            $bar->finish();
+//            $bar->finish();
         });
     }
 }
