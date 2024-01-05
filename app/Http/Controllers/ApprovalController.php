@@ -87,17 +87,19 @@ class ApprovalController extends Controller
         $rows = $result->get()->toArray();
 
         $result = [];
-
         $week = function ($date) {
+            $firstDayOfMonth = date('Y-m-01', strtotime($date));
+            $lastDayOfMonth = date('Y-m-t', strtotime($date));
+            $firstDayOfWeek = date('N', strtotime($firstDayOfMonth));
+            $lastDayOfWeek = date('N', strtotime($lastDayOfMonth));
+            $week = ceil((date('j', strtotime($date)) + $firstDayOfWeek - 1) / 7);
 
-            $timestamp = strtotime($date);
-
-            $firstDayOfMonth = strtotime(date('Y-m-01', $timestamp));
-
-            $firstDayOfWeek = date('N', $firstDayOfMonth);
-
-            return date('Y年m月', strtotime($date)) . '第' . ceil(($timestamp - $firstDayOfMonth + $firstDayOfWeek) / (7)) . '周';
+            if ($week > 4 && date('j', strtotime($date)) + $lastDayOfWeek > date('t', strtotime($date))) {
+                $week--;
+            }
+            return date('Y年m月', strtotime($date)) . '第' . $week . '周';
         };
+
         foreach ($rows as $index => $row) {
             $result[] = [
                 $index,
