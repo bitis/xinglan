@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Common\Messages\WinBidNotify;
 use App\Models\Company;
+use App\Models\ConsumerOrderDailyStats;
 use App\Models\Enumerations\CompanyType;
 use App\Models\Enumerations\MessageType;
 use App\Models\Message;
 use App\Models\Order;
+use App\Models\OrderDailyStats;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Overtrue\EasySms\EasySms;
 use Overtrue\EasySms\Exceptions\InvalidArgumentException;
 
@@ -153,6 +156,45 @@ class ProviderQuotationController extends Controller
 
         $company = Company::find($request->input('wusun_company_id'));
         $insuranceCompany = Company::find($order->insurance_company_id);
+
+        OrderDailyStats::updateOrCreate([
+            'company_id' => $company->id,
+            'parent_id' => $company->parent_id,
+            'date' => substr($order->post_time, 0, 10),
+        ], [
+            'order_count' => DB::raw('order_count + 1')
+        ]);
+
+        ConsumerOrderDailyStats::updateOrCreate([
+            'company_id' => $company->id,
+            'date' => substr($order->post_time, 0, 10),
+            'insurance_company_id' => $order->insurance_company_id
+        ], [
+            'order_count' => DB::raw('order_count + 1')
+        ]);
+
+        if ($company->parent_id) { // 同时更新上级工单数量
+            $parentCompany = Company::find($company->parent_id);
+
+            OrderDailyStats::updateOrCreate([
+                'company_id' => $parentCompany->id,
+                'parent_id' => $parentCompany->parent_id,
+                'date' => substr($order->post_time, 0, 10),
+            ], [
+                'order_count' => DB::raw('order_count + 1')
+            ]);
+
+            if ($parentCompany->parent_id) {
+                $_parentCompany = Company::find($parentCompany->parent_id);
+                OrderDailyStats::updateOrCreate([
+                    'company_id' => $_parentCompany->id,
+                    'parent_id' => $_parentCompany->parent_id,
+                    'date' => substr($order->post_time, 0, 10),
+                ], [
+                    'order_count' => DB::raw('order_count + 1')
+                ]);
+            }
+        }
 
         try {
             $easySms->send(
