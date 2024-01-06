@@ -25,6 +25,7 @@ use App\Models\Order;
 use App\Models\OrderLog;
 use App\Models\OrderQuotation;
 use App\Models\User;
+use App\Services\ExportService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\View\View;
@@ -543,5 +544,29 @@ class OrderQuotationController extends Controller
         }
 
         return success();
+    }
+
+    public function export(Request $request): void
+    {
+        $headers = ['品名', '规格', '单位', '数量', '单价', '金额', '备注'];
+        $quotation = OrderQuotation::find($request->get('id'));
+
+        $order = $quotation->order;
+
+        foreach ($quotation->items as $item) {
+            $result[] = [
+                $item['name'],
+                $item['spec'],
+                $item['unit'],
+                $item['number'],
+                $item['price'],
+                $item['total_price'],
+                $item['remark'],
+            ];
+        }
+
+        $fileName = '报价明细' . $order->order_number;
+
+        (new ExportService)->excel($headers, $result, $fileName);
     }
 }
