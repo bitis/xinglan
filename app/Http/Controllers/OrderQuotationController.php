@@ -559,6 +559,8 @@ class OrderQuotationController extends Controller
 
         $order = $quotation->order;
 
+        $result = [];
+
         foreach ($quotation->items as $item) {
             $result[] = [
                 $item['name'],
