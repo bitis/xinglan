@@ -44,7 +44,7 @@ class ApprovalController extends Controller
             'company:id,name',
             'order',
             'order.company:id,name',
-            'order.quotation:id,total_price'
+            'order.quotation:id,order_id,total_price'
         ])
             ->withWhereHas('order', function ($query) use ($name) {
                 if ($name) $query->where('order_number', 'like', '%' . $name . '%')

@@ -175,7 +175,7 @@ class Order extends Model
 
     public function quotation(): HasOne
     {
-        return $this->hasOne(OrderQuotation::class)->where('win', 1);
+        return $this->hasOne(OrderQuotation::class)->where('win', 1)->without('items');
     }
 
     public function wusun(): BelongsTo
