@@ -43,7 +43,8 @@ class ApprovalController extends Controller
         $result = ApprovalOrderProcess::with([
             'company:id,name',
             'order',
-            'order.company:id,name'
+            'order.company:id,name',
+            'order.quotation:id,total_price'
         ])
             ->withWhereHas('order', function ($query) use ($name) {
                 if ($name) $query->where('order_number', 'like', '%' . $name . '%')
@@ -107,7 +108,7 @@ class ApprovalController extends Controller
                 $row['order']['city'],
                 $row['created_at'],
                 $row['order']['case_number'], // 报案号
-                '', // 报价金额
+                empty($row['order']['quotation']) ? '' : $row['order']['quotation']['total_price'], // 报价金额
                 '', // 审核金额
                 '', // 审减率
                 $row['order']['insurance_company_name'], // 保险公司名称
