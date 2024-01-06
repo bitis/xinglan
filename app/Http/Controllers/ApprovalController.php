@@ -136,9 +136,7 @@ class ApprovalController extends Controller
     {
         $company = $request->user()->company;
 
-        $process = ApprovalOrderProcess::with(['company:id,name', 'ApprovalLogs' => function ($query) {
-            $query->where('status', 0)->orderBy('id', 'desc');
-        }])
+        $process = ApprovalOrderProcess::with('company:id,name')
             ->where('id', $request->input('process_id'))->first();
 
         $withs = ['repair_plan'];
@@ -160,6 +158,12 @@ class ApprovalController extends Controller
         }
 
         $process->approval_list = ApprovalOrderProcess::where('approval_order_id', $process->approval_order_id)->get();
+
+        $process->approval_logs = ApprovalLog::where([
+            'status' => 0,
+            'order_id' => $process->order_id,
+            'type' => $process->approval_type
+        ])->orderBy('id', 'desc')->get();
 
         return success($process);
     }
