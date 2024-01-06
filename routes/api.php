@@ -157,6 +157,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('form', 'OrderQuotationController@form'); // 提交报价（物损公司）
         Route::post('import', 'OrderQuotationController@import'); // 导入报价明细（物损公司）
         Route::post('confirm', 'OrderQuotationController@confirm'); // 核价、定损
+        Route::get('export', 'OrderQuotationController@export'); // 导出报价单
     });
 
     Route::prefix('goodsPrice')->group(function () {

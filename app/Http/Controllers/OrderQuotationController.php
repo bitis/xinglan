@@ -546,6 +546,12 @@ class OrderQuotationController extends Controller
         return success();
     }
 
+    /**
+     * 导出报价单
+     *
+     * @param Request $request
+     * @return void
+     */
     public function export(Request $request): void
     {
         $headers = ['品名', '规格', '单位', '数量', '单价', '金额', '备注'];
@@ -556,7 +562,7 @@ class OrderQuotationController extends Controller
         foreach ($quotation->items as $item) {
             $result[] = [
                 $item['name'],
-                $item['spec'],
+                $item['specs'],
                 $item['unit'],
                 $item['number'],
                 $item['price'],
