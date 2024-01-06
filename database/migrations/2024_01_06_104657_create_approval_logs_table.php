@@ -18,7 +18,7 @@ return new class extends Migration
             $table->boolean('status')->default(0);
             $table->string('remark');
             $table->integer('user_id');
-            $table->integer('user_name');
+            $table->string('user_name');
             $table->timestamps();
         });
     }
