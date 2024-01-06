@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\ApprovalNotifyJob;
 use App\Jobs\QuotaBillPdfJob;
 use App\Jobs\QuotaHistory;
+use App\Models\ApprovalLog;
 use App\Models\ApprovalOrder;
 use App\Models\ApprovalOrderProcess;
 use App\Models\Approver;
@@ -135,7 +136,9 @@ class ApprovalController extends Controller
     {
         $company = $request->user()->company;
 
-        $process = ApprovalOrderProcess::with('company:id,name')
+        $process = ApprovalOrderProcess::with(['company:id,name', 'ApprovalLogs' => function ($query) {
+            $query->where('status', 0)->orderBy('id', 'desc');
+        }])
             ->where('id', $request->input('process_id'))->first();
 
         $withs = ['repair_plan'];
@@ -216,6 +219,15 @@ class ApprovalController extends Controller
                 'creator_company_name' => Company::find($user->company_id)?->name,
                 'content' => $user->name . ($accept ? '通过' : '拒绝') . $typeText . "，备注：" . $process->remark,
                 'platform' => \request()->header('platform'),
+            ]);
+
+            ApprovalLog::create([
+                'order_id' => $approvalOrder->order_id,
+                'type' => $approvalOrder->approval_type,
+                'status' => $accept,
+                'remark' => $process->remark,
+                'user_id' => $user->id,
+                'user_name' => $user->name,
             ]);
 
             if (!$accept) {

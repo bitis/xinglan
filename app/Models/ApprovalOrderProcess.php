@@ -6,6 +6,7 @@ use App\Models\Traits\DefaultDatetimeFormat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ApprovalOrderProcess extends Model
@@ -45,5 +46,10 @@ class ApprovalOrderProcess extends Model
             ->select('id', 'insurance_type', 'insurance_company_name', 'order_number', 'case_number', 'plan_type',
                 'license_plate', 'vin', 'city', 'owner_name', 'owner_phone', 'images', 'goods_name', 'goods_types')
             ->without('lossPersons');
+    }
+
+    public function ApprovalLogs(): HasMany
+    {
+        return $this->hasMany(ApprovalLog::class, 'order_id', 'order_id');
     }
 }
