@@ -53,7 +53,7 @@ class InitStats extends Command
                     'date' => substr($order->post_time, 0, 10),
                     'insurance_company_id' => $order->insurance_company_id
                 ], array_merge($stats_update, [
-                    'order_count' => DB::raw('order_count - 1')
+                    'order_count' => DB::raw('order_count + 1')
                 ]));
             }
         }
