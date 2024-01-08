@@ -178,6 +178,11 @@ class Order extends Model
         return $this->hasOne(OrderQuotation::class);
     }
 
+    public function pure_quotation(): HasOne
+    {
+        return $this->hasOne(OrderQuotation::class)->without('items');
+    }
+
     public function wusun(): BelongsTo
     {
         return $this->belongsTo(Company::class, 'wusun_company_id', 'id');
