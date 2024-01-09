@@ -31,6 +31,11 @@ class InitStats extends Command
      */
     public function handle()
     {
+        $this->orderStats();
+    }
+
+    public function ConsumerOrderDailyStats()
+    {
         $orders = Order::without('lossPersons')->select('id', 'wusun_company_id', 'insurance_company_id', 'post_time', 'plan_type')->get();
 
         $bar = $this->output->createProgressBar(count($orders));
