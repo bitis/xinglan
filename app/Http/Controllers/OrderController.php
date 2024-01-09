@@ -796,78 +796,86 @@ class OrderController extends Controller
         $user = $request->user();
         $company = $user->company;
 
-        $order = Order::find($request->input('order_id'));
-        if (empty($order) or $order->wusun_check_id != $request->user()->id) return fail('工单不存在或不属于当前账号');
-        if ($order->close_status == OrderCloseStatus::Closed) return fail('已结案工单不可进行操作');
+        try {
+            DB::beginTransaction();
+            $order = Order::find($request->input('order_id'));
+            if (empty($order) or $order->wusun_check_id != $request->user()->id) return fail('工单不存在或不属于当前账号');
+            if ($order->close_status == OrderCloseStatus::Closed) return fail('已结案工单不可进行操作');
 
-        if ($order->plan_type != $request->input('plan_type')) {
+            if ($order->plan_type != $request->input('plan_type')) {
 
-            $update = true;
+                $update = true;
 
-            if (empty($order->plan_type)) $update = false;
+                if (empty($order->plan_type)) $update = false;
 
-            $stats_update = $request->input('plan_type') == Order::PLAN_TYPE_REPAIR
-                ? ['order_repair_count' => DB::raw('order_repair_count + 1')]
-                : ['order_mediate_count' => DB::raw('order_mediate_count + 1')];
+                $stats_update = $request->input('plan_type') == Order::PLAN_TYPE_REPAIR
+                    ? ['order_repair_count' => DB::raw('order_repair_count + 1')]
+                    : ['order_mediate_count' => DB::raw('order_mediate_count + 1')];
 
-            if ($update) {
-                if ($order->plan_type == Order::PLAN_TYPE_REPAIR) {
-                    $stats_update['order_repair_count'] = DB::raw('order_repair_count - 1');
-                } else {
-                    $stats_update['order_mediate_count'] = DB::raw('order_mediate_count - 1');
+                if ($update) {
+                    if ($order->plan_type == Order::PLAN_TYPE_REPAIR) {
+                        $stats_update['order_repair_count'] = DB::raw('order_repair_count - 1');
+                    } else {
+                        $stats_update['order_mediate_count'] = DB::raw('order_mediate_count - 1');
+                    }
                 }
-            }
-
-            OrderDailyStats::updateOrCreate([
-                'company_id' => $company->id,
-                'parent_id' => $company->parent_id,
-                'date' => substr($order->post_time, 0, 10),
-            ], $stats_update);
-
-            ConsumerOrderDailyStats::updateOrCreate([
-                'company_id' => $company->id,
-                'date' => substr($order->post_time, 0, 10),
-                'insurance_company_id' => $order->insurance_company_id
-            ], $stats_update);
-
-            if ($company->parent_id) { // 同时更新上级工单数量
-                $parentCompany = Company::find($company->parent_id);
 
                 OrderDailyStats::updateOrCreate([
-                    'company_id' => $parentCompany->id,
-                    'parent_id' => $parentCompany->parent_id,
+                    'company_id' => $company->id,
+                    'parent_id' => $company->parent_id,
                     'date' => substr($order->post_time, 0, 10),
                 ], $stats_update);
 
-                if ($parentCompany->parent_id) {
-                    $_parentCompany = Company::find($parentCompany->parent_id);
+                ConsumerOrderDailyStats::updateOrCreate([
+                    'company_id' => $company->id,
+                    'date' => substr($order->post_time, 0, 10),
+                    'insurance_company_id' => $order->insurance_company_id
+                ], $stats_update);
+                DB::rollBack();
+
+                if ($company->parent_id) { // 同时更新上级工单数量
+                    $parentCompany = Company::find($company->parent_id);
+
                     OrderDailyStats::updateOrCreate([
-                        'company_id' => $_parentCompany->parent_id,
-                        'parent_id' => $_parentCompany->parent_id,
+                        'company_id' => $parentCompany->id,
+                        'parent_id' => $parentCompany->parent_id,
                         'date' => substr($order->post_time, 0, 10),
                     ], $stats_update);
+
+                    if ($parentCompany->parent_id) {
+                        $_parentCompany = Company::find($parentCompany->parent_id);
+                        OrderDailyStats::updateOrCreate([
+                            'company_id' => $_parentCompany->id,
+                            'parent_id' => $_parentCompany->parent_id,
+                            'date' => substr($order->post_time, 0, 10),
+                        ], $stats_update);
+                    }
                 }
             }
+
+            $order->fill($request->only(['plan_type', 'owner_name', 'owner_phone', 'owner_price', 'negotiation_content']));
+            $order->plan_confirm_at = now()->toDateTimeString();
+
+            $order->save();
+
+            OrderLog::create([
+                'order_id' => $order->id,
+                'type' => OrderLog::TYPE_DISPATCHED,
+                'creator_id' => $user->id,
+                'creator_name' => $user->name,
+                'creator_company_id' => $company->id,
+                'creator_company_name' => $company->name,
+                'remark' => $order->remark,
+                'content' => $user->name . '确认维修方案',
+                'platform' => $request->header('platform'),
+            ]);
+            DB::commit();
+            return success($order);
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return fail($exception->getMessage());
         }
 
-        $order->fill($request->only(['plan_type', 'owner_name', 'owner_phone', 'owner_price', 'negotiation_content']));
-        $order->plan_confirm_at = now()->toDateTimeString();
-
-        $order->save();
-
-        OrderLog::create([
-            'order_id' => $order->id,
-            'type' => OrderLog::TYPE_DISPATCHED,
-            'creator_id' => $user->id,
-            'creator_name' => $user->name,
-            'creator_company_id' => $company->id,
-            'creator_company_name' => $company->name,
-            'remark' => $order->remark,
-            'content' => $user->name . '确认维修方案',
-            'platform' => $request->header('platform'),
-        ]);
-
-        return success($order);
     }
 
     /**
