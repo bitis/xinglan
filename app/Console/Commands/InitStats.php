@@ -31,7 +31,7 @@ class InitStats extends Command
      */
     public function handle()
     {
-        $this->orderStats();
+        $this->ConsumerOrderDailyStats();
     }
 
     public function ConsumerOrderDailyStats()
