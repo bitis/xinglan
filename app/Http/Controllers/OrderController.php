@@ -1177,7 +1177,7 @@ class OrderController extends Controller
 
         $logs = OrderLog::where('order_id', $request->input('order_id'))
             ->where(function ($query) use ($user) {
-                $query->where('creator_company_id', $user->company_id)
+                $query->whereIn('creator_company_id', Company::getGroupId($user->company_id))
                     ->orWhereIn('type', [OrderLog::TYPE_NEW_ORDER, OrderLog::TYPE_BID_OPEN, OrderLog::TYPE_REBID]);
             })
             ->orderBy('id', 'desc')
