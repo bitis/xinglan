@@ -81,10 +81,6 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->user()->hasRole('admin')) return success('超级管理员无法查看');
-
-        $company_id = $request->user()->company_id;
-
         $orders = OrderService::list($request->user(), $request->collect(), ['company:id,name'])
             ->selectRaw('orders.*')
             ->orderBy('orders.id', 'desc');
@@ -117,10 +113,8 @@ class OrderController extends Controller
 
             $rows = $orders->with([
                 'repair_plan',
-                'pure_quotation' => function ($query) use ($company_id) {
-                    $children = Company::getGroupId($company_id);
-
-                    return $query->whereIn('company_id', $children)->select(['id', 'order_id', 'total_price']);
+                'pure_quotation' => function ($query) {
+                    return $query->select(['id', 'order_id', 'total_price']);
                 },
                 'payment_records:order_id,company_id,payment_time,amount,baoxiao,financial_type'
             ])->get()->toArray();

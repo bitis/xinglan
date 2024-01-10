@@ -180,7 +180,7 @@ class Order extends Model
 
     public function pure_quotation(): HasOne
     {
-        return $this->hasOne(OrderQuotation::class)->without('items');
+        return $this->hasOne(OrderQuotation::class)->where('win', 1)->without('items');
     }
 
     public function wusun(): BelongsTo

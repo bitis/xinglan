@@ -30,9 +30,11 @@ class OrderService
 
         if ($user->can('ViewAllOrder')) $role = 'admin';
 
+        $sysAdmin = $user->hasRole('admin');
+
         return Order::with($with)
-            ->where(function ($query) use ($current_company, $company_id, $groupId) {
-                if ($current_company->car_part == 1)
+            ->where(function ($query) use ($current_company, $company_id, $groupId, $sysAdmin) {
+                if (!$sysAdmin && $current_company->car_part == 1)
                     $query->where('insurance_type', InsuranceType::CarPart->value);
 
                 if ($company_id)
@@ -43,9 +45,9 @@ class OrderService
                         CompanyType::WeiXiu->value => $query->whereRaw("find_in_set($company_id, repair_company_ids)"),
                     };
 
-                if (empty($groupId)) $groupId = Company::getGroupId($current_company->id);
+                if (!$sysAdmin && empty($groupId)) $groupId = Company::getGroupId($current_company->id);
 
-                return match ($current_company->getRawOriginal('type')) {
+                if (!$sysAdmin) return match ($current_company->getRawOriginal('type')) {
                     CompanyType::BaoXian->value => $query->whereIn('insurance_company_id', $groupId),
                     CompanyType::WuSun->value => $query->whereIn('wusun_company_id', $groupId)
                         ->OrWhereIn('check_wusun_company_id', $groupId),
