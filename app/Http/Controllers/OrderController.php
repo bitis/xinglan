@@ -126,7 +126,6 @@ class OrderController extends Controller
             ])->get()->toArray();
 
             foreach ($rows as $item) {
-                dd($item);
                 $result[] = [
                     $item['creator_company_type'] == CompanyType::WuSun->value ? '自建订单' : '保险公司订单',
                     $item['order_number'],
