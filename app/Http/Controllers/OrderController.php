@@ -109,7 +109,7 @@ class OrderController extends Controller
                 '已付款金额合计（含报销金额）', '已开票金额', '税金合计', '毛利率', '实际毛利额', '对账内勤', '险种', '保单号', '车架号',
                 '被保险人', '被保险电话', '驾驶人', '驾驶人电话', '服务评分', '服务评价'];
 
-            $fileName = '工单明细';
+            $fileName = 'gdmx';
 
             $rows = $orders->with([
                 'repair_plan',
@@ -195,7 +195,7 @@ class OrderController extends Controller
                 '推修时间', '首次联系物损方时间', '联系时效(分钟数)', '完成查勘时间', '处理方案', '查勘备注', '施工单位', '物损查勘人',
                 '物损查勘人电话', '施工开始时间', '修复时间', '服务评分', '服务评价'];
 
-            $fileName = '工单明细表';
+            $fileName = 'gdmxb';
 
             $rows = $orders->with([
                 'repair_plan'
