@@ -165,7 +165,7 @@ class OrderController extends Controller
                     '', // 成本审核人
                     '', // 成本审核时间
                     $item['owner_price'], // 物损方要价合计
-                    $item['quotation'] ? $item['quotation']['total_price'] : '', // 对外报价金额
+                    $item['pure_quotation'] ? $item['pure_quotation']['total_price'] : '', // 对外报价金额
                     $item['confirm_price_status'] == Order::CONFIRM_PRICE_STATUS_FINISHED ? $item['confirmed_price'] : '', // 核价（定损）金额
                     '', // 减损金额
                     $item['received_amount'], // 已收款金额
