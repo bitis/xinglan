@@ -52,6 +52,12 @@ class ApprovalController extends Controller
                     ->orWhere('license_plate', 'like', '%' . $name . '%');
             })
             ->where('user_id', $request->user()->id)
+            ->when($request->get('completed_at_start'), function ($query, $completed_at_start) {
+                $query->where('completed_at', '>', $completed_at_start);
+            })
+            ->when($request->get('completed_at_end'), function ($query, $completed_at_end) {
+                $query->where('completed_at', '<=', $completed_at_end . ' 23:59:59');
+            })
             ->when(strlen($approval_status = $request->input('approval_status')), function ($query) use ($approval_status) {
                 $query->whereIn('approval_status', explode(',', $approval_status));
             })
