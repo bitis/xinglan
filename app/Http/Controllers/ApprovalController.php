@@ -111,7 +111,7 @@ class ApprovalController extends Controller
         foreach ($rows as $index => $row) {
             $result[] = [
                 $index,
-                $row['order']['company']['city'], // 公司所在市
+                '', // 公司所在市
                 $row['created_at'],
                 $row['order']['case_number'], // 报案号
                 empty($row['order']['quotation']) ? '' : $row['order']['quotation']['total_price'], // 报价金额
