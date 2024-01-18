@@ -41,9 +41,9 @@ class ApprovalController extends Controller
         $name = $request->input('name');
 
         $result = ApprovalOrderProcess::with([
-            'company:id,name',
+            'company:id,name,city',
             'order',
-            'order.company:id,name,city',
+            'order.wusun:id,name,city',
             'order.quotation:id,order_id,total_price'
         ])
             ->withWhereHas('order', function ($query) use ($name) {
@@ -111,7 +111,7 @@ class ApprovalController extends Controller
         foreach ($rows as $index => $row) {
             $result[] = [
                 $index,
-                '', // 公司所在市
+                $row['order']['wusun']['city'], // 公司所在市
                 $row['created_at'],
                 $row['order']['case_number'], // 报案号
                 empty($row['order']['quotation']) ? '' : $row['order']['quotation']['total_price'], // 报价金额
