@@ -67,7 +67,7 @@ class UserController extends Controller
             $user->password = bcrypt(config('default.password'));
         }
 
-        $user->fill($request->only(['name', 'account', 'mobile', 'status', 'identity_id', 'employee_id', 'remark']));
+        $user->fill($request->only(['name', 'company_id', 'account', 'mobile', 'status', 'identity_id', 'employee_id', 'remark']));
 
         $user->save();
 
