@@ -71,6 +71,7 @@ class ApprovalController extends Controller
                 if ($step) $query->whereIn('step', explode(',', $step));
             })
             ->where('hidden', false)
+            ->orderBy('approval_status')
             ->orderBy('completed_at', 'desc')
             ->orderBy('id', 'desc');
 
