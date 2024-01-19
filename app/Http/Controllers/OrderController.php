@@ -64,7 +64,7 @@ class OrderController extends Controller
                 ['id' => $current_company->id, 'name' => $current_company->name]
             ]);
 
-        $customers_id = CompanyProvider::where('provider_id', $current_company->id)
+        $customers_id = CompanyProvider::whereIn('provider_id', Company::getGroupId($current_company->id))
             ->where('status', Status::Normal)
             ->pluck('company_id');
 
