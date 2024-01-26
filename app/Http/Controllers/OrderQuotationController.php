@@ -56,12 +56,14 @@ class OrderQuotationController extends Controller
         $company = $request->user()->company;
         $customersId = CompanyProvider::whereIn('provider_id', $childrenCompany)->pluck('company_id');
 
-
         $orders = Order::with('company:id,name')
             ->leftJoin('order_quotations as quotation', function ($join) use ($childrenCompany) {
                 $join->on('orders.id', '=', 'quotation.order_id')->whereIn('quotation.company_id', $childrenCompany);
             })
-            ->when($user->roles()->pluck('name')->contains('查勘'), fn($query) => $query->where('orders.wusun_check_id', $user->id))
+            ->when($user->roles()->pluck('name')->contains(
+                fn($val)=> mb_strpos($val, '查勘人员') !== false),
+                fn($query) => $query->where('orders.wusun_check_id', $user->id)
+            )
             ->where(function ($query) use ($childrenCompany) {
                 $query->where('bid_type', 1)
                     ->orWhereIn('check_wusun_company_id', $childrenCompany);
