@@ -202,6 +202,8 @@ class OrderController extends Controller
             ])->get()->toArray();
 
             foreach ($rows as $item) {
+
+                $confirmed_price = Order::CONFIRM_PRICE_STATUS_FINISHED ? $item['confirmed_price'] : '';
                 $result[] = [
                     $item['order_number'],
                     $item['case_number'],
@@ -210,9 +212,9 @@ class OrderController extends Controller
                     $item['wusun_company_name'],
                     $item['goods_types'], // 物损类别
                     InsuranceType::from($item['insurance_type'])->name(), // 险种类型
-                    '', // 预估损失
-                    $item['confirm_price_status'] == Order::CONFIRM_PRICE_STATUS_FINISHED ? $item['confirmed_price'] : '', // 定损金额
-                    '', // 减损金额
+                    $item['owner_price'], // 预估损失
+                    $confirmed_price, // 定损金额
+                    round($confirmed_price - $item['owner_price'], 2), // 减损金额
                     implode(',', array_column($item['loss_persons'], 'owner_name')), // 受损方姓名
                     implode(',', array_column($item['loss_persons'], 'owner_phone')), // 受损方电话
                     $item['province'] . $item['city'] . $item['area'] . $item['address'], // 物损地点
