@@ -137,6 +137,11 @@ class OrderQuotationController extends Controller
             return fail('报价已截止');
         }
 
+        if ($request->input('plan_type')) {
+            $order->plan_type = $request->input('plan_type');
+            $order->save();
+        }
+
         if ($quotation->company_id == $order->wusun_company_id) $quotation->win = 1;
 
         $quotation->fill($request->only([
