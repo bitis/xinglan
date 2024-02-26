@@ -292,6 +292,7 @@ class OrderController extends Controller
             'review_at',
             'bid_type',
             'bid_end_time',
+            'with_quotation'
         ]);
         $lossPersons = $request->input('lossPersons', []);
 

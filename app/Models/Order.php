@@ -72,6 +72,7 @@ class Order extends Model
         'dispatch_check_at',
         'dispatched',
         'bid_type',
+        'with_quotation',
         'bid_remark',
         'bid_status',
         'bid_end_time',
