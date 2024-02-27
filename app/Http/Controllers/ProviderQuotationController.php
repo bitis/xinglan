@@ -84,13 +84,13 @@ class ProviderQuotationController extends Controller
      */
     public function detail(Request $request): JsonResponse
     {
-        $with = ['company:id,name', 'quotations', 'quotations.company:id,name'];
+        $with = ['company:id,name', 'quotations', 'quotations.company:id,name', 'quotations.items'];
 
         $order = Order::with($with)->find($request->input('order_id'));
 
         if (!$order) return fail('订单不存在');
 
-        if($request->user()->can('ViewQuotation') && $order->quotations->count() > 0) {
+        if ($request->user()->can('ViewQuotation') && $order->quotations->count() > 0) {
             foreach ($order->quotations as $quotation) {
                 if ($quotation->win != 1) {
                     $quotation->bid_repair_days = "**";
@@ -98,6 +98,21 @@ class ProviderQuotationController extends Controller
                 }
             }
         }
+
+        /**
+         * ['price' => 1, 'id' => 1];
+         */
+        $lower = [];
+
+        foreach ($order->quotations as $quotation) {
+            foreach ($quotation->items as $item) {
+                $lower[$item->name] = isset($lower[$item->name]) ? (
+                $item->price < $lower[$item->name]['price'] ? ['price' => $item->price, 'id' => $item->id] : $lower[$item->name]
+                ) : ['price' => $item->price, 'id' => $item->id];
+            }
+        }
+
+        $order->lower = empty($lower) ? [] : array_column($lower, 'id');
 
         return success($order);
     }
