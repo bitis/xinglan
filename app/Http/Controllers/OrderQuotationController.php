@@ -456,7 +456,7 @@ class OrderQuotationController extends Controller
                 throw new Exception('当前状态已完成，不能进行编辑');
 
             $order->fill($request->only([
-                'confirmed_price', 'confirmed_repair_days', 'confirmed_remark'
+                'confirmed_price', 'confirmed_repair_days', 'confirmed_remark', 'is_direct'
             ]));
 
             $quotation = OrderQuotation::where('order_id', $order->id)->where('win', 1)->first();
