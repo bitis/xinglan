@@ -910,6 +910,16 @@ class OrderController extends Controller
                 'cost_remark',
             ]));
 
+            if ($quotation) {
+                $quotation->fill($request->only([
+                    'repair_cost',
+                    'other_cost',
+                    'labor_costs',
+                    'material_cost',
+                    'total_cost',
+                ]));
+            }
+
             $order->cost_check_status = Order::COST_CHECK_STATUS_APPROVAL;
             $order->cost_submit_at = now()->toDateTimeString();
             $order->cost_creator_id = $user->id;
