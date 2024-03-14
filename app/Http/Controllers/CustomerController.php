@@ -54,7 +54,21 @@ class CustomerController extends Controller
 
         $customer = CompanyProvider::find($id);
 
-        if (empty($customer)) return fail('客户不存在');
+        if (empty($customer) && $request->input('company_id')) {
+            $customer = new CompanyProvider([
+                'provider_id' => $request->user()->company_id,
+                'provider_name' => $request->user()->company->name,
+                'provider_company_type' => $request->user()->company->getRawOriginal('type'),
+                'status' => 0
+            ]);
+            $customer->fill($request->only([
+                'company_id',
+                'expiration_date',
+                'car_insurance',
+                'other_insurance',
+                'car_part'
+            ]));
+        }
 
         if (!in_array($customer->provider_id, Company::getGroupId($request->user()->company_id))) return fail('没有修改权限');
 
