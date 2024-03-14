@@ -972,6 +972,7 @@ class OrderController extends Controller
 
                 if ($quotation && $quotation->bid_total_price > 0) {
                     $profit_margin_ratio = ($quotation->bid_total_price - $order->total_cost) / $quotation->bid_total_price;
+                    $order->profit_margin_ratio = $profit_margin_ratio;
                     if ($profit_margin_ratio < $option->review_conditions) {
                         foreach ($reviewers as $reviewer) {
                             $insert[] = [
