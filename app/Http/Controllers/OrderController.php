@@ -1381,7 +1381,7 @@ class OrderController extends Controller
 
         $order = Order::find($request->input('order_id'));
 
-        if ($order->cost_check_status != Order::COST_CHECK_STATUS_PASS) return fail('没有成本核算时不能申请支付');
+//        if ($order->cost_check_status != Order::COST_CHECK_STATUS_PASS) return fail('没有成本核算时不能申请支付');
 
         $payees = $request->input('payees');
 
