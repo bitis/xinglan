@@ -299,7 +299,7 @@ class StatsController extends Controller
             ->without('lossPersons')
             ->where(function ($query) use ($request, $current_company) {
                 if ($request->input('company_id')) {
-                    return $query->where('wusun_company_id', $request->input('company_id'));
+                    return $query->where('wusun_company_id', Company::getGroupId($request->input('company_id')));
                 }
                 return $query->whereIn('wusun_company_id', Company::getGroupId($current_company->id));
             })
