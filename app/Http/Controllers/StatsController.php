@@ -215,7 +215,9 @@ class StatsController extends Controller
 
         $user = $request->user();
 
-        $current_company = $user->company;
+        if ($request->input('company_id'))
+            $current_company = Company::find($request->input('company_id'));
+        else $current_company = $user->company;
 
         $second = Company::where('parent_id', $current_company->id)->select('id', 'name', 'parent_id')->get()->toArray();
         $second_id = [];
