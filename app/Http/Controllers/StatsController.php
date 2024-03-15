@@ -193,7 +193,7 @@ class StatsController extends Controller
      */
     public function byStatus(Request $request): JsonResponse
     {
-        $params = $request->collect();
+        $params = $request->collect()->except('company_id');
 
         $result = [];
 
