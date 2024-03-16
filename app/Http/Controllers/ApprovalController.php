@@ -435,7 +435,7 @@ class ApprovalController extends Controller
         };
 
         ApprovalResultNotifyJob::dispatch($approvalOrder->creator_id, [
-            'type' => 'approval',
+            'type' => 'approvalResult',
             'order_id' => $approvalOrder->order_id,
             'creator_name' => $approvalOrder->creator_name,
             'approval_type' => $approvalOrder->approval_type,
