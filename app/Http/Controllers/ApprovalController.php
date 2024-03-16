@@ -326,7 +326,6 @@ class ApprovalController extends Controller
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
-            throw $exception;
             return fail($exception->getMessage());
         }
 
@@ -434,12 +433,13 @@ class ApprovalController extends Controller
 
         };
 
-        ApprovalResultNotifyJob::dispatch($approvalOrder->creator_id, [
-            'type' => 'approvalResult',
-            'order_id' => $approvalOrder->order_id,
-            'creator_name' => $approvalOrder->creator_name,
-            'approval_type' => $approvalOrder->approval_type,
-        ],  ApprovalOrder::getTypeText($approvalOrder->approval_type) . ($accept ? '通过' : '拒绝') . '提醒');
+        if ($approvalOrder->creator_id)
+            ApprovalResultNotifyJob::dispatch($approvalOrder->creator_id, [
+                'type' => 'approvalResult',
+                'order_id' => $approvalOrder->order_id,
+                'creator_name' => $approvalOrder->creator_name,
+                'approval_type' => $approvalOrder->approval_type,
+            ], ApprovalOrder::getTypeText($approvalOrder->approval_type) . ($accept ? '通过' : '拒绝') . '提醒');
     }
 
     /**
