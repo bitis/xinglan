@@ -350,6 +350,8 @@ class OrderController extends Controller
                         'order_id' => $order->id,
                         'company_id' => $option->company_id,
                         'approval_type' => $option->type,
+                        'creator_id' => $user->id,
+                        'creator_name' => $user->name,
                     ]);
 
                     list($checkers, $reviewers, $receivers) = ApprovalOption::groupByType($option->approver);
@@ -944,6 +946,8 @@ class OrderController extends Controller
                     'order_id' => $order->id,
                     'company_id' => $user->company_id,
                     'approval_type' => $option->type,
+                    'creator_id' => $user->id,
+                    'creator_name' => $user->name,
                 ]);
 
                 list($checkers, $reviewers, $receivers) = ApprovalOption::groupByType($option->approver);
@@ -1100,6 +1104,8 @@ class OrderController extends Controller
                     'order_id' => $order->id,
                     'company_id' => $user->company_id,
                     'approval_type' => $option->type,
+                    'creator_id' => $user->id,
+                    'creator_name' => $user->name,
                 ]);
 
                 list($checkers, $reviewers, $receivers) = ApprovalOption::groupByType($option->approver);
@@ -1419,6 +1425,8 @@ class OrderController extends Controller
                 'order_id' => $order->id,
                 'company_id' => $user->company_id,
                 'approval_type' => $option->type,
+                'creator_id' => $user->id,
+                'creator_name' => $user->name,
             ]);
 
             list($checkers, $reviewers, $receivers) = ApprovalOption::groupByType($option->approver);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\ApprovalNotifyJob;
+use App\Jobs\ApprovalResultNotifyJob;
 use App\Jobs\QuotaBillPdfJob;
 use App\Jobs\QuotaHistory;
 use App\Models\ApprovalLog;
@@ -162,7 +163,7 @@ class ApprovalController extends Controller
 
         $process->order = Order::with(array_merge(['company:id,name'], $withs))->find($process->order_id);
 
-        if ($company->type == CompanyType::WuSun->value) {
+        if ($company->getRawOriginal('type') == CompanyType::WuSun->value) {
             $process->financial_orders = FinancialOrder::where('order_id', $process->order_id)
                 ->where('type', 2)->whereIn('check_status', [0, 1])->get();
         }
@@ -215,14 +216,7 @@ class ApprovalController extends Controller
                 ->where('approval_status', ApprovalStatus::Pending->value)
                 ->get();
 
-            $typeText = match ($approvalOrder->approval_type) {
-                ApprovalType::ApprovalQuotation->value => '对外报价审核',
-                ApprovalType::ApprovalAssessment->value => '核价（定损）审核',
-                ApprovalType::ApprovalClose->value => '关闭工单审核',
-                ApprovalType::ApprovalRepairCost->value => '施工修复成本审核',
-                ApprovalType::ApprovalRepaired->value => '已修复资料审核',
-                ApprovalType::ApprovalPayment->value => '付款审核',
-            };
+            $typeText = ApprovalOrder::getTypeText($approvalOrder->approval_type);
 
             OrderLog::create([
                 'order_id' => $approvalOrder->order_id,
@@ -439,6 +433,13 @@ class ApprovalController extends Controller
             ApprovalType::ApprovalPayment->value => $this->approvalPayment($approvalOrder, $accept),
 
         };
+
+        ApprovalResultNotifyJob::dispatch($approvalOrder->creator_id, [
+            'type' => 'approval',
+            'order_id' => $approvalOrder->order_id,
+            'creator_name' => $approvalOrder->creator_name,
+            'approval_type' => $approvalOrder->approval_type,
+        ],  ApprovalOrder::getTypeText($approvalOrder->approval_type) . ($accept ? '通过' : '拒绝') . '提醒');
     }
 
     /**
