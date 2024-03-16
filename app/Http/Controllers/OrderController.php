@@ -39,6 +39,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Vtiful\Kernel\Excel;
 
@@ -977,6 +978,7 @@ class OrderController extends Controller
                 if ($quotation && $quotation->bid_total_price > 0) {
                     $profit_margin_ratio = ($quotation->bid_total_price - $order->total_cost) / $quotation->bid_total_price;
                     $order->profit_margin_ratio = $profit_margin_ratio;
+                    Log::info('毛利率:'.$quotation->order_id, ['profit_margin_ratio' => $profit_margin_ratio, 'review_conditions' => $option->review_conditions]);
                     if ($profit_margin_ratio < $option->review_conditions) {
                         foreach ($reviewers as $reviewer) {
                             $insert[] = [
