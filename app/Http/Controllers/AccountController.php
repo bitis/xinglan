@@ -161,11 +161,11 @@ class AccountController extends Controller
     {
         $user = $request->user();
 
-        $password = $request->input('password');
-
-        if (!Hash::check($password, $user->password)) {
-            return fail('密码校验失败');
-        }
+//        $password = $request->input('password');
+//
+//        if (!Hash::check($password, $user->password)) {
+//            return fail('密码校验失败');
+//        }
 
         $user->status = 2;
 
