@@ -25,6 +25,7 @@ Route::prefix('auth')->group(function () {
     Route::post('register', 'AccountController@register');
     Route::post('logout', 'AccountController@logout')->middleware('auth:sanctum');
     Route::post('reset-password', 'AccountController@resetPassword');
+    Route::post('destroy', 'AccountController@destroy');
 });
 
 Route::middleware('auth:sanctum')->group(function () {

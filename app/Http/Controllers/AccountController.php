@@ -65,6 +65,11 @@ class AccountController extends Controller
         if ($user->status == Status::Disable->value) {
             return fail('账号已被禁用');
         }
+
+        if ($user->status == Status::Destroy->value) {
+            return fail('账号不存在');
+        }
+
         $token = $user->createToken($request->header('platform', '未命名'));
 
         $user->api_token = $token->plainTextToken;
@@ -148,6 +153,19 @@ class AccountController extends Controller
 
         $user->password = bcrypt($request->input('password'));
         $user->save();
+
+        return success();
+    }
+
+    public function destroy(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $user->status = 2;
+
+        $user->save();
+
+        $user->currentAccessToken()->delete();
 
         return success();
     }
