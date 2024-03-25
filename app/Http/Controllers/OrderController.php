@@ -343,8 +343,8 @@ class OrderController extends Controller
                     $order->review_at = null;
                     $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
                     if ($approvalOrder) {
-                        ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
-                        $approvalOrder->delete();
+                        $approvalOrder->process()->update(['history' => true]);
+                        $approvalOrder->update(['history' => true]);
                     }
 
                     $approvalOrder = ApprovalOrder::create([
@@ -393,7 +393,6 @@ class OrderController extends Controller
                         ];
                     }
 
-                    $approvalOrder->process()->delete();
                     if ($insert) $approvalOrder->process()->createMany($insert);
 
                     foreach ($approvalOrder->process as $process) {
@@ -941,8 +940,8 @@ class OrderController extends Controller
             } else {
                 $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
                 if ($approvalOrder) {
-                    ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
-                    $approvalOrder->delete();
+                    $approvalOrder->process()->update(['history' => true]);
+                    $approvalOrder->update(['history' => true]);;
                 }
 
                 $approvalOrder = ApprovalOrder::create([
@@ -1018,7 +1017,6 @@ class OrderController extends Controller
                     ];
                 }
 
-                $approvalOrder->process()->delete();
                 if ($insert) $approvalOrder->process()->createMany($insert);
 
                 foreach ($approvalOrder->process as $process) {
@@ -1100,8 +1098,8 @@ class OrderController extends Controller
 
                 $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
                 if ($approvalOrder) {
-                    ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
-                    $approvalOrder->delete();
+                    $approvalOrder->process()->update(['history' => true]);
+                    $approvalOrder->update(['history' => true]);
                 }
 
                 $approvalOrder = ApprovalOrder::create([
@@ -1147,7 +1145,6 @@ class OrderController extends Controller
                     ];
                 }
 
-                $approvalOrder->process()->delete();
                 if ($insert) $approvalOrder->process()->createMany($insert);
 
                 foreach ($approvalOrder->process as $process) {
@@ -1421,8 +1418,8 @@ class OrderController extends Controller
         if ($option) {
             $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
             if ($approvalOrder) {
-                ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)->delete();
-                $approvalOrder->delete();
+                $approvalOrder->process()->update(['history' => true]);
+                $approvalOrder->update(['history' => true]);
             }
 
             $approvalOrder = ApprovalOrder::create([
@@ -1488,7 +1485,6 @@ class OrderController extends Controller
                 ];
             }
 
-            $approvalOrder->process()->delete();
             if ($insert) $approvalOrder->process()->createMany($insert);
 
             foreach ($approvalOrder->process as $process) {
