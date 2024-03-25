@@ -182,9 +182,7 @@ class ApprovalController extends Controller
             ->where('approval_type', $process->type)
             ->where('history', 1)->pluck('id')->toArray();
 
-        $process->history = ApprovalOrderProcess::whereIn('approval_order_id', $historyId)
-            ->where('approval_type', $process->type)
-            ->get();
+        $process->history = ApprovalOrderProcess::whereIn('approval_order_id', $historyId)->get();
 
         return success($process);
     }
