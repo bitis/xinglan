@@ -711,7 +711,9 @@ class OrderController extends Controller
             DB::beginTransaction();
 
             $order->fill($params);
-            $order->wusun_check_status = Order::WUSUN_CHECK_STATUS_CHECKING;
+            if ($order->wusun_check_status == Order::WUSUN_CHECK_STATUS_WAITING) {
+                $order->wusun_check_status = Order::WUSUN_CHECK_STATUS_CHECKING;
+            }
             $order->save();
 
             // Message
