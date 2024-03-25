@@ -118,6 +118,10 @@ class OrderService
                         ->orWhere('vin', 'like', "%$name%");
                 });
             })
+            ->when(strlen($self_create = $params->get('self_create')), function ($query) use ($self_create) {
+                if ($self_create) $query->where('creator_company_type', CompanyType::WuSun->value);
+                else $query->where('creator_company_type', CompanyType::BaoXian->value);
+            })
             ->when($params->get('create_type'), function ($query, $create_type) use ($current_company) {
                 if ($create_type == 1) // 自己创建
                     $query->where('creator_company_id', $current_company->id);
