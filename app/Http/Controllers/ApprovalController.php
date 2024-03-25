@@ -176,8 +176,8 @@ class ApprovalController extends Controller
             'type' => $process->approval_type
         ])->orderBy('id', 'desc')->get();
 
-        $historyId = ApprovalOrder::where('order_id', $process->order->id)
-            ->where('approval_type', $process->type)
+        $historyId = ApprovalOrder::where('order_id', $process->order_id)
+            ->where('approval_type', $process->approval_type)
             ->where('history', 1)->pluck('id')->toArray();
 
         $process->history = ApprovalOrderProcess::whereIn('approval_order_id', $historyId)->get();
