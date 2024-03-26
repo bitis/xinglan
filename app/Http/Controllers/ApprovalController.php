@@ -181,8 +181,9 @@ class ApprovalController extends Controller
             ->where('approval_status', ApprovalStatus::Rejected->value)
             ->where('history', 1)
             ->where('approval_type', $process->approval_type)
-            ->where('approval_order_id', '<', $process->approval_order_id)
-            ->orderBy('id', 'desc')->get();
+//            ->where('approval_order_id', '<', $process->approval_order_id)
+            ->orderBy('id', 'desc')
+            ->get();
 
         return success($process);
     }
