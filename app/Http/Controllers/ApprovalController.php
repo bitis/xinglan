@@ -176,11 +176,10 @@ class ApprovalController extends Controller
             'type' => $process->approval_type
         ])->orderBy('id', 'desc')->get();
 
-        $historyId = ApprovalOrder::where('order_id', $process->order_id)
+        $process->history = ApprovalOrderProcess::where('order_id', $process->order_id)
+            ->where('approval_status', '!=', ApprovalStatus::Rejected->value)->where('history', 1)
             ->where('approval_type', $process->approval_type)
-            ->where('history', 1)->pluck('id')->toArray();
-
-        $process->history = $historyId; //ApprovalOrderProcess::whereIn('approval_order_id', $historyId)->get();
+            ->orderBy('id', 'desc')->get();
 
         return success($process);
     }
