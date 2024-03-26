@@ -61,7 +61,7 @@ class OrderQuotationController extends Controller
                 $join->on('orders.id', '=', 'quotation.order_id')->whereIn('quotation.company_id', $childrenCompany);
             })
             ->when($user->roles()->pluck('name')->contains(
-                fn($val)=> mb_strpos($val, '查勘人员') !== false),
+                fn($val) => mb_strpos($val, '查勘人员') !== false),
                 fn($query) => $query->where('orders.wusun_check_id', $user->id)
             )
             ->where(function ($query) use ($childrenCompany) {
@@ -226,7 +226,7 @@ class OrderQuotationController extends Controller
                     // 报价数据加入数据库
                     QuotaHistory::dispatch($quotation);
                 } else {
-                    $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
+                    $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->orderBy('id', 'desc')->first();
                     if ($approvalOrder) {
                         $approvalOrder->process()->update(['history' => true]);
                         $approvalOrder->update(['history' => true]);
@@ -488,10 +488,7 @@ class OrderQuotationController extends Controller
                     'checked_at' => now()->toDateTimeString(),
                 ]);
             } else {
-                $approvalOrder = ApprovalOrder::where('order_id', $order->id)
-                    ->where('approval_type', $option->type)
-                    ->where('company_id', $order->wusun_company_id)
-                    ->first();
+                $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->orderBy('id', 'desc')->first();
                 if ($approvalOrder) {
                     $approvalOrder->process()->update(['history' => true]);
                     $approvalOrder->update(['history' => true]);

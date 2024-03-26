@@ -341,7 +341,7 @@ class OrderController extends Controller
 
                 if ($option) {
                     $order->review_at = null;
-                    $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
+                    $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->orderBy('id', 'desc')->first();
                     if ($approvalOrder) {
                         $approvalOrder->process()->update(['history' => true]);
                         $approvalOrder->update(['history' => true]);
@@ -938,7 +938,7 @@ class OrderController extends Controller
                 $order->cost_check_status = Order::COST_CHECK_STATUS_PASS;
                 $order->cost_checked_at = now()->toDateTimeString();
             } else {
-                $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
+                $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->orderBy('id', 'desc')->first();
                 if ($approvalOrder) {
                     $approvalOrder->process()->update(['history' => true]);
                     $approvalOrder->update(['history' => true]);;
@@ -1096,7 +1096,7 @@ class OrderController extends Controller
                 $order->save();
             } else {
 
-                $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
+                $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->orderBy('id', 'desc')->first();
                 if ($approvalOrder) {
                     $approvalOrder->process()->update(['history' => true]);
                     $approvalOrder->update(['history' => true]);
@@ -1416,7 +1416,7 @@ class OrderController extends Controller
         $checker_text = $reviewer_text = '';
 
         if ($option) {
-            $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->first();
+            $approvalOrder = ApprovalOrder::where('order_id', $order->id)->where('approval_type', $option->type)->orderBy('id', 'desc')->first();
             if ($approvalOrder) {
                 $approvalOrder->process()->update(['history' => true]);
                 $approvalOrder->update(['history' => true]);
