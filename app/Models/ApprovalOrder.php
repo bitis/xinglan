@@ -19,6 +19,7 @@ class ApprovalOrder extends Model
         'completed_at',
         'creator_id',
         'creator_name',
+        'history'
     ];
 
     public function process(): HasMany
