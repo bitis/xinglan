@@ -185,17 +185,20 @@ class ApprovalController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
-//        $process->blockData = [
-//            'quotation_total_price' => $process->order?->quotation?->bid_total_price ?? 0, // 报价金额
-//            'confirm_price' => $process->order?->confirmed_price ?? 0, // 定损金额
-//            'total_cost' => $process->order?->total_cost ?? 0, // 实际成本
-//            'profit_margin_amount' => '', // 实际毛利额
-//            'profit_margin_ratio' => '', // 实际毛利率，
-//            'received_amount' => $process->order?->received_amount, // 已收款金额
-//            'paid_amount' => $process->order?->paid_amount, // 已付款金额
-//        ];
-//        $process->blockData['profit_margin_amount'] = $process->blockData['confirm_price'] - $process->blockData['total_cost'];
-//        $process->blockData['profit_margin_ratio'] = round($process->blockData['profit_margin_amount'] / $process->blockData['confirm_price'], 2);
+        $block = [
+            'quotation_total_price' => $process->order?->quotation?->bid_total_price ?? 0, // 报价金额
+            'confirm_price' => $process->order?->confirmed_price ?? 0, // 定损金额
+            'total_cost' => $process->order?->total_cost ?? 0, // 实际成本
+            'profit_margin_amount' => '', // 实际毛利额
+            'profit_margin_ratio' => '', // 实际毛利率，
+            'received_amount' => $process->order?->received_amount, // 已收款金额
+            'paid_amount' => $process->order?->paid_amount, // 已付款金额
+        ];
+        $block['profit_margin_amount'] = $block['confirm_price'] - $block['total_cost'];
+        if (empty($block['confirm_price'])) $block['profit_margin_ratio'] = '';
+        else $block['profit_margin_ratio'] = round($block['profit_margin_amount'] / $block['confirm_price'], 2);
+
+        $process->blockData = $block;
 
         return success($process);
     }
