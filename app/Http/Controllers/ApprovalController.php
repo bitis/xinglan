@@ -185,6 +185,18 @@ class ApprovalController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
+        $process->block = [
+            'quotation_total_price' => $process->order?->quotation?->bid_total_price ?? 0, // 报价金额
+            'confirm_price' => $process->order?->confirmed_price ?? 0, // 定损金额
+            'total_cost' => $process->order?->total_cost ?? 0, // 实际成本
+            'profit_margin_amount' => '', // 实际毛利额
+            'profit_margin_ratio' => '', // 实际毛利率，
+            'received_amount' => $process->order?->received_amount, // 已收款金额
+            'paid_amount' => $process->order?->paid_amount, // 已付款金额
+        ];
+        $process->block['profit_margin_amount'] = $process->block['confirm_price'] - $process->block['total_cost'];
+        $process->block['profit_margin_ratio'] = round($process->block['profit_margin_amount'] / $process->block['confirm_price'], 2);
+
         return success($process);
     }
 
