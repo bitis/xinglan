@@ -45,7 +45,8 @@ class ApprovalController extends Controller
             'company:id,name,city',
             'order:id,order_number',
             'order.company:id,name',
-            'order.quotation:id,order_id,total_price'
+            'order.quotation:id,order_id,total_price',
+            'approvalOrder'
         ])
             ->withWhereHas('order', function ($query) use ($name) {
                 if ($name) $query->where('order_number', 'like', '%' . $name . '%')
@@ -241,6 +242,12 @@ class ApprovalController extends Controller
                 'remark' => $process->remark,
                 'user_id' => $user->id,
                 'user_name' => $user->name,
+            ]);
+
+            $approvalOrder->update([
+                'latest_operator_id' => $user->id,
+                'latest_operator_name' => $user->name,
+                'latest_operator_status' => $accept
             ]);
 
             if (!$accept) {
