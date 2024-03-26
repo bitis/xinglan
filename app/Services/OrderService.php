@@ -122,6 +122,9 @@ class OrderService
                 if ($self_create) $query->where('creator_company_type', CompanyType::WuSun->value);
                 else $query->where('creator_company_type', CompanyType::BaoXian->value);
             })
+            ->when(strlen($insurance_company_id = $params->get('insurance_company_id')), function ($query) use ($insurance_company_id) {
+                if ($insurance_company_id) $query->where('insurance_company_id', $insurance_company_id);
+            })
             ->when($params->get('create_type'), function ($query, $create_type) use ($current_company) {
                 if ($create_type == 1) // 自己创建
                     $query->where('creator_company_id', $current_company->id);
