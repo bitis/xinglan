@@ -194,8 +194,8 @@ class ApprovalController extends Controller
             'received_amount' => $process->order?->received_amount, // 已收款金额
             'paid_amount' => $process->order?->paid_amount, // 已付款金额
         ];
-        $process->block['profit_margin_amount'] = $process->block['confirm_price'] - $process->block['total_cost'];
-        $process->block['profit_margin_ratio'] = round($process->block['profit_margin_amount'] / $process->block['confirm_price'], 2);
+        $process->blockData['profit_margin_amount'] = $process->blockData['confirm_price'] - $process->blockData['total_cost'];
+        $process->blockData['profit_margin_ratio'] = round($process->blockData['profit_margin_amount'] / $process->blockData['confirm_price'], 2);
 
         return success($process);
     }
