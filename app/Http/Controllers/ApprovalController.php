@@ -185,7 +185,7 @@ class ApprovalController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
-        $process->block = [
+        $process->blockData = [
             'quotation_total_price' => $process->order?->quotation?->bid_total_price ?? 0, // 报价金额
             'confirm_price' => $process->order?->confirmed_price ?? 0, // 定损金额
             'total_cost' => $process->order?->total_cost ?? 0, // 实际成本
