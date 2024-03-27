@@ -56,7 +56,7 @@ class StatsController extends Controller
     {
         $user = $request->user();
 
-        $company_id = $request->input('company_id') ?? $user->company_id;
+        $company_id = $request->input('company_id') ?: $user->company_id;
 
         $company = Company::find($company_id);
 
