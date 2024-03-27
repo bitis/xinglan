@@ -100,7 +100,9 @@ class OrderController extends Controller
             return $str;
         };
 
-        if ($request->input('export_type') == 'gdmx') {
+        $exportType = $request->input('export_type');
+
+        if ($exportType == 'gdmx') {
 
             $headers = ['订单来源', '工单号', '所属公司', '出险日期', '报案号', '车牌号', '客户名称', '保险查勘员', '保险查勘员电话',
                 '物损地点', '省', '市', '区', '工单状态', '结案状态', '车险险种', '结案时间', '物损查勘员', '物损查勘员电话', '物损项目',
@@ -190,7 +192,7 @@ class OrderController extends Controller
                     ''
                 ];
             }
-        } else {
+        } elseif ($exportType == 'gdmxb') {
             $headers = ['工单号', '报案号', '保险公司', '车牌号', '所属公司', '物损类别', '险种类型', '预估损失', '定损金额',
                 '减损金额', '受损方姓名', '受损方电话', '物损地点', '省', '市', '区', '工单状态', '保险查勘人', '保险查勘人电话',
                 '推修时间', '首次联系物损方时间', '联系时效(分钟数)', '完成查勘时间', '处理方案', '查勘备注', '施工单位', '物损查勘人',
@@ -240,9 +242,30 @@ class OrderController extends Controller
                     ''
                 ];
             }
+        } elseif ($exportType == 'bx') { // 保险导出
+            $headers = ['序号', '公司名称', '竞价案件', '受损方要价', '最终中标金额', '是否中标', '是否为派发案件', '减损金额', '减损率', '竞价状态'];
+            $fileName = 'baoxian';
+            $rows = $orders->get()->toArray();
+
+            foreach ($rows as $index => $row) {
+                $discount_price = round($row['owner_price'] - $row['bid_win_price'], 2);
+                if (empty($row['owner_price']) or $row['bid_status'] != 1) $discount_ratio = '0.00%';
+                else $discount_ratio = round($discount_price / $row['owner_price'] * 100, 2) . '%';
+
+                $result[] = [
+                    $index,
+                    $row['check_wusun_company_name'],
+                    $row['bid_type'] == Order::BID_TYPE_JINGJIA ? '是' : '否', // 竞价案件
+                    $row['owner_price'], // 受损方要价
+                    $row['bid_win_price'], // 最终中标金额
+                    empty($row['bid_win_price']) ? '否' : '是', // 是否中标
+                    $row['bid_type'] == Order::BID_TYPE_FENPAI ? '是' : '否', // 是否为派发案件
+                    $discount_price, // 减损金额
+                    $discount_ratio, // 减损率
+                    $row['bid_status']
+                ];
+            }
         }
-//        '首次联系物损方时间', '联系时效(分钟数)', '完成查勘时间', '处理方案', '查勘备注', '施工单位', '物损查勘人',
-//                '物损查勘人电话', '施工开始时间', '修复时间', '服务评分', '服务评价'
 
         (new ExportService)->excel($headers, $result, $fileName);
     }
@@ -979,7 +1002,7 @@ class OrderController extends Controller
                 if ($quotation && $quotation->bid_total_price > 0) {
                     $profit_margin_ratio = ($quotation->bid_total_price - $order->total_cost) / $quotation->bid_total_price;
                     $order->profit_margin_ratio = $profit_margin_ratio;
-                    Log::info('毛利率:'.$quotation->order_id, ['profit_margin_ratio' => $profit_margin_ratio, 'review_conditions' => $option->review_conditions]);
+                    Log::info('毛利率:' . $quotation->order_id, ['profit_margin_ratio' => $profit_margin_ratio, 'review_conditions' => $option->review_conditions]);
                     if ($profit_margin_ratio < $option->review_conditions) {
                         foreach ($reviewers as $reviewer) {
                             $insert[] = [
