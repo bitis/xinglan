@@ -1553,4 +1553,24 @@ class OrderController extends Controller
         return success($records);
     }
 
+    public function approvalInfo(Request $request): JsonResponse
+    {
+        if (!$request->input('order_id')) return fail('参数错误');
+
+        $approvalOrder = ApprovalOrder::with('process')
+            ->where('order_id', $request->input('order_id'))
+            ->where('approval_type', $request->input('approval_type'))
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $approvalOrder->historys = ApprovalOrderProcess::where('order_id', $request->input('order_id'))
+            ->where('approval_status', ApprovalStatus::Rejected->value)
+            ->where('history', 1)
+            ->where('approval_type', $request->input('approval_type'))
+            ->where('approval_order_id', '<', $approvalOrder->id)
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return success($approvalOrder);
+    }
 }

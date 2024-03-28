@@ -23,6 +23,8 @@ class ApprovalOrder extends Model
         'latest_operator_id',
         'latest_operator_name',
         'latest_operator_status',
+        'urging',
+        'is_cancel'
     ];
 
     public function process(): HasMany

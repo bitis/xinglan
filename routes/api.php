@@ -138,6 +138,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('reQuota', 'OrderController@reQuota'); // 保险公司重新进行报价
         Route::post('applyPayment', 'OrderController@applyPayment'); // 提交付款申请
         Route::get('paymentLog', 'OrderController@paymentLog'); // 付款记录
+        Route::get('approvalInfo', 'OrderController@approvalInfo'); // 审批信息
 
 
         Route::prefix('repair')->group(function () {
@@ -191,6 +192,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('list', 'ApprovalController@index');
         Route::get('detail', 'ApprovalController@detail');
         Route::post('form', 'ApprovalController@form');
+        Route::post('urgent', 'ApprovalController@urgent');
+        Route::post('cancel', 'ApprovalController@cancel');
     });
 
     Route::prefix('repair')->group(function () {

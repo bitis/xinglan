@@ -448,8 +448,9 @@ class ApprovalController extends Controller
      * @param bool $accept
      * @return void
      */
-    protected function complete(ApprovalOrder $approvalOrder, bool $accept = true): void
+    protected function complete(ApprovalOrder $approvalOrder, bool $accept = true, $cancel = false): void
     {
+        $approvalOrder->urging = false;
         $approvalOrder->completed_at = now()->toDateTimeString();
         $approvalOrder->save();
 
@@ -463,7 +464,7 @@ class ApprovalController extends Controller
 
         };
 
-        if ($approvalOrder->creator_id)
+        if ($approvalOrder->creator_id && !$cancel)
             ApprovalResultNotifyJob::dispatch($approvalOrder->creator_id, [
                 'type' => 'approvalResult',
                 'order_id' => $approvalOrder->order_id,
@@ -695,5 +696,78 @@ class ApprovalController extends Controller
         }
 
         if ($order->isDirty('payable_count')) $order->save();
+    }
+
+    /**
+     * 催审
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function urgent(Request $request): JsonResponse
+    {
+        $approvalOrder = ApprovalOrder::where('id', $request->input('id'))->first();
+
+        $user = $request->user();
+
+        $approvalOrder->urging = true;
+        $approvalOrder->save();
+
+        // Message
+        OrderLog::create([
+            'order_id' => $approvalOrder->order_id,
+            'type' => OrderLog::TYPE_APPROVAL,
+            'creator_id' => $user->id,
+            'creator_name' => $user->name,
+            'creator_company_id' => $user->company_id,
+            'creator_company_name' => Company::find($user->company_id)?->name,
+            'content' => $user->name . '提交催办',
+            'platform' => \request()->header('platform'),
+        ]);
+
+        return success();
+    }
+
+    /**
+     * 取消审批
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function cancel(Request $request): JsonResponse
+    {
+        $approvalOrder = ApprovalOrder::where('id', $request->input('id'))->first();
+
+        if ($approvalOrder->completed_at) return fail('审批已结束，无法取消');
+
+        $user = $request->user();
+
+        $approvalOrder->is_cancel = ApprovalStatus::Canceled;
+        $approvalOrder->save();
+
+        $surplus = ApprovalOrderProcess::where('approval_order_id', $approvalOrder->id)
+            ->where('approval_status', ApprovalStatus::Pending->value)
+            ->get();
+
+        foreach ($surplus as $cancel) {
+            $cancel->approval_status = ApprovalStatus::Canceled;
+            $cancel->save();
+        }
+
+        $this->complete($approvalOrder, false);
+
+        // Message
+        OrderLog::create([
+            'order_id' => $approvalOrder->order_id,
+            'type' => OrderLog::TYPE_APPROVAL,
+            'creator_id' => $user->id,
+            'creator_name' => $user->name,
+            'creator_company_id' => $user->company_id,
+            'creator_company_name' => Company::find($user->company_id)?->name,
+            'content' => $user->name . '取消了审批申请',
+            'platform' => \request()->header('platform'),
+        ]);
+
+        return success();
     }
 }
