@@ -135,13 +135,16 @@
             <td colspan="7">{{ $quotation->quotation_remark }}</td>
         </tr>
     </table>
+    @if($quotation->check_status == 1 && $quotation->company->official_seal)
     <div style="
             position: absolute;
             bottom: 20px;
             right: 20px;
           "><img crossorigin="anonymous"
-                 src="@if($quotation->company->official_seal){{ config('filesystems.disks.qcloud.url') . $quotation->company->official_seal }}@endif"
-                 alt="印章" style="width: 120px; height: 120px"/></div>
+                 src="{{ config('filesystems.disks.qcloud.url') . $quotation->company->official_seal }}"
+                 alt="印章" style="width: 120px; height: 120px"/>
+    </div>
+    @endif
 </div>
 </body>
 
