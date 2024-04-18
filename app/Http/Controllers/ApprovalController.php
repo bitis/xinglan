@@ -710,6 +710,8 @@ class ApprovalController extends Controller
 
         $user = $request->user();
 
+        if ($approvalOrder->creator_id != $user->id) return fail('无权操作');
+
         $approvalOrder->urging = true;
         $approvalOrder->save();
 
@@ -737,6 +739,8 @@ class ApprovalController extends Controller
     public function cancel(Request $request): JsonResponse
     {
         $approvalOrder = ApprovalOrder::where('id', $request->input('id'))->first();
+
+        if ($approvalOrder->creator_id != $request->user()->id) return fail('无权操作');
 
         if ($approvalOrder->completed_at) return fail('审批已结束，无法取消');
 

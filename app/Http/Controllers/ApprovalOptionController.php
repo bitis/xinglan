@@ -74,4 +74,9 @@ class ApprovalOptionController extends Controller
 
         return success();
     }
+
+    public function delete(Request $request)
+    {
+
+    }
 }
