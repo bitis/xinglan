@@ -43,6 +43,7 @@ class OrderQuotation extends Model
         'creator_id',
         'creator_name',
         'bid_repair_days',
+        'bid_total_price',
         'bid_created_at',
     ];
 

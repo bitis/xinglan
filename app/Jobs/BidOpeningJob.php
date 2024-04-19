@@ -46,7 +46,7 @@ class BidOpeningJob implements ShouldQueue
 
             if (!$order or $order->bid_status != 0) return;
 
-            $quotations = $order->quotations()->where('total_price', '>', 0)->orderBy('total_price', 'asc')->get();
+            $quotations = $order->quotations()->where('bid_total_price', '>', 0)->orderBy('bid_total_price', 'asc')->get();
 
             if (!$quotations->count()) return;
 
@@ -100,7 +100,7 @@ class BidOpeningJob implements ShouldQueue
                     $order->wusun_company_id = $quotation->company_id;
                     $order->wusun_company_name = $company?->name;
                     $order->confim_wusun_at = $order->bid_end_time;
-                    $order->bid_win_price = $quotation->total_price;
+                    $order->bid_win_price = $quotation->bid_total_price;
 
                     OrderLog::create([
                         'order_id' => $order->id,
