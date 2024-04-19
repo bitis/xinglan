@@ -186,7 +186,7 @@ class ApprovalController extends Controller
             ->get();
 
         $block = [
-            'quotation_total_price' => $process->order?->quotation?->bid_total_price ?? 0, // 报价金额
+            'quotation_total_price' => $process->order?->quotation?->total_price ?? 0, // 报价金额
             'confirm_price' => $process->order?->confirmed_price ?? 0, // 定损金额
             'total_cost' => $process->order?->total_cost ?? 0, // 实际成本
             'profit_margin_amount' => '', // 实际毛利额
@@ -619,8 +619,8 @@ class ApprovalController extends Controller
         $order->cost_checked_at = $accept ? now()->toDateTimeString() : null;
 
         $order->profit_margin_ratio = 0;
-        if ($order->bid_total_price > 0)
-            $order->profit_margin_ratio = ($quotation->bid_total_price - $order->total_cost) / $quotation->bid_total_price;
+        if ($order->total_price > 0)
+            $order->profit_margin_ratio = ($quotation->total_price - $order->total_cost) / $quotation->total_price;
         $order->save();
 
         if ($quotation) $quotation->save();

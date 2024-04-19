@@ -88,7 +88,7 @@ class OrderQuotationController extends Controller
             })
             ->selectRaw('orders.*, quotation.company_id, quotation.plan_type, quotation.repair_days,
              quotation.repair_cost, quotation.other_cost, quotation.total_cost, quotation.profit_margin,
-             quotation.bid_created_at,quotation.bid_repair_days,quotation.bid_total_price,
+             quotation.bid_created_at,quotation.bid_repair_days,quotation.total_price,
              quotation.profit_margin_ratio, quotation.repair_remark, quotation.total_price, quotation.images,
              quotation.check_status, quotation.checked_at, quotation.win, quotation.submit')
             ->orderBy('orders.id', 'desc')
@@ -158,7 +158,7 @@ class OrderQuotationController extends Controller
             'repair_remark',
             'total_price',
             'bid_repair_days',
-            'bid_total_price',
+            'total_price',
             'bid_created_at',
             'images',
             'submit',
@@ -169,18 +169,18 @@ class OrderQuotationController extends Controller
 
         if (
             $quotation->bid_created_at and
-            ($quotation->isDirty('bid_repair_days') or $quotation->isDirty('bid_total_price'))
+            ($quotation->isDirty('bid_repair_days') or $quotation->isDirty('total_price'))
         ) return fail('报价信息不允许修改');
 
         try {
             DB::beginTransaction();
 
             if ($quotation->win == 1) {
-                $quotation->bid_total_price = $quotation->getOriginal('bid_total_price');
+                $quotation->total_price = $quotation->getOriginal('total_price');
                 $quotation->bid_repair_days = $quotation->getOriginal('bid_repair_days');
             }
 
-            if ($quotation->isDirty('bid_total_price') or $quotation->isDirty('bid_repair_days')) {
+            if ($quotation->isDirty('total_price') or $quotation->isDirty('bid_repair_days')) {
                 $quotation->bid_created_at = now()->toDateTimeString();
                 $quotation->save();
                 // 对外报价
@@ -191,7 +191,7 @@ class OrderQuotationController extends Controller
                     'creator_name' => $quotation->creator_name,
                     'creator_company_id' => $quotation->company_id,
                     'creator_company_name' => $quotation->company_name,
-                    'content' => $quotation->creator_name . '对外报价，报价金额为' . $quotation->bid_total_price . '预计施工工期：'
+                    'content' => $quotation->creator_name . '对外报价，报价金额为' . $quotation->total_price . '预计施工工期：'
                         . $quotation->bid_repair_days . '天；备注：' . $quotation->quotation_remark,
                     'platform' => \request()->header('platform'),
                 ]);

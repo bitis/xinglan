@@ -94,7 +94,7 @@ class ProviderQuotationController extends Controller
             foreach ($order->quotations as $quotation) {
                 if ($quotation->win != 1) {
                     $quotation->bid_repair_days = "**";
-                    $quotation->bid_total_price = "*****";
+                    $quotation->total_price = "*****";
                 }
             }
         }
@@ -137,7 +137,7 @@ class ProviderQuotationController extends Controller
         $order->bid_status = Order::BID_STATUS_FINISHED;
         $order->bid_end_time = now()->toDateTimeString();
         $order->confim_wusun_at = $order->bid_end_time;
-        $order->bid_win_price = $quotation->bid_total_price;
+        $order->bid_win_price = $quotation->total_price;
         $order->fill($request->only([
             'wusun_company_id',
             'wusun_company_name'
