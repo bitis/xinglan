@@ -70,7 +70,9 @@ class CustomerController extends Controller
             ]));
         }
 
-        if (!in_array($customer->provider_id, Company::getGroupId($request->user()->company_id))) return fail('没有修改权限');
+        $groups = Company::getGroupId($request->user()->company_id);
+
+        if (!in_array($customer->provider_id, $groups)) return fail('没有修改权限');
 
         $customer->fill($request->only([
             'company_name',
@@ -91,6 +93,41 @@ class CustomerController extends Controller
         ]));
 
         $customer->save();
+
+        if ($request->input('auto_link_sub_company')) {
+            foreach ($groups as $sub_company_id) {
+                if (!CompanyProvider::where('provider_id', $sub_company_id)->where('company_id', $customer->company_id)->exists()) {
+                    $company = Company::find($sub_company_id);
+                    CompanyProvider::create(array_merge([
+                        'provider_id' => $sub_company_id,
+                        'company_id' => $customer->company_id,
+                        'provider_name' => $company->name,
+                        'provider_company_type' => $company->getRawOriginal('type'),
+                        'status' => 0,
+                        'expiration_date' => $request->input('expiration_date'),
+                        'car_insurance' => $request->input('car_insurance'),
+                        'other_insurance' => $request->input('other_insurance'),
+                        'car_part' => $request->input('car_part'),
+                    ]), $request->only([
+                        'company_name',
+                        'status',
+                        'customer_remark',
+                        'customer_tax_name',
+                        'customer_number',
+                        'customer_remark',
+                        'customer_address',
+                        'customer_license_no',
+                        'customer_phone',
+                        'customer_bank_name',
+                        'customer_bank_account_number',
+                        'customer_mailing_address',
+                        'contract_files',
+                        'contract_expiration_date',
+                        'customer_tex_remark',
+                    ]));
+                }
+            }
+        }
 
         return success();
     }
