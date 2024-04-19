@@ -186,7 +186,7 @@ class ApprovalController extends Controller
             ->get();
 
         $block = [
-            'quotation_total_price' => $process->order?->quotation?->bid_total_price ?? 0, // 报价金额
+            'quotation_total_price' => $process->order?->quotation?->total_price ? $process->order?->quotation?->total_price : $process->order?->quotation?->bid_total_price, // 报价金额
             'confirm_price' => $process->order?->confirmed_price ?? 0, // 定损金额
             'total_cost' => $process->order?->total_cost ?? 0, // 实际成本
             'profit_margin_amount' => '', // 实际毛利额
