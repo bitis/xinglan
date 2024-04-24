@@ -72,9 +72,6 @@ class UserController extends Controller
 
         $user->save();
 
-        if ($user->status == Status::Disable->value)
-            $user->currentAccessToken()->delete();
-
         if (!empty($role)) {
             $user->syncRoles($user->company_id . '_' . Str::after($role, '_'));
         }
