@@ -108,7 +108,7 @@ class CustomerController extends Controller
                         'car_insurance' => $request->input('car_insurance'),
                         'other_insurance' => $request->input('other_insurance'),
                         'car_part' => $request->input('car_part'),
-                    ]), $request->only([
+                    ], $request->only([
                         'company_name',
                         'status',
                         'customer_remark',
@@ -124,7 +124,7 @@ class CustomerController extends Controller
                         'contract_files',
                         'contract_expiration_date',
                         'customer_tex_remark',
-                    ]));
+                    ])));
                 }
             }
         }
