@@ -125,8 +125,6 @@ class AccountController extends Controller
             }
 
             $user->password = bcrypt($editPassword);
-
-            $user->currentAccessToken()->delete();
         }
 
         $user->fill($request->only(['name', 'account', 'push_id']));
