@@ -249,7 +249,7 @@ class OrderController extends Controller
 
             foreach ($rows as $index => $row) {
                 $discount_price = round($row['owner_price'] - $row['bid_win_price'], 2);
-                if (empty($row['owner_price']) or $row['bid_status'] != 1) $discount_ratio = '0.00%';
+                if (empty($row['owner_price']) or empty($row['owner_price'] / 1) or $row['bid_status'] != 1) $discount_ratio = '0.00%';
                 else $discount_ratio = round($discount_price / $row['owner_price'] * 100, 2) . '%';
 
                 $result[] = [
