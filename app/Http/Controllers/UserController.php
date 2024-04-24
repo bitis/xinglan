@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
 use App\Models\Company;
+use App\Models\Enumerations\Status;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -70,6 +71,9 @@ class UserController extends Controller
         $user->fill($request->only(['name', 'company_id', 'account', 'mobile', 'status', 'identity_id', 'employee_id', 'remark']));
 
         $user->save();
+
+        if ($user->status == Status::Disable->value)
+            $user->currentAccessToken()->delete();
 
         if (!empty($role)) {
             $user->syncRoles($user->company_id . '_' . Str::after($role, '_'));

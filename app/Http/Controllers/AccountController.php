@@ -126,7 +126,7 @@ class AccountController extends Controller
 
             $user->password = bcrypt($editPassword);
 
-            $user->api_token = Str::random(32);
+            $user->currentAccessToken()->delete();
         }
 
         $user->fill($request->only(['name', 'account', 'push_id']));
