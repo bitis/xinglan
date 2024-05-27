@@ -23,3 +23,10 @@ Bearer Token
 | 0    | 成功                |
 | -1   | 当前提交业务处理失败（一般性错误） |
 | 403  | 身份校验失败（token过期）   |
+
+## 环境需求
+* php version >= 8.1
+* install wkhtmltopdf to /usr/local/bin/wkhtmltopdf
+
+## License
+[MIT license](LICENSE).
